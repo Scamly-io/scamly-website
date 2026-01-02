@@ -1,22 +1,3 @@
-import { createClient } from '@supabase/supabase-js';
-
-// These will be populated when you connect your Supabase project
-// Go to Project Settings > API to find your URL and anon key
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase credentials not configured. Please connect your Supabase project.');
-}
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true,
-  },
-});
-
 // Types for your profiles table
 export interface Profile {
   id: string;
