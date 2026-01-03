@@ -55,6 +55,7 @@ export type Database = {
           content: string
           created_at: string
           description: string | null
+          free_access: boolean
           id: string
           primary_image: string | null
           quick_tip: boolean
@@ -71,6 +72,7 @@ export type Database = {
           content: string
           created_at?: string
           description?: string | null
+          free_access?: boolean
           id?: string
           primary_image?: string | null
           quick_tip?: boolean
@@ -87,6 +89,7 @@ export type Database = {
           content?: string
           created_at?: string
           description?: string | null
+          free_access?: boolean
           id?: string
           primary_image?: string | null
           quick_tip?: boolean

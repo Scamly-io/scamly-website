@@ -63,7 +63,7 @@ serve(async (req) => {
     logStep("Price ID determined", { priceId });
 
     // Initialize Stripe
-    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
+    const stripe = new Stripe(stripeKey, { apiVersion: "2025-04-30.basil" });
 
     // Check if a Stripe customer already exists for this user
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
