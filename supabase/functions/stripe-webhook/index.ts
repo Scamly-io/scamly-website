@@ -91,8 +91,14 @@ serve(async (req) => {
 
           // Safely parse the current period end date
           let currentPeriodEndDate: string | null = null;
-          if (subscription.current_period_end && typeof subscription.current_period_end === 'number') {
-            currentPeriodEndDate = new Date(subscription.current_period_end * 1000).toISOString();
+          const periodEnd = subscription.current_period_end;
+          logStep("Parsing period end", { periodEnd, type: typeof periodEnd });
+          
+          if (periodEnd && typeof periodEnd === 'number' && periodEnd > 0) {
+            currentPeriodEndDate = new Date(periodEnd * 1000).toISOString();
+            logStep("Parsed period end date", { currentPeriodEndDate });
+          } else {
+            logStep("Invalid period end value, setting to null");
           }
 
           // Update the user's profile
