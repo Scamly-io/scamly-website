@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -37,6 +38,7 @@ type Tab = 'profile' | 'subscription' | 'security';
 
 export default function Portal() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user, profile, loading, signOut, updateProfile, updateEmail, updatePassword, refreshProfile } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { toast } = useToast();
@@ -54,6 +56,31 @@ export default function Portal() {
   const [newEmail, setNewEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  // Handle checkout success/cancel params
+  useEffect(() => {
+    const success = searchParams.get('success');
+    const canceled = searchParams.get('canceled');
+    
+    if (success === 'true') {
+      toast({
+        title: 'Subscription activated!',
+        description: 'Welcome to Scamly Premium. Your subscription is now active.',
+      });
+      // Refresh profile to get updated subscription status
+      refreshProfile();
+      // Clear the query params
+      setSearchParams({});
+      setActiveTab('subscription');
+    } else if (canceled === 'true') {
+      toast({
+        title: 'Checkout canceled',
+        description: 'You can subscribe anytime from your portal.',
+        variant: 'destructive',
+      });
+      setSearchParams({});
+    }
+  }, [searchParams, setSearchParams, toast, refreshProfile]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -171,36 +198,61 @@ export default function Portal() {
 
   // Stripe checkout functions
   const handleUpgrade = async (plan: 'monthly' | 'yearly') => {
-    // This will redirect to Stripe Checkout
-    // You'll need to create a Supabase edge function to generate the checkout session
+    setSaving(true);
     toast({
       title: 'Redirecting to checkout...',
       description: `You'll be redirected to complete your ${plan} subscription.`,
     });
     
-    // TODO: Call your edge function to create a Stripe checkout session
-    // const response = await fetch('/api/create-checkout-session', {
-    //   method: 'POST',
-    //   body: JSON.stringify({ plan, userId: user?.id }),
-    // });
-    // const { url } = await response.json();
-    // window.location.href = url;
+    try {
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: { plan },
+      });
+      
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL received');
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      toast({
+        title: 'Checkout failed',
+        description: error instanceof Error ? error.message : 'Failed to start checkout',
+        variant: 'destructive',
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleManageSubscription = async () => {
-    // This will redirect to Stripe Customer Portal
+    setSaving(true);
     toast({
       title: 'Opening billing portal...',
       description: 'You can manage your subscription there.',
     });
     
-    // TODO: Call your edge function to create a Stripe portal session
-    // const response = await fetch('/api/create-portal-session', {
-    //   method: 'POST',
-    //   body: JSON.stringify({ customerId: profile?.stripe_customer_id }),
-    // });
-    // const { url } = await response.json();
-    // window.location.href = url;
+    try {
+      const { data, error } = await supabase.functions.invoke('customer-portal');
+      
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No portal URL received');
+      }
+    } catch (error) {
+      console.error('Portal error:', error);
+      toast({
+        title: 'Portal failed',
+        description: error instanceof Error ? error.message : 'Failed to open billing portal',
+        variant: 'destructive',
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const isPremium = profile?.subscription_status === 'active';
