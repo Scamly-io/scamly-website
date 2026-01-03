@@ -83,37 +83,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const redirectUrl = `${window.location.origin}/portal`;
       
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: redirectUrl,
           data: {
             first_name: profileData.first_name,
+            dob: profileData.dob,
+            gender: profileData.gender,
+            country: profileData.country,
           },
         },
       });
 
       if (error) throw error;
-
-      // Create profile after signup
-      if (data.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: data.user.id,
-            first_name: profileData.first_name,
-            dob: profileData.dob,
-            gender: profileData.gender,
-            country: profileData.country,
-            subscription_status: 'free',
-            subscription_plan: 'free',
-          });
-
-        if (profileError) {
-          console.error('Profile creation error:', profileError);
-        }
-      }
 
       return { error: null };
     } catch (error) {
