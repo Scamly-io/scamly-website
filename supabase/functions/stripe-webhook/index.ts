@@ -76,12 +76,23 @@ serve(async (req) => {
         // Get the subscription details
         if (session.subscription) {
           const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+          logStep("Subscription retrieved", { 
+            subscriptionId: subscription.id, 
+            currentPeriodEnd: subscription.current_period_end 
+          });
+          
           const priceId = subscription.items.data[0]?.price.id;
           
           // Determine the plan based on price ID
           let subscriptionPlan = "premium-monthly";
           if (priceId === "price_1RaBqI3J81eQle64GF6WYMfm") {
             subscriptionPlan = "premium-yearly";
+          }
+
+          // Safely parse the current period end date
+          let currentPeriodEndDate: string | null = null;
+          if (subscription.current_period_end && typeof subscription.current_period_end === 'number') {
+            currentPeriodEndDate = new Date(subscription.current_period_end * 1000).toISOString();
           }
 
           // Update the user's profile
@@ -92,7 +103,7 @@ serve(async (req) => {
               subscription_id: subscription.id,
               subscription_status: subscription.status,
               subscription_plan: subscriptionPlan,
-              subscription_current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+              subscription_current_period_end: currentPeriodEndDate,
               access_expires_at: null, // Clear any previous expiration
             })
             .eq("id", userId);
@@ -131,10 +142,16 @@ serve(async (req) => {
           subscriptionPlan = "premium-yearly";
         }
 
+        // Safely parse dates
+        let currentPeriodEndDate: string | null = null;
+        if (subscription.current_period_end && typeof subscription.current_period_end === 'number') {
+          currentPeriodEndDate = new Date(subscription.current_period_end * 1000).toISOString();
+        }
+
         // Determine access expiry for cancelled subscriptions
-        let accessExpiresAt = null;
-        if (subscription.cancel_at_period_end || subscription.status === "canceled") {
-          accessExpiresAt = new Date(subscription.current_period_end * 1000).toISOString();
+        let accessExpiresAt: string | null = null;
+        if ((subscription.cancel_at_period_end || subscription.status === "canceled") && currentPeriodEndDate) {
+          accessExpiresAt = currentPeriodEndDate;
         }
 
         // Update the profile
@@ -143,7 +160,7 @@ serve(async (req) => {
           .update({
             subscription_status: subscription.cancel_at_period_end ? "cancelled" : subscription.status,
             subscription_plan: subscriptionPlan,
-            subscription_current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+            subscription_current_period_end: currentPeriodEndDate,
             access_expires_at: accessExpiresAt,
           })
           .eq("id", userId);
@@ -216,12 +233,18 @@ serve(async (req) => {
               subscriptionPlan = "premium-yearly";
             }
 
+            // Safely parse the current period end date
+            let currentPeriodEndDate: string | null = null;
+            if (subscription.current_period_end && typeof subscription.current_period_end === 'number') {
+              currentPeriodEndDate = new Date(subscription.current_period_end * 1000).toISOString();
+            }
+
             await supabaseAdmin
               .from("profiles")
               .update({
                 subscription_status: "active",
                 subscription_plan: subscriptionPlan,
-                subscription_current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+                subscription_current_period_end: currentPeriodEndDate,
                 access_expires_at: null,
               })
               .eq("id", profiles[0].id);
