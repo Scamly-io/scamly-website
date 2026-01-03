@@ -30,7 +30,7 @@ serve(async (req) => {
     logStep("Environment variables verified");
 
     // Initialize Stripe
-    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
+    const stripe = new Stripe(stripeKey, { apiVersion: "2025-04-30.basil" });
 
     // Initialize Supabase client with service role key for admin access
     const supabaseAdmin = createClient(
