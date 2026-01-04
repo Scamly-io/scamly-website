@@ -1,44 +1,42 @@
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Check, X, Sparkles } from 'lucide-react';
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Check, X, Sparkles } from "lucide-react";
 
 const plans = [
   {
-    name: 'Free',
-    price: '$0',
-    period: 'forever',
-    description: 'Get started with basic scam protection',
+    name: "Free",
+    price: "$0",
+    period: "forever",
+    description: "Get started with basic scam protection",
     features: [
-      { text: '6 scans per month', included: true },
-      { text: 'Basic scam detection', included: true },
-      { text: 'Limited library access', included: true },
-      { text: 'AI Chat Assistant', included: false },
-      { text: 'Contact Search Tool', included: false },
-      { text: 'Full library access', included: false },
-      { text: 'Priority support', included: false },
+      { text: "6 scans per month", included: true },
+      { text: "Basic scam detection", included: true },
+      { text: "Limited library access", included: true },
+      { text: "AI Chat Assistant", included: false },
+      { text: "Contact Search Tool", included: false },
+      { text: "Full library access", included: false },
     ],
-    cta: 'Get Started Free',
-    variant: 'outline' as const,
+    cta: "Get Started Free",
+    variant: "outline" as const,
     popular: false,
   },
   {
-    name: 'Premium',
-    price: '$10',
-    period: 'per month',
-    yearlyPrice: '$99/year',
-    yearlySavings: 'Save $21',
-    description: 'Unlimited protection for peace of mind',
+    name: "Premium",
+    price: "$10",
+    period: "per month",
+    yearlyPrice: "$99/year",
+    yearlySavings: "Save $21",
+    description: "Unlimited protection for peace of mind",
     features: [
-      { text: 'Unlimited scans', included: true },
-      { text: 'Advanced AI detection', included: true },
-      { text: 'Full library access', included: true },
-      { text: 'AI Chat Assistant', included: true },
-      { text: 'Contact Search Tool', included: true },
-      { text: 'Priority support', included: true },
-      { text: 'Early access to features', included: true },
+      { text: "Unlimited scans", included: true },
+      { text: "Advanced AI detection", included: true },
+      { text: "Full library access", included: true },
+      { text: "AI Chat Assistant", included: true },
+      { text: "Contact Search Tool", included: true },
+      { text: "First access to features", included: true },
     ],
-    cta: 'Start Premium',
-    variant: 'gradient' as const,
+    cta: "Start Premium",
+    variant: "gradient" as const,
     popular: true,
   },
 ];
@@ -49,7 +47,7 @@ export function PricingSection() {
       {/* Background Effects */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-3xl" />
-      
+
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
@@ -58,23 +56,20 @@ export function PricingSection() {
             <span className="text-sm font-medium">Simple Pricing</span>
           </div>
           <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-            Choose Your{' '}
-            <span className="gradient-text">Protection Level</span>
+            Choose Your <span className="gradient-text">Protection Level</span>
           </h2>
           <p className="text-lg text-muted-foreground">
             Start free and upgrade when you need unlimited access to all features.
           </p>
         </div>
-        
+
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {plans.map((plan) => (
             <div
               key={plan.name}
               className={`relative rounded-3xl p-8 ${
-                plan.popular
-                  ? 'glass border-2 border-primary shadow-xl'
-                  : 'bg-card border border-border'
+                plan.popular ? "glass border-2 border-primary shadow-xl" : "bg-card border border-border"
               }`}
             >
               {/* Popular Badge */}
@@ -85,7 +80,7 @@ export function PricingSection() {
                   </span>
                 </div>
               )}
-              
+
               {/* Header */}
               <div className="text-center mb-8">
                 <h3 className="font-display text-2xl font-bold mb-2">{plan.name}</h3>
@@ -103,7 +98,7 @@ export function PricingSection() {
                 )}
                 <p className="text-sm text-muted-foreground mt-2">{plan.description}</p>
               </div>
-              
+
               {/* Features */}
               <ul className="space-y-4 mb-8">
                 {plan.features.map((feature) => (
@@ -117,26 +112,19 @@ export function PricingSection() {
                         <X className="w-3 h-3 text-muted-foreground" />
                       </div>
                     )}
-                    <span className={feature.included ? '' : 'text-muted-foreground'}>
-                      {feature.text}
-                    </span>
+                    <span className={feature.included ? "" : "text-muted-foreground"}>{feature.text}</span>
                   </li>
                 ))}
               </ul>
-              
+
               {/* CTA */}
-              <Button
-                variant={plan.variant}
-                size="lg"
-                className="w-full"
-                asChild
-              >
+              <Button variant={plan.variant} size="lg" className="w-full" asChild>
                 <Link to="/auth?mode=signup">{plan.cta}</Link>
               </Button>
             </div>
           ))}
         </div>
-        
+
         {/* Trust Note */}
         <p className="text-center text-sm text-muted-foreground mt-8">
           Start protecting yourself today. Upgrade or cancel anytime.
