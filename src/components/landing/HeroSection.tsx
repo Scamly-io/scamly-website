@@ -80,25 +80,22 @@ export function HeroSection() {
         
         {/* Hero phone image */}
         <div 
-          className="mt-12 relative flex justify-center opacity-0 animate-fade-up overflow-hidden"
+          className="mt-12 relative flex justify-center opacity-0 animate-fade-up"
           style={{ animationDelay: '0.6s' }}
         >
           {/* Glow effect behind phone */}
-          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[600px] bg-gradient-to-b from-primary/30 to-secondary/30 rounded-full blur-[120px]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[550px] bg-gradient-to-b from-primary/25 to-secondary/25 rounded-full blur-[100px]" />
           
-          {/* Phone image container */}
-          <div className="relative pb-8">
+          {/* Phone image */}
+          <div className="relative">
             <img 
               src={phoneImage} 
               alt="Scamly app showing fraud detection on a phone" 
-              className="w-[340px] sm:w-[420px] md:w-[500px] h-auto drop-shadow-2xl"
+              className="w-[300px] sm:w-[380px] md:w-[440px] h-auto drop-shadow-2xl"
             />
             
-            {/* Gradient fade at bottom */}
-            <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none" />
-            
             {/* Floating sparkle element */}
-            <div className="absolute top-20 -left-4 w-12 h-12 gradient-bg rounded-2xl flex items-center justify-center shadow-lg animate-float">
+            <div className="absolute top-16 -left-4 w-12 h-12 gradient-bg rounded-2xl flex items-center justify-center shadow-lg animate-float">
               <Sparkles className="w-6 h-6 text-primary-foreground" />
             </div>
           </div>
