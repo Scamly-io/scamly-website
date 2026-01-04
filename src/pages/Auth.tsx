@@ -195,11 +195,8 @@ export default function Auth() {
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-secondary/30 rounded-full blur-3xl" />
 
         <div className="relative z-10 flex flex-col justify-between p-12 text-primary-foreground">
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-lg bg-primary-foreground/20 flex items-center justify-center backdrop-blur">
-              <Shield className="w-6 h-6 text-primary-foreground" />
-            </div>
-            <span className="font-display text-2xl font-bold">Scamly</span>
+          <Link to="/" className="flex items-center">
+            <img src={authLogo} alt="Scamly" className="h-10 w-auto" />
           </Link>
 
           <div className="max-w-md">
