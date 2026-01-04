@@ -10,13 +10,7 @@ export function Footer() {
       { label: 'Pricing', href: '/#pricing' },
       { label: 'Download App', href: '#' },
     ],
-    company: [
-      { label: 'About', href: '/#about' },
-      { label: 'Blog', href: '#' },
-      { label: 'Careers', href: '#' },
-    ],
     support: [
-      { label: 'Help Center', href: '#' },
       { label: 'Contact', href: '#' },
       { label: 'Privacy Policy', href: '#' },
       { label: 'Terms of Service', href: '#' },
@@ -26,7 +20,7 @@ export function Footer() {
   return (
     <footer className="bg-card border-t border-border">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-4">
@@ -51,7 +45,7 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Links */}
+          {/* Product Links */}
           <div>
             <h4 className="font-display font-semibold mb-4">Product</h4>
             <ul className="space-y-3">
@@ -68,22 +62,7 @@ export function Footer() {
             </ul>
           </div>
 
-          <div>
-            <h4 className="font-display font-semibold mb-4">Company</h4>
-            <ul className="space-y-3">
-              {footerLinks.company.map((link) => (
-                <li key={link.label}>
-                  <a
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
+          {/* Support Links */}
           <div>
             <h4 className="font-display font-semibold mb-4">Support</h4>
             <ul className="space-y-3">
