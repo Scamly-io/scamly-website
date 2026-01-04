@@ -62,11 +62,18 @@ export default function Auth() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Get referral code from URL if present
+  const referralCodeFromUrl = searchParams.get("ref");
+
   useEffect(() => {
     if (user) {
-      navigate("/portal");
+      // Pass referral code to portal if present
+      const portalUrl = referralCodeFromUrl 
+        ? `/portal?ref=${referralCodeFromUrl}` 
+        : "/portal";
+      navigate(portalUrl);
     }
-  }, [user, navigate]);
+  }, [user, navigate, referralCodeFromUrl]);
 
   useEffect(() => {
     setMode(searchParams.get("mode") === "signup" ? "signup" : "signin");

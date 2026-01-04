@@ -8,3 +8,12 @@ verify_jwt = false
 
 [functions.stripe-webhook]
 verify_jwt = false
+
+[functions.validate-referral]
+verify_jwt = false
+
+[functions.update-referral-code]
+verify_jwt = false
+
+[functions.get-referral-stats]
+verify_jwt = false

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { ReferralDashboard, ReferralCodeInput } from '@/components/referral';
 import { 
   Shield, 
   User, 
@@ -23,7 +24,8 @@ import {
   Check,
   ExternalLink,
   Loader2,
-  ArrowUpRight
+  ArrowUpRight,
+  Gift
 } from 'lucide-react';
 import { z } from 'zod';
 
@@ -34,7 +36,7 @@ const countries = [
 
 const genders = ['Male', 'Female', 'Non-binary', 'Prefer not to say'];
 
-type Tab = 'profile' | 'subscription' | 'security';
+type Tab = 'profile' | 'subscription' | 'referrals' | 'security';
 
 export default function Portal() {
   const navigate = useNavigate();
@@ -56,11 +58,22 @@ export default function Portal() {
   const [newEmail, setNewEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  
+  // Referral code for checkout
+  const [checkoutReferralCode, setCheckoutReferralCode] = useState<string | null>(null);
 
-  // Handle checkout success/cancel params
+  // Handle checkout success/cancel params and referral code from URL
   useEffect(() => {
     const success = searchParams.get('success');
     const canceled = searchParams.get('canceled');
+    const refCode = searchParams.get('ref');
+    
+    // Pre-fill referral code if passed from auth page
+    if (refCode && !checkoutReferralCode) {
+      setCheckoutReferralCode(refCode);
+      // Go to subscription tab to show the referral code input
+      setActiveTab('subscription');
+    }
     
     if (success === 'true') {
       toast({
@@ -206,7 +219,7 @@ export default function Portal() {
     
     try {
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { plan },
+        body: { plan, referralCode: checkoutReferralCode },
       });
       
       if (error) throw error;
@@ -271,6 +284,7 @@ export default function Portal() {
   const tabs = [
     { id: 'profile' as Tab, label: 'Profile', icon: User },
     { id: 'subscription' as Tab, label: 'Subscription', icon: CreditCard },
+    { id: 'referrals' as Tab, label: 'Referrals', icon: Gift },
     { id: 'security' as Tab, label: 'Security', icon: Settings },
   ];
 
@@ -485,6 +499,17 @@ export default function Portal() {
                   )}
                 </div>
                 
+                {/* Referral Code Input for non-premium users */}
+                {!isPremium && (
+                  <div className="mb-6">
+                    <ReferralCodeInput
+                      initialValue={checkoutReferralCode || ''}
+                      onValidCode={(code) => setCheckoutReferralCode(code)}
+                      onClear={() => setCheckoutReferralCode(null)}
+                    />
+                  </div>
+                )}
+                
                 {/* Plan Options */}
                 {!isPremium && (
                   <div className="grid md:grid-cols-2 gap-4">
@@ -492,6 +517,9 @@ export default function Portal() {
                       <h3 className="font-display font-bold text-lg mb-2">Monthly</h3>
                       <p className="text-3xl font-bold mb-1">$10<span className="text-lg font-normal text-muted-foreground">/mo</span></p>
                       <p className="text-sm text-muted-foreground mb-4">Billed monthly</p>
+                      {checkoutReferralCode && (
+                        <p className="text-sm text-green-600 mb-2">-10% referral discount applied!</p>
+                      )}
                       <ul className="space-y-2 mb-6">
                         {['Unlimited scans', 'AI Chat', 'Contact Search', 'Full Library'].map((feature) => (
                           <li key={feature} className="flex items-center gap-2 text-sm">
@@ -514,6 +542,9 @@ export default function Portal() {
                       <h3 className="font-display font-bold text-lg mb-2">Yearly</h3>
                       <p className="text-3xl font-bold mb-1">$99<span className="text-lg font-normal text-muted-foreground">/yr</span></p>
                       <p className="text-sm text-muted-foreground mb-4">Billed annually</p>
+                      {checkoutReferralCode && (
+                        <p className="text-sm text-green-600 mb-2">-10% referral discount applied!</p>
+                      )}
                       <ul className="space-y-2 mb-6">
                         {['Unlimited scans', 'AI Chat', 'Contact Search', 'Full Library'].map((feature) => (
                           <li key={feature} className="flex items-center gap-2 text-sm">
@@ -541,6 +572,19 @@ export default function Portal() {
                     </Button>
                   </div>
                 )}
+              </div>
+            )}
+            
+            {/* Referrals Tab */}
+            {activeTab === 'referrals' && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="font-display text-xl font-bold mb-1">Referral Program</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Share your code and earn discounts on your subscription.
+                  </p>
+                </div>
+                <ReferralDashboard />
               </div>
             )}
             
