@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Check, Shield, Sparkles } from 'lucide-react';
-
+import { ArrowRight, Check, Sparkles } from 'lucide-react';
+import phoneImage from '@/assets/holding-phone-mockup.png';
 export function HeroSection() {
   return (
     <section className="relative min-h-screen flex flex-col items-center overflow-hidden bg-background">
@@ -78,65 +78,25 @@ export function HeroSection() {
           </div>
         </div>
         
-        {/* Hero phone mockup */}
+        {/* Hero phone image */}
         <div 
-          className="mt-16 relative flex justify-center opacity-0 animate-fade-up"
+          className="mt-12 relative flex justify-center opacity-0 animate-fade-up"
           style={{ animationDelay: '0.6s' }}
         >
           {/* Glow effect behind phone */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[500px] bg-gradient-to-b from-primary/30 to-secondary/30 rounded-full blur-[80px]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[550px] bg-gradient-to-b from-primary/25 to-secondary/25 rounded-full blur-[100px]" />
           
-          {/* Phone mockup */}
+          {/* Phone image */}
           <div className="relative">
-            <div className="w-[280px] sm:w-[320px] bg-gradient-to-b from-foreground/10 to-foreground/5 rounded-[3rem] p-3 shadow-2xl backdrop-blur-sm border border-border/30">
-              <div className="w-full bg-card rounded-[2.5rem] overflow-hidden shadow-inner">
-                {/* Phone notch */}
-                <div className="h-8 bg-card flex justify-center items-end pb-1">
-                  <div className="w-24 h-5 bg-foreground/10 rounded-full" />
-                </div>
-                
-                {/* App header */}
-                <div className="gradient-bg px-6 py-8 text-center">
-                  <Shield className="w-12 h-12 mx-auto text-primary-foreground mb-2" />
-                  <h3 className="text-primary-foreground font-display font-bold text-lg">Scamly</h3>
-                  <p className="text-primary-foreground/80 text-sm">Scan Complete</p>
-                </div>
-                
-                {/* Result card */}
-                <div className="p-4 bg-card min-h-[280px]">
-                  <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-4 mb-4">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-                        <Check className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-green-600 dark:text-green-400">Safe</p>
-                        <p className="text-xs text-muted-foreground">98% Confidence</p>
-                      </div>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      This message appears legitimate with no signs of phishing or fraud.
-                    </p>
-                  </div>
-                  
-                  {/* Skeleton lines */}
-                  <div className="space-y-3">
-                    <div className="h-3 bg-muted rounded-full w-full" />
-                    <div className="h-3 bg-muted rounded-full w-4/5" />
-                    <div className="h-3 bg-muted rounded-full w-3/5" />
-                  </div>
-                </div>
-                
-                {/* Phone bottom bar */}
-                <div className="h-8 bg-card flex justify-center items-center">
-                  <div className="w-32 h-1 bg-foreground/20 rounded-full" />
-                </div>
-              </div>
-            </div>
+            <img 
+              src={phoneImage} 
+              alt="Scamly app showing fraud detection on a phone" 
+              className="w-[300px] sm:w-[380px] md:w-[440px] h-auto drop-shadow-2xl"
+            />
             
             {/* Floating sparkle element */}
-            <div className="absolute -top-4 -right-4 w-14 h-14 gradient-bg rounded-2xl flex items-center justify-center shadow-lg animate-float">
-              <Sparkles className="w-7 h-7 text-primary-foreground" />
+            <div className="absolute top-16 -left-4 w-12 h-12 gradient-bg rounded-2xl flex items-center justify-center shadow-lg animate-float">
+              <Sparkles className="w-6 h-6 text-primary-foreground" />
             </div>
           </div>
         </div>
