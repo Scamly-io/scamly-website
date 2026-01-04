@@ -13,9 +13,10 @@ export function HeroSection() {
       {/* Subtle gradient background */}
       <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-secondary/5" />
       
-      {/* Animated gradient orbs */}
-      <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full blur-[120px] animate-pulse opacity-60" />
-      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-gradient-to-tr from-secondary/15 to-primary/15 rounded-full blur-[100px] animate-pulse opacity-50" style={{ animationDelay: '2s' }} />
+      {/* Animated gradient orbs - more vibrant with drifting motion */}
+      <div className="absolute top-[15%] left-[10%] w-[500px] h-[500px] bg-gradient-to-br from-primary/30 via-secondary/25 to-primary/20 rounded-full blur-[100px] animate-blob-drift-1" />
+      <div className="absolute top-[40%] right-[5%] w-[600px] h-[600px] bg-gradient-to-tl from-secondary/35 via-primary/20 to-secondary/15 rounded-full blur-[120px] animate-blob-drift-2" />
+      <div className="absolute bottom-[20%] left-[30%] w-[400px] h-[400px] bg-gradient-to-tr from-primary/25 to-secondary/30 rounded-full blur-[80px] animate-blob-drift-3" />
       
       <div className="container mx-auto px-4 pt-32 pb-16 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
