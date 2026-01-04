@@ -196,7 +196,7 @@ export default function Auth() {
 
         <div className="relative z-10 flex flex-col justify-between p-12 text-primary-foreground">
           <Link to="/" className="hidden lg:flex lg:items-center">
-            <img src={authLogo} alt="Scamly" className="h-10 w-auto" />
+            <img src={authLogo} alt="Scamly" className="hideen lg:h-10 lg:w-auto" />
           </Link>
 
           <div className="max-w-md">
