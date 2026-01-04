@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import authLogo from "@/assets/auth-logo.png";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -245,6 +246,11 @@ export default function Auth() {
                 Back
               </button>
             )}
+
+            {/* Logo */}
+            <div className="flex justify-center mb-6">
+              <img src={authLogo} alt="Scamly" className="h-16 w-auto" />
+            </div>
 
             {/* Header */}
             <div className="text-center mb-8">
