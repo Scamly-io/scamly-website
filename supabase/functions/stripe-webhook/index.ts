@@ -13,6 +13,11 @@ const logStep = (step: string, details?: unknown) => {
   console.log(`[STRIPE-WEBHOOK] ${step}${detailsStr}`);
 };
 
+// Stripe coupon IDs for referrals
+const REFERRAL_COUPONS = {
+  REFERRER_5_PERCENT: "QEAuNLJJ", // 5% off for referrer
+};
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -73,6 +78,10 @@ serve(async (req) => {
           break;
         }
 
+        // Check for referral info in session metadata
+        const referrerUserId = session.metadata?.referrer_user_id;
+        const referralCodeUsed = session.metadata?.referral_code_used;
+
         // Get the subscription details
         if (session.subscription) {
           const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
@@ -101,6 +110,26 @@ serve(async (req) => {
             logStep("Invalid period end value, setting to null");
           }
 
+          // Generate a referral code for new premium user
+          let referralCode: string | null = null;
+          let attempts = 0;
+          const maxAttempts = 5;
+          
+          while (!referralCode && attempts < maxAttempts) {
+            const candidate = generateReferralCode();
+            const { data: existing } = await supabaseAdmin
+              .from("profiles")
+              .select("id")
+              .ilike("referral_code", candidate)
+              .maybeSingle();
+            
+            if (!existing) {
+              referralCode = candidate;
+            }
+            attempts++;
+          }
+          logStep("Generated referral code", { referralCode, attempts });
+
           // Update the user's profile
           const { error: updateError } = await supabaseAdmin
             .from("profiles")
@@ -110,14 +139,66 @@ serve(async (req) => {
               subscription_status: subscription.status,
               subscription_plan: subscriptionPlan,
               subscription_current_period_end: currentPeriodEndDate,
-              access_expires_at: null, // Clear any previous expiration
+              access_expires_at: null,
+              // Referral fields - only set if user doesn't already have a code
+              referral_code: referralCode,
+              referral_code_active: true,
+              referral_code_updated_at: new Date().toISOString(),
             })
-            .eq("id", userId);
+            .eq("id", userId)
+            .is("referral_code", null); // Only update if no existing code
+
+          // Also update for users who already have a code (just activate it)
+          await supabaseAdmin
+            .from("profiles")
+            .update({
+              stripe_customer_id: session.customer as string,
+              subscription_id: subscription.id,
+              subscription_status: subscription.status,
+              subscription_plan: subscriptionPlan,
+              subscription_current_period_end: currentPeriodEndDate,
+              access_expires_at: null,
+              referral_code_active: true,
+            })
+            .eq("id", userId)
+            .not("referral_code", "is", null);
 
           if (updateError) {
             logStep("Error updating profile", { error: updateError });
           } else {
-            logStep("Profile updated successfully", { userId, subscriptionPlan });
+            logStep("Profile updated successfully", { userId, subscriptionPlan, referralCode });
+          }
+
+          // Create referral record if this was a referred subscription
+          // Note: We do NOT mark as converted yet - that happens on first invoice.paid
+          if (referrerUserId && referralCodeUsed) {
+            logStep("Creating referral record", { referrerUserId, userId, referralCodeUsed });
+            
+            // Check if referral already exists (idempotency)
+            const { data: existingReferral } = await supabaseAdmin
+              .from("referrals")
+              .select("id")
+              .eq("referred_user_id", userId)
+              .maybeSingle();
+
+            if (!existingReferral) {
+              const { error: referralError } = await supabaseAdmin
+                .from("referrals")
+                .insert({
+                  referrer_user_id: referrerUserId,
+                  referred_user_id: userId,
+                  referral_code_used: referralCodeUsed,
+                  converted: false,
+                });
+
+              if (referralError) {
+                logStep("Error creating referral record", { error: referralError });
+              } else {
+                logStep("Referral record created successfully");
+              }
+            } else {
+              logStep("Referral record already exists, skipping");
+            }
           }
         }
         break;
@@ -130,7 +211,7 @@ serve(async (req) => {
         // Find the user by stripe_customer_id
         const { data: profiles, error: findError } = await supabaseAdmin
           .from("profiles")
-          .select("id")
+          .select("id, referral_code")
           .eq("stripe_customer_id", subscription.customer as string)
           .limit(1);
 
@@ -156,8 +237,19 @@ serve(async (req) => {
 
         // Determine access expiry for cancelled subscriptions
         let accessExpiresAt: string | null = null;
-        if ((subscription.cancel_at_period_end || subscription.status === "canceled") && currentPeriodEndDate) {
+        let referralCodeActive = true;
+
+        if (subscription.cancel_at_period_end || subscription.status === "canceled") {
           accessExpiresAt = currentPeriodEndDate;
+          // Deactivate referral code when subscription is cancelled/downgraded
+          referralCodeActive = false;
+          logStep("Subscription cancelled/downgraded, deactivating referral code", { userId });
+        }
+
+        // If subscription becomes active again, reactivate referral code
+        if (subscription.status === "active" && !subscription.cancel_at_period_end && profiles[0].referral_code) {
+          referralCodeActive = true;
+          logStep("Subscription reactivated, reactivating referral code", { userId });
         }
 
         // Update the profile
@@ -168,6 +260,7 @@ serve(async (req) => {
             subscription_plan: subscriptionPlan,
             subscription_current_period_end: currentPeriodEndDate,
             access_expires_at: accessExpiresAt,
+            referral_code_active: referralCodeActive,
           })
           .eq("id", userId);
 
@@ -197,7 +290,7 @@ serve(async (req) => {
 
         const userId = profiles[0].id;
 
-        // Reset the profile to free plan
+        // Reset the profile to free plan, deactivate referral code
         const { error: updateError } = await supabaseAdmin
           .from("profiles")
           .update({
@@ -206,20 +299,21 @@ serve(async (req) => {
             subscription_id: null,
             subscription_current_period_end: null,
             access_expires_at: null,
+            referral_code_active: false, // Deactivate but keep the code
           })
           .eq("id", userId);
 
         if (updateError) {
           logStep("Error updating profile", { error: updateError });
         } else {
-          logStep("Profile reset to free", { userId });
+          logStep("Profile reset to free, referral code deactivated", { userId });
         }
         break;
       }
 
       case "invoice.payment_succeeded": {
         const invoice = event.data.object as Stripe.Invoice;
-        logStep("Invoice payment succeeded", { invoiceId: invoice.id });
+        logStep("Invoice payment succeeded", { invoiceId: invoice.id, billingReason: invoice.billing_reason });
 
         if (invoice.subscription) {
           // Refresh the subscription data
@@ -233,6 +327,7 @@ serve(async (req) => {
             .limit(1);
 
           if (profiles?.length) {
+            const userId = profiles[0].id;
             const priceId = subscription.items.data[0]?.price.id;
             let subscriptionPlan = "premium-monthly";
             if (priceId === "price_1RaBqI3J81eQle64GF6WYMfm") {
@@ -252,10 +347,82 @@ serve(async (req) => {
                 subscription_plan: subscriptionPlan,
                 subscription_current_period_end: currentPeriodEndDate,
                 access_expires_at: null,
+                referral_code_active: true, // Ensure active on successful payment
               })
-              .eq("id", profiles[0].id);
+              .eq("id", userId);
 
-            logStep("Profile updated after payment", { userId: profiles[0].id });
+            logStep("Profile updated after payment", { userId });
+
+            // =============================================
+            // REFERRAL CONVERSION LOGIC
+            // Only on FIRST successful invoice (subscription_create or subscription_cycle for first payment)
+            // =============================================
+            if (invoice.billing_reason === "subscription_create") {
+              logStep("First invoice paid, checking for referral conversion", { userId });
+
+              // Find unconverted referral for this user
+              const { data: referral } = await supabaseAdmin
+                .from("referrals")
+                .select("id, referrer_user_id, converted")
+                .eq("referred_user_id", userId)
+                .eq("converted", false)
+                .maybeSingle();
+
+              if (referral) {
+                logStep("Found unconverted referral, processing conversion", { 
+                  referralId: referral.id, 
+                  referrerId: referral.referrer_user_id 
+                });
+
+                // Mark referral as converted (idempotency via unique constraint)
+                const { error: convertError } = await supabaseAdmin
+                  .from("referrals")
+                  .update({
+                    converted: true,
+                    converted_at: new Date().toISOString(),
+                  })
+                  .eq("id", referral.id)
+                  .eq("converted", false); // Only update if not already converted
+
+                if (convertError) {
+                  logStep("Error marking referral as converted", { error: convertError });
+                } else {
+                  logStep("Referral marked as converted");
+
+                  // Grant 5% reward to referrer
+                  // Use source_referral_id for idempotency
+                  const { error: rewardError } = await supabaseAdmin
+                    .from("referral_rewards")
+                    .insert({
+                      user_id: referral.referrer_user_id,
+                      percent: 5,
+                      applied: false,
+                      stripe_coupon_id: REFERRAL_COUPONS.REFERRER_5_PERCENT,
+                      source_referral_id: referral.id,
+                    });
+
+                  if (rewardError) {
+                    // Could be duplicate, which is fine (idempotency)
+                    logStep("Error or duplicate creating referral reward", { error: rewardError });
+                  } else {
+                    logStep("Referral reward created for referrer", { 
+                      referrerId: referral.referrer_user_id,
+                      percent: 5 
+                    });
+                  }
+
+                  // Apply 5% coupon to referrer's subscription
+                  await applyReferrerDiscount(
+                    stripe, 
+                    supabaseAdmin, 
+                    referral.referrer_user_id,
+                    REFERRAL_COUPONS.REFERRER_5_PERCENT
+                  );
+                }
+              } else {
+                logStep("No unconverted referral found for user", { userId });
+              }
+            }
           }
         }
         break;
@@ -304,3 +471,75 @@ serve(async (req) => {
     });
   }
 });
+
+// =============================================
+// HELPER FUNCTIONS
+// =============================================
+
+/**
+ * Generates a random referral code (8 alphanumeric characters)
+ */
+function generateReferralCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let result = '';
+  for (let i = 0; i < 8; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+/**
+ * Applies the 5% referrer discount to the referrer's active subscription
+ * Stacks with existing discounts by adding a new coupon
+ */
+async function applyReferrerDiscount(
+  stripe: Stripe,
+  supabaseAdmin: any,
+  referrerUserId: string,
+  couponId: string
+): Promise<void> {
+  try {
+    logStep("Applying referrer discount", { referrerUserId, couponId });
+
+    // Get referrer's subscription ID
+    const { data: referrerProfile } = await supabaseAdmin
+      .from("profiles")
+      .select("subscription_id, stripe_customer_id")
+      .eq("id", referrerUserId)
+      .single();
+
+    if (!referrerProfile?.subscription_id) {
+      logStep("Referrer has no active subscription, cannot apply discount", { referrerUserId });
+      return;
+    }
+
+    // Apply coupon to subscription
+    // Note: This applies the discount to the next invoice
+    await stripe.subscriptions.update(referrerProfile.subscription_id, {
+      coupon: couponId,
+    });
+
+    logStep("Referrer discount applied successfully", { 
+      referrerUserId, 
+      subscriptionId: referrerProfile.subscription_id 
+    });
+
+    // Mark the reward as applied
+    await supabaseAdmin
+      .from("referral_rewards")
+      .update({ 
+        applied: true,
+        applied_at: new Date().toISOString()
+      })
+      .eq("user_id", referrerUserId)
+      .eq("applied", false)
+      .eq("stripe_coupon_id", couponId);
+
+  } catch (error) {
+    logStep("Error applying referrer discount", { 
+      referrerUserId, 
+      error: error instanceof Error ? error.message : String(error) 
+    });
+    // Don't throw - discount application is best-effort
+  }
+}

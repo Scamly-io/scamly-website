@@ -19,6 +19,11 @@ const PRICES = {
   yearly: "price_1RaBqI3J81eQle64GF6WYMfm",  // $99/year
 };
 
+// Stripe coupon IDs for referrals
+const REFERRAL_COUPONS = {
+  REFERRED_USER_10_PERCENT: "qLrjIGkn", // 10% off for referred user
+};
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -32,10 +37,11 @@ serve(async (req) => {
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
     logStep("Stripe key verified");
 
-    // Create Supabase client using the anon key for user authentication
-    const supabaseClient = createClient(
+    // Create Supabase client with service role for referral operations
+    const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
     );
 
     // Get the authorization header
@@ -45,25 +51,62 @@ serve(async (req) => {
 
     // Authenticate the user
     const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+    const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
     if (userError) throw new Error(`Authentication error: ${userError.message}`);
     
     const user = userData.user;
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    // Parse request body for plan selection
-    const { plan } = await req.json();
+    // Parse request body for plan selection and optional referral code
+    const { plan, referralCode } = await req.json();
     if (!plan || !["monthly", "yearly"].includes(plan)) {
       throw new Error("Invalid plan. Must be 'monthly' or 'yearly'");
     }
-    logStep("Plan selected", { plan });
+    logStep("Plan selected", { plan, hasReferralCode: !!referralCode });
 
     const priceId = PRICES[plan as keyof typeof PRICES];
     logStep("Price ID determined", { priceId });
 
     // Initialize Stripe
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-04-30.basil" });
+
+    // Validate referral code if provided
+    let validatedReferrer: { id: string; code: string } | null = null;
+    
+    if (referralCode && typeof referralCode === "string") {
+      const normalizedCode = referralCode.trim().toUpperCase();
+      logStep("Validating referral code", { code: normalizedCode });
+
+      // Check if user has ever used a referral code
+      const { data: existingReferral } = await supabaseAdmin
+        .from("referrals")
+        .select("id")
+        .eq("referred_user_id", user.id)
+        .maybeSingle();
+
+      if (existingReferral) {
+        logStep("User has already used a referral code, ignoring", { userId: user.id });
+      } else {
+        // Find the referral code owner
+        const { data: referrer } = await supabaseAdmin
+          .from("profiles")
+          .select("id, referral_code, referral_code_active")
+          .ilike("referral_code", normalizedCode)
+          .maybeSingle();
+
+        if (referrer && referrer.id !== user.id && referrer.referral_code_active) {
+          validatedReferrer = { id: referrer.id, code: referrer.referral_code };
+          logStep("Referral code validated", { referrerId: referrer.id });
+        } else {
+          logStep("Referral code invalid or inactive", { 
+            found: !!referrer, 
+            isSelf: referrer?.id === user.id,
+            isActive: referrer?.referral_code_active 
+          });
+        }
+      }
+    }
 
     // Check if a Stripe customer already exists for this user
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
@@ -79,11 +122,11 @@ serve(async (req) => {
     // Get the origin for redirect URLs
     const origin = req.headers.get("origin") || "https://rdrumcjwntyfnjhownbd.lovable.app";
 
-    // Create a checkout session
-    const session = await stripe.checkout.sessions.create({
+    // Build checkout session params
+    const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
-      client_reference_id: user.id, // Store user ID for webhook processing
+      client_reference_id: user.id,
       line_items: [
         {
           price: priceId,
@@ -96,12 +139,32 @@ serve(async (req) => {
       subscription_data: {
         metadata: {
           user_id: user.id,
+          // Store referrer info in subscription metadata for webhook processing
+          ...(validatedReferrer && {
+            referrer_user_id: validatedReferrer.id,
+            referral_code_used: validatedReferrer.code,
+          }),
         },
       },
       metadata: {
         user_id: user.id,
+        ...(validatedReferrer && {
+          referrer_user_id: validatedReferrer.id,
+          referral_code_used: validatedReferrer.code,
+        }),
       },
-    });
+    };
+
+    // Apply 10% discount coupon for referred users
+    if (validatedReferrer) {
+      sessionParams.discounts = [
+        { coupon: REFERRAL_COUPONS.REFERRED_USER_10_PERCENT }
+      ];
+      logStep("Applying referral discount", { couponId: REFERRAL_COUPONS.REFERRED_USER_10_PERCENT });
+    }
+
+    // Create a checkout session
+    const session = await stripe.checkout.sessions.create(sessionParams);
 
     logStep("Checkout session created", { sessionId: session.id, url: session.url });
 
