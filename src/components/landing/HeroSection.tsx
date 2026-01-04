@@ -1,9 +1,13 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Check, Sparkles } from 'lucide-react';
-import phoneMockup from '@/assets/3d-phone-mockup.png';
+import { useTheme } from '@/contexts/ThemeContext';
+import phoneMockupLight from '@/assets/3d-phone-mockup.png';
+import phoneMockupDark from '@/assets/3d-phone-mockup-dark.png';
 
 export function HeroSection() {
+  const { theme } = useTheme();
+  const phoneMockup = theme === 'dark' ? phoneMockupDark : phoneMockupLight;
   return (
     <section className="relative min-h-screen flex flex-col items-center overflow-hidden bg-background">
       {/* Subtle gradient background */}
