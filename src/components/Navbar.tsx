@@ -3,7 +3,9 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Menu, X, Sun, Moon, Shield } from 'lucide-react';
+import { Menu, X, Sun, Moon } from 'lucide-react';
+import logoLight from '@/assets/navbar-logo-light.png';
+import logoDark from '@/assets/navbar-logo-dark.png';
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,11 +26,12 @@ export function Navbar() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-9 h-9 rounded-lg gradient-bg flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
-              <Shield className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <span className="font-display text-xl font-bold gradient-text">Scamly</span>
+          <Link to="/" className="flex items-center group">
+            <img 
+              src={theme === 'dark' ? logoDark : logoLight} 
+              alt="Scamly" 
+              className="h-9 w-auto"
+            />
           </Link>
 
           {/* Desktop Navigation */}
