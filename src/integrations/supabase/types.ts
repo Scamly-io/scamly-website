@@ -228,6 +228,9 @@ export type Database = {
           first_name: string | null
           gender: string | null
           id: string
+          referral_code: string | null
+          referral_code_active: boolean
+          referral_code_updated_at: string | null
           stripe_customer_id: string | null
           subscription_current_period_end: string | null
           subscription_id: string | null
@@ -242,6 +245,9 @@ export type Database = {
           first_name?: string | null
           gender?: string | null
           id: string
+          referral_code?: string | null
+          referral_code_active?: boolean
+          referral_code_updated_at?: string | null
           stripe_customer_id?: string | null
           subscription_current_period_end?: string | null
           subscription_id?: string | null
@@ -256,6 +262,9 @@ export type Database = {
           first_name?: string | null
           gender?: string | null
           id?: string
+          referral_code?: string | null
+          referral_code_active?: boolean
+          referral_code_updated_at?: string | null
           stripe_customer_id?: string | null
           subscription_current_period_end?: string | null
           subscription_id?: string | null
@@ -263,6 +272,92 @@ export type Database = {
           subscription_status?: string | null
         }
         Relationships: []
+      }
+      referral_rewards: {
+        Row: {
+          applied: boolean
+          applied_at: string | null
+          created_at: string
+          id: string
+          percent: number
+          source_referral_id: string | null
+          stripe_coupon_id: string
+          user_id: string
+        }
+        Insert: {
+          applied?: boolean
+          applied_at?: string | null
+          created_at?: string
+          id?: string
+          percent: number
+          source_referral_id?: string | null
+          stripe_coupon_id: string
+          user_id: string
+        }
+        Update: {
+          applied?: boolean
+          applied_at?: string | null
+          created_at?: string
+          id?: string
+          percent?: number
+          source_referral_id?: string | null
+          stripe_coupon_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_rewards_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referrals: {
+        Row: {
+          converted: boolean
+          converted_at: string | null
+          created_at: string
+          id: string
+          referral_code_used: string
+          referred_user_id: string
+          referrer_user_id: string
+        }
+        Insert: {
+          converted?: boolean
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code_used: string
+          referred_user_id: string
+          referrer_user_id: string
+        }
+        Update: {
+          converted?: boolean
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code_used?: string
+          referred_user_id?: string
+          referrer_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referred_user_id_fkey"
+            columns: ["referred_user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_user_id_fkey"
+            columns: ["referrer_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       scans: {
         Row: {
@@ -301,6 +396,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_referral_code: { Args: never; Returns: string }
+      get_referral_stats: {
+        Args: { p_user_id: string }
+        Returns: {
+          converted_referrals: number
+          pending_discount_percent: number
+          pending_referrals: number
+          total_referrals: number
+        }[]
+      }
       get_user_counts: {
         Args: { uid: string }
         Returns: {
@@ -309,9 +414,14 @@ export type Database = {
           scan_count: number
         }[]
       }
+      has_used_referral_code: { Args: { user_id: string }; Returns: boolean }
       increment_article_views: {
         Args: { article_id: string }
         Returns: undefined
+      }
+      is_valid_referral_code_format: {
+        Args: { code: string }
+        Returns: boolean
       }
       message_belongs_to_user: {
         Args: { msg_conversation_id: string }
