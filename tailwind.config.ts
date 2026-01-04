@@ -106,6 +106,26 @@ export default {
           "0%, 100%": { boxShadow: "0 0 20px hsl(258 91% 56% / 0.3)" },
           "50%": { boxShadow: "0 0 40px hsl(285 100% 71% / 0.5)" },
         },
+        "blob-drift-1": {
+          "0%": { transform: "translate(0, 0) scale(1)" },
+          "25%": { transform: "translate(80px, -60px) scale(1.1)" },
+          "50%": { transform: "translate(40px, 40px) scale(0.95)" },
+          "75%": { transform: "translate(-60px, -20px) scale(1.05)" },
+          "100%": { transform: "translate(0, 0) scale(1)" },
+        },
+        "blob-drift-2": {
+          "0%": { transform: "translate(0, 0) scale(1)" },
+          "25%": { transform: "translate(-70px, 50px) scale(1.05)" },
+          "50%": { transform: "translate(-40px, -80px) scale(1.1)" },
+          "75%": { transform: "translate(50px, 30px) scale(0.95)" },
+          "100%": { transform: "translate(0, 0) scale(1)" },
+        },
+        "blob-drift-3": {
+          "0%": { transform: "translate(0, 0) scale(1.05)" },
+          "33%": { transform: "translate(60px, 60px) scale(0.95)" },
+          "66%": { transform: "translate(-50px, 20px) scale(1.1)" },
+          "100%": { transform: "translate(0, 0) scale(1.05)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -116,6 +136,9 @@ export default {
         pulse: "pulse 2s ease-in-out infinite",
         shimmer: "shimmer 8s linear infinite",
         glow: "glow 3s ease-in-out infinite",
+        "blob-drift-1": "blob-drift-1 20s ease-in-out infinite",
+        "blob-drift-2": "blob-drift-2 25s ease-in-out infinite",
+        "blob-drift-3": "blob-drift-3 18s ease-in-out infinite",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
