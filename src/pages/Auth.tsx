@@ -196,7 +196,7 @@ export default function Auth() {
 
         <div className="relative z-10 flex flex-col justify-between p-12 text-primary-foreground">
           <Link to="/" className="flex items-center">
-            <img src={authLogo} alt="Scamly" className="sm:hidden lg:h-10 lg:w-auto" />
+            <img src={authLogo} alt="Scamly" className="h-10 w-auto" />
           </Link>
 
           <div className="max-w-md">
@@ -215,10 +215,7 @@ export default function Auth() {
       {/* Right Panel - Form */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 lg:p-6">
-          <Link to="/" className="lg:hidden">
-            <img src={authLogo} alt="Scamly" className="h-10 w-auto" />
-          </Link>
+        <div className="flex items-center justify-end p-4 lg:p-6">
 
           <div className="flex items-center gap-2 ml-auto">
             <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
