@@ -139,7 +139,7 @@ export function PricingSection() {
         
         {/* Trust Note */}
         <p className="text-center text-sm text-muted-foreground mt-8">
-          All plans include a 14-day money-back guarantee. No questions asked.
+          Start protecting yourself today. Upgrade or cancel anytime.
         </p>
       </div>
     </section>
