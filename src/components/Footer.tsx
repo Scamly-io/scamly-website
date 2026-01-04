@@ -1,8 +1,12 @@
 import { Link } from 'react-router-dom';
-import { Shield, Twitter, Linkedin, Instagram } from 'lucide-react';
+import { Twitter, Linkedin, Instagram } from 'lucide-react';
+import { useTheme } from '@/contexts/ThemeContext';
+import logoLight from '@/assets/navbar-logo-light.png';
+import logoDark from '@/assets/navbar-logo-dark.png';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
+  const { theme } = useTheme();
 
   const footerLinks = {
     product: [
@@ -23,11 +27,12 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-9 h-9 rounded-lg gradient-bg flex items-center justify-center">
-                <Shield className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <span className="font-display text-xl font-bold gradient-text">Scamly</span>
+            <Link to="/" className="flex items-center mb-4">
+              <img 
+                src={theme === 'dark' ? logoDark : logoLight} 
+                alt="Scamly" 
+                className="h-9 w-auto"
+              />
             </Link>
             <p className="text-muted-foreground text-sm max-w-xs mb-6">
               Protecting you from scams with AI-powered detection. Stay safe in the digital world.
