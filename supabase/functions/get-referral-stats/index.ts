@@ -43,11 +43,67 @@ serve(async (req) => {
     logStep("User authenticated", { userId: user.id });
 
     // Get profile with referral info
-    const { data: profile } = await supabaseAdmin
+    let { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("referral_code, referral_code_active, subscription_status")
       .eq("id", user.id)
       .single();
+
+    // Check if user is premium but doesn't have a referral code yet (legacy users)
+    const isPremium = profile?.subscription_status === "active" || 
+                      profile?.subscription_status === "trialing";
+    
+    if (isPremium && !profile?.referral_code) {
+      logStep("Premium user without referral code, generating one");
+      
+      // Generate a unique referral code
+      let referralCode: string | null = null;
+      let attempts = 0;
+      const maxAttempts = 5;
+      
+      while (!referralCode && attempts < maxAttempts) {
+        // Generate 8-char alphanumeric code
+        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        let candidate = "";
+        for (let i = 0; i < 8; i++) {
+          candidate += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        
+        const { data: existing } = await supabaseAdmin
+          .from("profiles")
+          .select("id")
+          .ilike("referral_code", candidate)
+          .maybeSingle();
+        
+        if (!existing) {
+          referralCode = candidate;
+        }
+        attempts++;
+      }
+      
+      if (referralCode) {
+        const { error: updateError } = await supabaseAdmin
+          .from("profiles")
+          .update({
+            referral_code: referralCode,
+            referral_code_active: true,
+            referral_code_updated_at: new Date().toISOString(),
+          })
+          .eq("id", user.id);
+        
+        if (!updateError) {
+          logStep("Generated referral code for legacy premium user", { referralCode });
+          // Update local profile data
+          profile = {
+            referral_code: referralCode,
+            referral_code_active: true,
+            subscription_status: profile?.subscription_status,
+          };
+        } else {
+          logStep("Error updating profile with referral code", { error: updateError });
+        }
+      }
+    }
 
     // Get referral counts
     const { data: referrals } = await supabaseAdmin
