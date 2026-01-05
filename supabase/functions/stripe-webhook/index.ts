@@ -683,12 +683,12 @@ async function applyReferrerDiscount(
     const subscription = await stripe.subscriptions.retrieve(referrerProfile.subscription_id);
 
     const existingDiscounts =
-      subscription.discounts?.map((d) => ({
+      subscription.discounts?.map((d: any) => ({
         coupon: d.coupon.id,
       })) ?? [];
 
     // Avoid duplicate coupon application
-    if (existingDiscounts.some((d: { coupon: string }) => d.coupon === couponId)) {
+    if (existingDiscounts.some((d: any) => d.coupon === couponId)) {
       logStep("Coupon already applied, skipping", { couponId });
       return;
     }
