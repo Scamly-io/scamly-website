@@ -9,14 +9,14 @@ const corsHeaders = {
 
 // Helper logging function for debugging
 const logStep = (step: string, details?: unknown) => {
-  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : "";
   console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
 };
 
 // Price IDs from Stripe
 const PRICES = {
   monthly: "price_1RZoVe3J81eQle64BxY5Ls2s", // $10/month
-  yearly: "price_1RaBqI3J81eQle64GF6WYMfm",  // $99/year
+  yearly: "price_1RaBqI3J81eQle64GF6WYMfm", // $99/year
 };
 
 // Stripe coupon IDs for referrals
@@ -41,7 +41,7 @@ serve(async (req) => {
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { auth: { persistSession: false } }
+      { auth: { persistSession: false } },
     );
 
     // Get the authorization header
@@ -53,7 +53,7 @@ serve(async (req) => {
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
     if (userError) throw new Error(`Authentication error: ${userError.message}`);
-    
+
     const user = userData.user;
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
@@ -73,7 +73,7 @@ serve(async (req) => {
 
     // Validate referral code if provided
     let validatedReferrer: { id: string; code: string } | null = null;
-    
+
     if (referralCode && typeof referralCode === "string") {
       const normalizedCode = referralCode.trim().toUpperCase();
       logStep("Validating referral code", { code: normalizedCode });
@@ -97,12 +97,24 @@ serve(async (req) => {
 
         if (referrer && referrer.id !== user.id && referrer.referral_code_active) {
           validatedReferrer = { id: referrer.id, code: referrer.referral_code };
+          // Update the referred users profile with temp "referred_user" boolean
+          const { error: updateError } = await supabaseAdmin
+            .from("profiles")
+            .update({
+              referred_user: true,
+            })
+            .eq("id", user.id);
+          if (updateError) {
+            logStep("Error updating referred user profile", { error: updateError });
+          } else {
+            logStep("Referred user profile updated successfully", { userId: user.id });
+          }
           logStep("Referral code validated", { referrerId: referrer.id });
         } else {
-          logStep("Referral code invalid or inactive", { 
-            found: !!referrer, 
+          logStep("Referral code invalid or inactive", {
+            found: !!referrer,
             isSelf: referrer?.id === user.id,
-            isActive: referrer?.referral_code_active 
+            isActive: referrer?.referral_code_active,
           });
         }
       }
@@ -111,7 +123,7 @@ serve(async (req) => {
     // Check if a Stripe customer already exists for this user
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     let customerId: string | undefined;
-    
+
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
       logStep("Existing Stripe customer found", { customerId });
@@ -157,9 +169,7 @@ serve(async (req) => {
 
     // Apply 10% discount coupon for referred users
     if (validatedReferrer) {
-      sessionParams.discounts = [
-        { coupon: REFERRAL_COUPONS.REFERRED_USER_10_PERCENT }
-      ];
+      sessionParams.discounts = [{ coupon: REFERRAL_COUPONS.REFERRED_USER_10_PERCENT }];
       logStep("Applying referral discount", { couponId: REFERRAL_COUPONS.REFERRED_USER_10_PERCENT });
     }
 
