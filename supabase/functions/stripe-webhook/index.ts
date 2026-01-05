@@ -688,7 +688,7 @@ async function applyReferrerDiscount(
       })) ?? [];
 
     // Avoid duplicate coupon application
-    if (existingDiscounts.some((d) => d.coupon === couponId)) {
+    if (existingDiscounts.some((d: { coupon: string }) => d.coupon === couponId)) {
       logStep("Coupon already applied, skipping", { couponId });
       return;
     }
