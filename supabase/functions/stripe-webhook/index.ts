@@ -706,8 +706,10 @@ async function checkReferrerCanReceiveReward(
 
     const subscription = await stripe.subscriptions.retrieve(referrerProfile.subscription_id);
 
-    // Check if the subscription has any discounts attached
-    const hasDiscount = subscription.discounts;
+    logStep("Referrer's discounts", { discounts: subscription.discounts });
+
+    // Check if the subscription has any discounts attached (may return null or [])
+    const hasDiscount = subscription.discounts && subscription.discounts.length > 0;
     const canReceive = !hasDiscount;
 
     logStep("Checked if referrer can receive reward", {
