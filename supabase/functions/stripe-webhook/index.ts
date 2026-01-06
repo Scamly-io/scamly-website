@@ -512,9 +512,10 @@ serve(async (req) => {
                   referrerId: referral.referrer_user_id,
                 });
 
-                // Check if referrer can receive a reward this billing period
-                // Simple model: 1 referral per billing period (month or year)
+                // Check if referrer can receive a reward
+                // Simple model: if subscription has no discount, they can receive one
                 const canReceiveReward = await checkReferrerCanReceiveReward(
+                  stripe,
                   supabaseAdmin,
                   referral.referrer_user_id,
                 );
@@ -574,7 +575,9 @@ serve(async (req) => {
                 // it means checkout.session.completed hasn't created the referral row yet.
                 // Return 500 to force Stripe to retry.
                 if (profiles[0].referred_user) {
-                  logStep("ERROR: No unconverted referral found but user is marked as referred - forcing retry", { userId });
+                  logStep("ERROR: No unconverted referral found but user is marked as referred - forcing retry", {
+                    userId,
+                  });
                   return new Response(JSON.stringify({ error: "Referral row not yet created, retry required" }), {
                     status: 500,
                     headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -584,6 +587,15 @@ serve(async (req) => {
                 }
               }
             }
+          } else {
+            logStep("No profile found for referred user, possibly race condition - forcing retry");
+            return new Response(
+              JSON.stringify({ error: "No profile found for referred user, possibly race condition" }),
+              {
+                status: 500,
+                headers: { ...corsHeaders, "Content-Type": "application/json" },
+              },
+            );
           }
         }
         await insertProcessedEvent(supabaseAdmin, event.id, event.type);
@@ -670,71 +682,49 @@ function generateReferralCode(): string {
 }
 
 /**
- * Checks if the referrer can receive a reward this billing period
- * Simple model: 1 referral reward per billing period
+ * Checks if the referrer can receive a reward
+ * Simple model: if the referrer's subscription has no discount attached, they can receive a reward.
+ * Stripe automatically removes one-time use coupons when a billing cycle renews.
  */
 async function checkReferrerCanReceiveReward(
+  stripe: Stripe,
   supabaseAdmin: any,
   referrerUserId: string,
 ): Promise<boolean> {
   try {
-    // Get referrer's subscription info to determine billing period
+    // Get referrer's subscription ID from database
     const { data: referrerProfile } = await supabaseAdmin
       .from("profiles")
-      .select("subscription_plan, subscription_current_period_end")
+      .select("subscription_id")
       .eq("id", referrerUserId)
       .single();
 
-    if (!referrerProfile) {
-      logStep("Referrer profile not found", { referrerUserId });
-      return true; // Allow if profile not found (shouldn't happen)
+    if (!referrerProfile?.subscription_id) {
+      logStep("Referrer has no active subscription", { referrerUserId });
+      return false; // Cannot receive reward without active subscription
     }
 
-    // Determine the billing period start based on plan type
-    const now = new Date();
-    let periodStart: Date;
+    const subscription = await stripe.subscriptions.retrieve(referrerProfile.subscription_id);
 
-    if (referrerProfile.subscription_plan === "premium-yearly") {
-      // For yearly: check within the last year
-      periodStart = new Date(now);
-      periodStart.setFullYear(periodStart.getFullYear() - 1);
-    } else {
-      // For monthly: check within the last month
-      periodStart = new Date(now);
-      periodStart.setMonth(periodStart.getMonth() - 1);
-    }
+    // Check if the subscription has any discounts attached
+    const hasDiscount = subscription.discounts;
+    const canReceive = !hasDiscount;
 
-    // Check for any rewards created in this billing period
-    const { data: existingRewards, error } = await supabaseAdmin
-      .from("referral_rewards")
-      .select("id, created_at")
-      .eq("user_id", referrerUserId)
-      .gte("created_at", periodStart.toISOString())
-      .limit(1);
-
-    if (error) {
-      logStep("Error checking existing rewards", { error });
-      return true; // Allow on error to not block the flow
-    }
-
-    const canReceive = !existingRewards || existingRewards.length === 0;
     logStep("Checked if referrer can receive reward", {
       referrerUserId,
+      subscriptionId: referrerProfile.subscription_id,
       canReceive,
-      periodStart: periodStart.toISOString(),
-      existingRewardsCount: existingRewards?.length ?? 0,
     });
 
     return canReceive;
   } catch (error) {
     logStep("Error in checkReferrerCanReceiveReward", { error });
-    return true; // Allow on error
+    return true; // Allow on error to not block the flow
   }
 }
 
 /**
  * Applies the 10% referrer discount to the referrer's active subscription
- * Simple model: replaces any existing referral discount (no stacking)
  */
 async function applyReferrerDiscount(
   stripe: Stripe,
@@ -758,12 +748,14 @@ async function applyReferrerDiscount(
     }
 
     // Retrieve subscription to get existing discounts
-    const subscription = await stripe.subscriptions.retrieve(referrerProfile.subscription_id);
+    const subscription = await stripe.subscriptions.retrieve(referrerProfile.subscription_id, {
+      expand: ["discounts"],
+    });
 
     // Check if this coupon is already applied (idempotency)
     const existingDiscounts = subscription.discounts ?? [];
     const alreadyApplied = existingDiscounts.some((d: any) => {
-      const coupon = typeof d.coupon === 'string' ? d.coupon : d.coupon?.id;
+      const coupon = d.source.coupon; // String value of the coupon ID
       return coupon === couponId;
     });
 
@@ -772,8 +764,6 @@ async function applyReferrerDiscount(
       return;
     }
 
-    // Simple model: just add the discount (Stripe will handle it)
-    // We're not stacking - just applying one 10% discount
     await stripe.subscriptions.update(referrerProfile.subscription_id, {
       discounts: [{ coupon: couponId }],
     });
