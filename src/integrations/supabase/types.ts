@@ -219,6 +219,24 @@ export type Database = {
           },
         ]
       }
+      processed_stripe_events: {
+        Row: {
+          event_type: string
+          id: string
+          processed_at: string
+        }
+        Insert: {
+          event_type: string
+          id: string
+          processed_at?: string
+        }
+        Update: {
+          event_type?: string
+          id?: string
+          processed_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           access_expires_at: string | null
@@ -227,10 +245,12 @@ export type Database = {
           dob: string | null
           first_name: string | null
           gender: string | null
+          has_paid_first_invoice: boolean
           id: string
           referral_code: string | null
           referral_code_active: boolean
           referral_code_updated_at: string | null
+          referred_user: boolean
           stripe_customer_id: string | null
           subscription_current_period_end: string | null
           subscription_id: string | null
@@ -244,10 +264,12 @@ export type Database = {
           dob?: string | null
           first_name?: string | null
           gender?: string | null
+          has_paid_first_invoice?: boolean
           id: string
           referral_code?: string | null
           referral_code_active?: boolean
           referral_code_updated_at?: string | null
+          referred_user?: boolean
           stripe_customer_id?: string | null
           subscription_current_period_end?: string | null
           subscription_id?: string | null
@@ -261,10 +283,12 @@ export type Database = {
           dob?: string | null
           first_name?: string | null
           gender?: string | null
+          has_paid_first_invoice?: boolean
           id?: string
           referral_code?: string | null
           referral_code_active?: boolean
           referral_code_updated_at?: string | null
+          referred_user?: boolean
           stripe_customer_id?: string | null
           subscription_current_period_end?: string | null
           subscription_id?: string | null

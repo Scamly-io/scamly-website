@@ -13,10 +13,8 @@ const logStep = (step: string, details?: unknown) => {
   console.log(`[STRIPE-WEBHOOK] ${step}${detailsStr}`);
 };
 
-// Stripe coupon IDs for referrals
-const REFERRAL_COUPONS = {
-  REFERRER_5_PERCENT: "QEAuNLJJ", // 5% off for referrer
-};
+// Stripe coupon ID for referrals - flat 10% for both referrer and referred
+const REFERRAL_COUPON_10_PERCENT = "qLrjIGkn";
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -430,7 +428,7 @@ serve(async (req) => {
        * 1. Get the subscription information from the webhook data
        * 2. Update the users profile with the subscription info
        * 3. Convert the inactive referral intent to an active referral
-       * 4. Grant the 5% discount to the referring user.
+       * 4. Grant the 10% discount to the referring user (simple model: one referral = one 10% discount)
        */
       case "invoice.payment_succeeded": {
         const invoice = event.data.object as Stripe.Invoice;
@@ -493,8 +491,9 @@ serve(async (req) => {
             logStep("Profile updated after payment", { userId });
 
             // =============================================
-            // REFERRAL CONVERSION LOGIC
-            // Only on FIRST successful invoice (subscription_create or subscription_cycle for first payment)
+            // REFERRAL CONVERSION LOGIC (SIMPLIFIED MODEL)
+            // One referral = flat 10% discount for referrer
+            // Only on FIRST successful invoice (subscription_create)
             // =============================================
             if (invoice.billing_reason === "subscription_create" && !profiles[0].has_paid_first_invoice) {
               logStep("First invoice paid, checking for referral conversion", { userId });
@@ -513,6 +512,13 @@ serve(async (req) => {
                   referrerId: referral.referrer_user_id,
                 });
 
+                // Check if referrer can receive a reward this billing period
+                // Simple model: 1 referral per billing period (month or year)
+                const canReceiveReward = await checkReferrerCanReceiveReward(
+                  supabaseAdmin,
+                  referral.referrer_user_id,
+                );
+
                 // Mark referral as converted (idempotency via unique constraint)
                 const { error: convertError } = await supabaseAdmin
                   .from("referrals")
@@ -528,39 +534,48 @@ serve(async (req) => {
                 } else {
                   logStep("Referral marked as converted");
 
-                  // Grant 5% reward to referrer
-                  // Use source_referral_id for idempotency
-                  const { error: rewardError } = await supabaseAdmin.from("referral_rewards").insert({
-                    user_id: referral.referrer_user_id,
-                    percent: 5,
-                    applied: false,
-                    stripe_coupon_id: REFERRAL_COUPONS.REFERRER_5_PERCENT,
-                    source_referral_id: referral.id,
-                  });
+                  // Only apply discount if referrer hasn't already received one this period
+                  if (canReceiveReward) {
+                    // Create referral reward record (10% flat discount)
+                    const { error: rewardError } = await supabaseAdmin.from("referral_rewards").insert({
+                      user_id: referral.referrer_user_id,
+                      percent: 10,
+                      applied: false,
+                      stripe_coupon_id: REFERRAL_COUPON_10_PERCENT,
+                      source_referral_id: referral.id,
+                    });
 
-                  if (rewardError) {
-                    // Could be duplicate, which is fine (idempotency)
-                    logStep("Error or duplicate creating referral reward", { error: rewardError });
+                    if (rewardError) {
+                      // Could be duplicate, which is fine (idempotency)
+                      logStep("Error or duplicate creating referral reward", { error: rewardError });
+                    } else {
+                      logStep("Referral reward created for referrer", {
+                        referrerId: referral.referrer_user_id,
+                        percent: 10,
+                      });
+                    }
+
+                    // Apply 10% coupon to referrer's subscription
+                    await applyReferrerDiscount(
+                      stripe,
+                      supabaseAdmin,
+                      referral.referrer_user_id,
+                      REFERRAL_COUPON_10_PERCENT,
+                    );
                   } else {
-                    logStep("Referral reward created for referrer", {
+                    logStep("Referrer already received a reward this billing period, skipping discount", {
                       referrerId: referral.referrer_user_id,
-                      percent: 5,
                     });
                   }
-
-                  // Apply 5% coupon to referrer's subscription
-                  await applyReferrerDiscount(
-                    stripe,
-                    supabaseAdmin,
-                    referral.referrer_user_id,
-                    REFERRAL_COUPONS.REFERRER_5_PERCENT,
-                  );
                 }
               } else {
                 // No unconverted referral found - check if user was supposed to be referred
+                // This is a RACE CONDITION SAFEGUARD: if referred_user is true but no referral row exists,
+                // it means checkout.session.completed hasn't created the referral row yet.
+                // Return 500 to force Stripe to retry.
                 if (profiles[0].referred_user) {
-                  logStep("ERROR: No unconverted referral found but user is marked as referred", { userId });
-                  return new Response(JSON.stringify({ error: "No unconverted referral found for referred user" }), {
+                  logStep("ERROR: No unconverted referral found but user is marked as referred - forcing retry", { userId });
+                  return new Response(JSON.stringify({ error: "Referral row not yet created, retry required" }), {
                     status: 500,
                     headers: { ...corsHeaders, "Content-Type": "application/json" },
                   });
@@ -655,8 +670,71 @@ function generateReferralCode(): string {
 }
 
 /**
- * Applies the 5% referrer discount to the referrer's active subscription
- * Stacks with existing discounts by adding a new coupon
+ * Checks if the referrer can receive a reward this billing period
+ * Simple model: 1 referral reward per billing period
+ */
+async function checkReferrerCanReceiveReward(
+  supabaseAdmin: any,
+  referrerUserId: string,
+): Promise<boolean> {
+  try {
+    // Get referrer's subscription info to determine billing period
+    const { data: referrerProfile } = await supabaseAdmin
+      .from("profiles")
+      .select("subscription_plan, subscription_current_period_end")
+      .eq("id", referrerUserId)
+      .single();
+
+    if (!referrerProfile) {
+      logStep("Referrer profile not found", { referrerUserId });
+      return true; // Allow if profile not found (shouldn't happen)
+    }
+
+    // Determine the billing period start based on plan type
+    const now = new Date();
+    let periodStart: Date;
+
+    if (referrerProfile.subscription_plan === "premium-yearly") {
+      // For yearly: check within the last year
+      periodStart = new Date(now);
+      periodStart.setFullYear(periodStart.getFullYear() - 1);
+    } else {
+      // For monthly: check within the last month
+      periodStart = new Date(now);
+      periodStart.setMonth(periodStart.getMonth() - 1);
+    }
+
+    // Check for any rewards created in this billing period
+    const { data: existingRewards, error } = await supabaseAdmin
+      .from("referral_rewards")
+      .select("id, created_at")
+      .eq("user_id", referrerUserId)
+      .gte("created_at", periodStart.toISOString())
+      .limit(1);
+
+    if (error) {
+      logStep("Error checking existing rewards", { error });
+      return true; // Allow on error to not block the flow
+    }
+
+    const canReceive = !existingRewards || existingRewards.length === 0;
+    logStep("Checked if referrer can receive reward", {
+      referrerUserId,
+      canReceive,
+      periodStart: periodStart.toISOString(),
+      existingRewardsCount: existingRewards?.length ?? 0,
+    });
+
+    return canReceive;
+  } catch (error) {
+    logStep("Error in checkReferrerCanReceiveReward", { error });
+    return true; // Allow on error
+  }
+}
+
+/**
+ * Applies the 10% referrer discount to the referrer's active subscription
+ * Simple model: replaces any existing referral discount (no stacking)
  */
 async function applyReferrerDiscount(
   stripe: Stripe,
@@ -682,28 +760,27 @@ async function applyReferrerDiscount(
     // Retrieve subscription to get existing discounts
     const subscription = await stripe.subscriptions.retrieve(referrerProfile.subscription_id);
 
-    const existingDiscounts =
-      subscription.discounts?.map((d: any) => ({
-        coupon: d.coupon.id,
-      })) ?? [];
+    // Check if this coupon is already applied (idempotency)
+    const existingDiscounts = subscription.discounts ?? [];
+    const alreadyApplied = existingDiscounts.some((d: any) => {
+      const coupon = typeof d.coupon === 'string' ? d.coupon : d.coupon?.id;
+      return coupon === couponId;
+    });
 
-    // Avoid duplicate coupon application
-    if (existingDiscounts.some((d: any) => d.coupon === couponId)) {
+    if (alreadyApplied) {
       logStep("Coupon already applied, skipping", { couponId });
       return;
     }
 
-    // Append new discount
-    const updatedDiscounts = [...existingDiscounts, { coupon: couponId }];
-
+    // Simple model: just add the discount (Stripe will handle it)
+    // We're not stacking - just applying one 10% discount
     await stripe.subscriptions.update(referrerProfile.subscription_id, {
-      discounts: updatedDiscounts,
+      discounts: [{ coupon: couponId }],
     });
 
     logStep("Referrer discount applied", {
       referrerUserId,
       subscriptionId: referrerProfile.subscription_id,
-      discounts: updatedDiscounts.length,
     });
 
     // Mark reward as applied
@@ -728,7 +805,7 @@ async function checkDuplicateEvent(supabaseAdmin: any, eventId: string): Promise
   const { data: existingEvent } = await supabaseAdmin
     .from("processed_stripe_events")
     .select("id")
-    .eq("event_id", eventId)
+    .eq("id", eventId)
     .maybeSingle();
 
   return !!existingEvent;
@@ -737,7 +814,7 @@ async function checkDuplicateEvent(supabaseAdmin: any, eventId: string): Promise
 async function insertProcessedEvent(supabaseAdmin: any, eventId: string, eventType: string): Promise<void> {
   const { error: insertError } = await supabaseAdmin
     .from("processed_stripe_events")
-    .insert({ event_id: eventId, event_type: eventType });
+    .insert({ id: eventId, event_type: eventType });
 
   if (insertError) {
     logStep("Error inserting processed event", { error: insertError });

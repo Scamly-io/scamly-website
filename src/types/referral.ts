@@ -1,11 +1,18 @@
 // Types for the referral system
+// Simplified model: 1 referral per billing period, flat 10% discount for both parties
 
 export interface ReferralStats {
   referralCode: string | null;
   referralCodeActive: boolean;
   subscriptionStatus: string;
+  subscriptionPlan: string;
   totalReferrals: number;
   convertedReferrals: number;
+  // New simplified model fields
+  canReferThisPeriod: boolean;
+  hasRewardThisPeriod: boolean;
+  currentRewardApplied: boolean;
+  // Legacy fields (kept for backward compat)
   pendingReferrals: number;
   pendingDiscountPercent: number;
   wasReferred: {
