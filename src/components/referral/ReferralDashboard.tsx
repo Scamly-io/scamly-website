@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Copy, Check, Edit2, Gift, Users, Clock, DollarSign, RefreshCw } from 'lucide-react';
+import { Copy, Check, Edit2, Gift, Users, RefreshCw, Percent } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export function ReferralDashboard() {
@@ -16,28 +16,19 @@ export function ReferralDashboard() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Copy referral code to clipboard
   const handleCopy = async () => {
     if (!stats?.referralCode) return;
     
     try {
       await navigator.clipboard.writeText(stats.referralCode);
       setCopied(true);
-      toast({
-        title: 'Copied!',
-        description: 'Referral code copied to clipboard',
-      });
+      toast({ title: 'Copied!', description: 'Referral code copied to clipboard' });
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast({
-        title: 'Copy failed',
-        description: 'Could not copy to clipboard',
-        variant: 'destructive',
-      });
+      toast({ title: 'Copy failed', description: 'Could not copy to clipboard', variant: 'destructive' });
     }
   };
 
-  // Share referral link
   const handleShare = async () => {
     if (!stats?.referralCode) return;
     
@@ -51,23 +42,15 @@ export function ReferralDashboard() {
           url: shareUrl,
         });
       } catch {
-        // User cancelled or share failed, fallback to copy
         await navigator.clipboard.writeText(shareUrl);
-        toast({
-          title: 'Link copied!',
-          description: 'Referral link copied to clipboard',
-        });
+        toast({ title: 'Link copied!', description: 'Referral link copied to clipboard' });
       }
     } else {
       await navigator.clipboard.writeText(shareUrl);
-      toast({
-        title: 'Link copied!',
-        description: 'Referral link copied to clipboard',
-      });
+      toast({ title: 'Link copied!', description: 'Referral link copied to clipboard' });
     }
   };
 
-  // Update referral code
   const handleUpdateCode = async () => {
     if (!newCode.trim()) return;
     
@@ -76,18 +59,11 @@ export function ReferralDashboard() {
     setIsUpdating(false);
 
     if (result.success) {
-      toast({
-        title: 'Code updated!',
-        description: `Your new referral code is ${result.referralCode}`,
-      });
+      toast({ title: 'Code updated!', description: `Your new referral code is ${result.referralCode}` });
       setIsEditing(false);
       setNewCode('');
     } else {
-      toast({
-        title: 'Update failed',
-        description: result.error || 'Could not update referral code',
-        variant: 'destructive',
-      });
+      toast({ title: 'Update failed', description: result.error || 'Could not update referral code', variant: 'destructive' });
     }
   };
 
@@ -106,15 +82,12 @@ export function ReferralDashboard() {
       <Card>
         <CardContent className="py-6">
           <p className="text-sm text-destructive">{error}</p>
-          <Button variant="outline" size="sm" onClick={fetchStats} className="mt-2">
-            Retry
-          </Button>
+          <Button variant="outline" size="sm" onClick={fetchStats} className="mt-2">Retry</Button>
         </CardContent>
       </Card>
     );
   }
 
-  // User is not premium
   if (!stats?.referralCodeActive) {
     return (
       <Card>
@@ -130,15 +103,16 @@ export function ReferralDashboard() {
         <CardContent>
           <div className="rounded-lg bg-muted p-4">
             <p className="text-sm text-muted-foreground">
-              Premium members can share their referral code with friends. 
-              Referred users get <strong>10% off</strong> their first subscription, 
-              and you get <strong>5% off</strong> your next invoice for each successful referral.
+              Premium members can refer one friend per billing period. 
+              Both you and your friend get <strong>10% off</strong>!
             </p>
           </div>
         </CardContent>
       </Card>
     );
   }
+
+  const billingPeriod = stats.subscriptionPlan === 'premium-yearly' ? 'year' : 'month';
 
   return (
     <Card>
@@ -149,9 +123,7 @@ export function ReferralDashboard() {
               <Gift className="h-5 w-5" />
               Referral Program
             </CardTitle>
-            <CardDescription>
-              Share your code and earn discounts
-            </CardDescription>
+            <CardDescription>Refer a friend and both get 10% off</CardDescription>
           </div>
           <Button variant="ghost" size="icon" onClick={fetchStats} disabled={loading}>
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
@@ -172,16 +144,10 @@ export function ReferralDashboard() {
                 maxLength={20}
                 className="font-mono uppercase"
               />
-              <Button 
-                onClick={handleUpdateCode} 
-                disabled={isUpdating || !newCode.trim()}
-              >
+              <Button onClick={handleUpdateCode} disabled={isUpdating || !newCode.trim()}>
                 {isUpdating ? 'Saving...' : 'Save'}
               </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => { setIsEditing(false); setNewCode(''); }}
-              >
+              <Button variant="outline" onClick={() => { setIsEditing(false); setNewCode(''); }}>
                 Cancel
               </Button>
             </div>
@@ -190,20 +156,10 @@ export function ReferralDashboard() {
               <code className="flex-1 rounded-md bg-muted px-4 py-3 font-mono text-lg tracking-wider">
                 {stats.referralCode}
               </code>
-              <Button 
-                variant="outline" 
-                size="icon" 
-                onClick={handleCopy}
-                title="Copy code"
-              >
+              <Button variant="outline" size="icon" onClick={handleCopy} title="Copy code">
                 {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
               </Button>
-              <Button 
-                variant="outline" 
-                size="icon" 
-                onClick={() => setIsEditing(true)}
-                title="Edit code"
-              >
+              <Button variant="outline" size="icon" onClick={() => setIsEditing(true)} title="Edit code">
                 <Edit2 className="h-4 w-4" />
               </Button>
             </div>
@@ -214,7 +170,7 @@ export function ReferralDashboard() {
           </Button>
         </div>
 
-        {/* Stats Grid */}
+        {/* Status Section */}
         <div className="grid grid-cols-2 gap-4">
           <div className="rounded-lg border p-4">
             <div className="flex items-center gap-2 text-muted-foreground">
@@ -226,29 +182,28 @@ export function ReferralDashboard() {
           
           <div className="rounded-lg border p-4">
             <div className="flex items-center gap-2 text-muted-foreground">
-              <Clock className="h-4 w-4" />
-              <span className="text-sm">Pending</span>
-            </div>
-            <p className="mt-1 text-2xl font-bold">{stats.pendingReferrals}</p>
-          </div>
-          
-          <div className="rounded-lg border p-4">
-            <div className="flex items-center gap-2 text-muted-foreground">
               <Check className="h-4 w-4" />
               <span className="text-sm">Converted</span>
             </div>
             <p className="mt-1 text-2xl font-bold">{stats.convertedReferrals}</p>
           </div>
           
-          <div className="rounded-lg border p-4">
+          <div className="col-span-2 rounded-lg border p-4">
             <div className="flex items-center gap-2 text-muted-foreground">
-              <DollarSign className="h-4 w-4" />
-              <span className="text-sm">Next Invoice Discount</span>
+              <Percent className="h-4 w-4" />
+              <span className="text-sm">This {billingPeriod}</span>
             </div>
             <div className="mt-1 flex items-center gap-2">
-              <p className="text-2xl font-bold">{stats.pendingDiscountPercent}%</p>
-              {stats.pendingDiscountPercent > 0 && (
-                <Badge variant="secondary">Pending</Badge>
+              {stats.canReferThisPeriod ? (
+                <>
+                  <p className="text-lg font-medium text-green-600 dark:text-green-400">Ready to refer!</p>
+                  <Badge variant="secondary">1 available</Badge>
+                </>
+              ) : (
+                <>
+                  <p className="text-lg font-medium">Referral used</p>
+                  <Badge variant="outline">{stats.currentRewardApplied ? '10% applied' : '10% pending'}</Badge>
+                </>
               )}
             </div>
           </div>
@@ -258,10 +213,10 @@ export function ReferralDashboard() {
         <div className="rounded-lg bg-muted/50 p-4 text-sm text-muted-foreground">
           <p className="font-medium text-foreground">How it works:</p>
           <ul className="mt-2 space-y-1 list-disc pl-4">
-            <li>Share your code with friends</li>
+            <li>Share your code with a friend</li>
             <li>They get <strong>10% off</strong> their first subscription</li>
-            <li>You get <strong>5% off</strong> your next invoice when they pay</li>
-            <li>Discounts stack until your invoice reaches $0</li>
+            <li>You get <strong>10% off</strong> your next invoice</li>
+            <li>One referral per billing {billingPeriod}</li>
           </ul>
         </div>
       </CardContent>

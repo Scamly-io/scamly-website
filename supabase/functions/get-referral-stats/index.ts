@@ -1,6 +1,7 @@
 // =============================================
 // GET REFERRAL STATS
 // Returns referral statistics for a user
+// Simplified model: 1 referral per billing period, flat 10% discount
 // =============================================
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
@@ -45,7 +46,7 @@ serve(async (req) => {
     // Get profile with referral info
     let { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("referral_code, referral_code_active, subscription_status")
+      .select("referral_code, referral_code_active, subscription_status, subscription_plan")
       .eq("id", user.id)
       .single();
 
@@ -98,6 +99,7 @@ serve(async (req) => {
             referral_code: referralCode,
             referral_code_active: true,
             subscription_status: profile?.subscription_status,
+            subscription_plan: profile?.subscription_plan,
           };
         } else {
           logStep("Error updating profile with referral code", { error: updateError });
@@ -105,24 +107,42 @@ serve(async (req) => {
       }
     }
 
-    // Get referral counts
+    // Get total referral counts (all time)
     const { data: referrals } = await supabaseAdmin
       .from("referrals")
-      .select("id, converted")
+      .select("id, converted, converted_at")
       .eq("referrer_user_id", user.id);
 
     const totalReferrals = referrals?.length || 0;
     const convertedReferrals = referrals?.filter(r => r.converted).length || 0;
-    const pendingReferrals = totalReferrals - convertedReferrals;
 
-    // Get pending rewards (discounts stacked for next invoice)
-    const { data: pendingRewards } = await supabaseAdmin
+    // Check if user can refer someone this billing period
+    // Simple model: 1 referral reward per billing period
+    const now = new Date();
+    let periodStart: Date;
+
+    if (profile?.subscription_plan === "premium-yearly") {
+      // For yearly: check within the last year
+      periodStart = new Date(now);
+      periodStart.setFullYear(periodStart.getFullYear() - 1);
+    } else {
+      // For monthly: check within the last month
+      periodStart = new Date(now);
+      periodStart.setMonth(periodStart.getMonth() - 1);
+    }
+
+    // Check for any rewards created in this billing period
+    const { data: recentRewards } = await supabaseAdmin
       .from("referral_rewards")
-      .select("percent")
+      .select("id, created_at, applied")
       .eq("user_id", user.id)
-      .eq("applied", false);
+      .gte("created_at", periodStart.toISOString())
+      .order("created_at", { ascending: false })
+      .limit(1);
 
-    const pendingDiscountPercent = pendingRewards?.reduce((sum, r) => sum + r.percent, 0) || 0;
+    const hasRewardThisPeriod = recentRewards && recentRewards.length > 0;
+    const canReferThisPeriod = !hasRewardThisPeriod;
+    const currentRewardApplied = hasRewardThisPeriod ? recentRewards[0].applied : false;
 
     // Check if user was referred
     const { data: wasReferred } = await supabaseAdmin
@@ -133,19 +153,26 @@ serve(async (req) => {
 
     logStep("Stats retrieved", { 
       totalReferrals, 
-      convertedReferrals, 
-      pendingReferrals,
-      pendingDiscountPercent 
+      convertedReferrals,
+      canReferThisPeriod,
+      hasRewardThisPeriod,
+      currentRewardApplied,
     });
 
     return new Response(JSON.stringify({
       referralCode: profile?.referral_code || null,
       referralCodeActive: profile?.referral_code_active || false,
       subscriptionStatus: profile?.subscription_status || "free",
+      subscriptionPlan: profile?.subscription_plan || "free",
       totalReferrals,
       convertedReferrals,
-      pendingReferrals,
-      pendingDiscountPercent,
+      // New simplified model fields
+      canReferThisPeriod,
+      hasRewardThisPeriod,
+      currentRewardApplied,
+      // Legacy fields (keeping for backward compat but will be removed from UI)
+      pendingReferrals: 0,
+      pendingDiscountPercent: hasRewardThisPeriod && !currentRewardApplied ? 10 : 0,
       wasReferred: wasReferred ? {
         codeUsed: wasReferred.referral_code_used,
         converted: wasReferred.converted
