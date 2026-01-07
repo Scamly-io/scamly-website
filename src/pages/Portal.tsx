@@ -365,19 +365,19 @@ export default function Portal() {
           )}
           
           {/* Tabs */}
-          <div className="flex gap-1 p-1 rounded-xl bg-muted mb-8">
+          <div className="grid grid-cols-2 md:flex gap-1 p-1 rounded-xl bg-muted mb-8">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
+                className={`md:flex-1 flex items-center justify-center gap-2 py-2.5 px-3 md:px-4 rounded-lg text-sm font-medium transition-all ${
                   activeTab === tab.id
                     ? 'bg-card shadow-sm text-foreground'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 <tab.icon className="w-4 h-4" />
-                {tab.label}
+                <span className="hidden sm:inline">{tab.label}</span>
               </button>
             ))}
           </div>
