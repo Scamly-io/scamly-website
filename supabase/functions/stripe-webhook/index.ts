@@ -69,9 +69,11 @@ serve(async (req) => {
        *
        * Functions (in order of execution):
        * 1. Get the subscription information from the webhook data
-       * 2. Generate a referral code for the new premium user (but don't activate if on trial)
-       * 3. Update the users profile with the subscription info and referral code.
-       * 4. Create a referral intent record (if the user was referred)
+       * 2. CHECK TRIAL ABUSE: Verify payment fingerprint hasn't been used before
+       * 3. If abuse detected: Cancel subscription, reset to free, mark has_consumed_trial
+       * 4. If no abuse: Store fingerprint, mark has_consumed_trial, generate referral code
+       * 5. Update the users profile with the subscription info and referral code.
+       * 6. Create a referral intent record (if the user was referred)
        * 
        * NOTE: Trial users get a referral code but it's NOT active until trial ends.
        */
@@ -94,6 +96,10 @@ serve(async (req) => {
           logStep("No user ID found in session", { session });
           break;
         }
+
+        // Check if this was a trial checkout
+        const isTrial = session.metadata?.is_trial === "true";
+        logStep("Checkout metadata", { userId, isTrial });
 
         // Check for referral info in session metadata
         const referrerUserId = session.metadata?.referrer_user_id;
@@ -120,6 +126,179 @@ serve(async (req) => {
             currentPeriodEnd: subscription.items.data?.[0]?.current_period_end,
           });
 
+          // =============================================
+          // TRIAL ABUSE DETECTION
+          // Only check if this is a trial subscription
+          // =============================================
+          let trialAbuseDetected = false;
+          let abuseReason = "";
+
+          if (isTrial && subscription.status === "trialing") {
+            logStep("Trial subscription detected, checking for abuse");
+
+            // Get the payment method used for this subscription
+            const paymentMethodId = subscription.default_payment_method as string;
+            
+            if (paymentMethodId) {
+              try {
+                const paymentMethod = await stripe.paymentMethods.retrieve(paymentMethodId);
+                logStep("Payment method retrieved", { 
+                  type: paymentMethod.type,
+                  id: paymentMethod.id,
+                });
+
+                let fingerprint: string | null = null;
+                let fingerprintType: "card" | "link" | null = null;
+
+                // Extract fingerprint based on payment method type
+                if (paymentMethod.type === "card" && paymentMethod.card?.fingerprint) {
+                  fingerprint = paymentMethod.card.fingerprint;
+                  fingerprintType = "card";
+                  logStep("Card fingerprint extracted", { fingerprint });
+                } else if (paymentMethod.type === "link" && paymentMethod.link?.email) {
+                  // For Link payments, use the email as the fingerprint
+                  fingerprint = paymentMethod.link.email;
+                  fingerprintType = "link";
+                  logStep("Link email fingerprint extracted", { fingerprint });
+                }
+
+                if (fingerprint && fingerprintType) {
+                  // Check if this fingerprint has been used before (by any user)
+                  const { data: existingFingerprint } = await supabaseAdmin
+                    .from("payment_fingerprints")
+                    .select("id, user_id, first_used_at")
+                    .eq("fingerprint", fingerprint)
+                    .maybeSingle();
+
+                  if (existingFingerprint) {
+                    // Fingerprint exists - this is trial abuse!
+                    trialAbuseDetected = true;
+                    abuseReason = `Payment method was previously used for a trial by user ${existingFingerprint.user_id} on ${existingFingerprint.first_used_at}`;
+                    logStep("TRIAL ABUSE DETECTED - Fingerprint already used", {
+                      fingerprint,
+                      previousUserId: existingFingerprint.user_id,
+                      firstUsedAt: existingFingerprint.first_used_at,
+                    });
+                  } else {
+                    // Also check if user has already consumed a trial (belt and suspenders)
+                    const { data: userProfile } = await supabaseAdmin
+                      .from("profiles")
+                      .select("has_consumed_trial")
+                      .eq("id", userId)
+                      .single();
+
+                    if (userProfile?.has_consumed_trial) {
+                      trialAbuseDetected = true;
+                      abuseReason = "User has already consumed their free trial";
+                      logStep("TRIAL ABUSE DETECTED - User already consumed trial", { userId });
+                    } else {
+                      // No abuse - store the fingerprint for future checks
+                      const { error: fingerprintError } = await supabaseAdmin
+                        .from("payment_fingerprints")
+                        .insert({
+                          fingerprint,
+                          fingerprint_type: fingerprintType,
+                          user_id: userId,
+                        });
+
+                      if (fingerprintError) {
+                        // Could be a race condition - another request inserted first
+                        if (fingerprintError.code === "23505") { // Unique constraint violation
+                          trialAbuseDetected = true;
+                          abuseReason = "Payment fingerprint was just registered by another request";
+                          logStep("TRIAL ABUSE DETECTED - Race condition on fingerprint insert", {
+                            fingerprint,
+                            error: fingerprintError,
+                          });
+                        } else {
+                          logStep("Error inserting fingerprint, allowing trial anyway", { 
+                            error: fingerprintError 
+                          });
+                        }
+                      } else {
+                        logStep("Fingerprint stored successfully", { fingerprint, fingerprintType });
+                      }
+                    }
+                  }
+                } else {
+                  // Could not extract fingerprint - deny trial to be safe
+                  // This handles edge cases where payment method data is incomplete
+                  trialAbuseDetected = true;
+                  abuseReason = "Could not extract payment fingerprint - trial denied for safety";
+                  logStep("TRIAL DENIED - No fingerprint available", { 
+                    paymentMethodType: paymentMethod.type 
+                  });
+                }
+              } catch (pmError) {
+                // Payment method retrieval failed - deny trial to be safe
+                trialAbuseDetected = true;
+                abuseReason = "Failed to retrieve payment method - trial denied for safety";
+                logStep("TRIAL DENIED - Payment method retrieval failed", { error: pmError });
+              }
+            } else {
+              // No default payment method on subscription - this shouldn't happen for trials
+              // but handle it anyway by denying trial
+              logStep("No payment method on trial subscription - checking setup intent");
+              
+              // For some checkout configurations, payment method might be on the setup intent
+              // Default to denying trial if we can't verify the payment method
+              trialAbuseDetected = true;
+              abuseReason = "No payment method found on subscription - trial denied for safety";
+            }
+
+            // =============================================
+            // HANDLE TRIAL ABUSE
+            // Cancel subscription immediately and reset user to free
+            // =============================================
+            if (trialAbuseDetected) {
+              logStep("Handling trial abuse - cancelling subscription", { 
+                subscriptionId: subscription.id,
+                reason: abuseReason,
+              });
+
+              try {
+                // Cancel the subscription immediately
+                await stripe.subscriptions.cancel(subscription.id, {
+                  prorate: true,
+                });
+                logStep("Trial subscription cancelled due to abuse");
+
+                // Update user profile to free and mark trial as consumed
+                await supabaseAdmin
+                  .from("profiles")
+                  .update({
+                    subscription_status: "free",
+                    subscription_plan: "free",
+                    subscription_id: null,
+                    subscription_current_period_end: null,
+                    access_expires_at: null,
+                    has_consumed_trial: true, // Mark so they can still subscribe (without trial)
+                    referral_code_active: false,
+                  })
+                  .eq("id", userId);
+
+                logStep("User reset to free due to trial abuse", { userId, reason: abuseReason });
+
+                // We're done - don't continue with normal checkout processing
+                await insertProcessedEvent(supabaseAdmin, event.id, event.type);
+                return new Response(JSON.stringify({ 
+                  received: true, 
+                  trialAbuse: true,
+                  reason: abuseReason,
+                }), {
+                  headers: { ...corsHeaders, "Content-Type": "application/json" },
+                  status: 200,
+                });
+              } catch (cancelError) {
+                logStep("Error cancelling abusive trial subscription", { error: cancelError });
+                // Continue anyway - better to have the profile updated than leave in bad state
+              }
+            }
+          }
+
+          // =============================================
+          // NORMAL CHECKOUT PROCESSING (no abuse detected)
+          // =============================================
           const priceId = subscription.items.data[0]?.price.id;
 
           // Determine the plan based on price ID
@@ -171,6 +350,7 @@ serve(async (req) => {
 
           // Trial users get a referral code but it's NOT active until trial ends
           // This prevents trial users from referring others
+          // IMPORTANT: Mark has_consumed_trial = true to prevent future trial abuse
           const updateData: Record<string, unknown> = {
             stripe_customer_id: session.customer as string,
             subscription_id: subscription.id,
@@ -179,6 +359,7 @@ serve(async (req) => {
             subscription_current_period_end: currentPeriodEndDate,
             access_expires_at: null,
             referral_code_active: !isTrialing, // Inactive during trial
+            has_consumed_trial: isTrialing ? true : false, // Mark trial as consumed if this was a trial
           };
 
           if (!existingProfile?.referral_code) {
@@ -196,6 +377,7 @@ serve(async (req) => {
               isTrialing,
               referralCodeActive: !isTrialing,
               referralCode: updateData.referral_code ?? existingProfile?.referral_code,
+              hasConsumedTrial: updateData.has_consumed_trial,
             });
           }
 
@@ -441,6 +623,7 @@ serve(async (req) => {
         const userId = profiles[0].id;
 
         // Reset the profile to free plan, deactivate referral code
+        // Note: has_consumed_trial stays true - they used their trial
         const { error: updateError } = await supabaseAdmin
           .from("profiles")
           .update({

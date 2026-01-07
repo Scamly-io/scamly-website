@@ -219,6 +219,33 @@ export type Database = {
           },
         ]
       }
+      payment_fingerprints: {
+        Row: {
+          created_at: string
+          fingerprint: string
+          fingerprint_type: string
+          first_used_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          fingerprint: string
+          fingerprint_type: string
+          first_used_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          fingerprint?: string
+          fingerprint_type?: string
+          first_used_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       processed_stripe_events: {
         Row: {
           event_type: string
@@ -245,6 +272,7 @@ export type Database = {
           dob: string | null
           first_name: string | null
           gender: string | null
+          has_consumed_trial: boolean
           has_paid_first_invoice: boolean
           id: string
           referral_code: string | null
@@ -264,6 +292,7 @@ export type Database = {
           dob?: string | null
           first_name?: string | null
           gender?: string | null
+          has_consumed_trial?: boolean
           has_paid_first_invoice?: boolean
           id: string
           referral_code?: string | null
@@ -283,6 +312,7 @@ export type Database = {
           dob?: string | null
           first_name?: string | null
           gender?: string | null
+          has_consumed_trial?: boolean
           has_paid_first_invoice?: boolean
           id?: string
           referral_code?: string | null

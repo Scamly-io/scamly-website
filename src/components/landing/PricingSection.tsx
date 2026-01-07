@@ -35,7 +35,7 @@ const plans = [
       { text: "Contact Search Tool", included: true },
       { text: "First access to features", included: true },
     ],
-    cta: "Start Premium",
+    cta: "Start 14-Day Free Trial",
     variant: "gradient" as const,
     popular: true,
   },
@@ -76,7 +76,7 @@ export function PricingSection() {
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                   <span className="px-4 py-1.5 rounded-full gradient-bg text-sm font-semibold text-primary-foreground shadow-lg">
-                    Most Popular
+                    14-Day Free Trial
                   </span>
                 </div>
               )}
@@ -97,6 +97,11 @@ export function PricingSection() {
                   </div>
                 )}
                 <p className="text-sm text-muted-foreground mt-2">{plan.description}</p>
+                {plan.popular && (
+                  <p className="text-sm text-green-600 dark:text-green-400 font-medium mt-2">
+                    ✓ Try free for 14 days, cancel anytime
+                  </p>
+                )}
               </div>
 
               {/* Features */}
@@ -122,12 +127,12 @@ export function PricingSection() {
                 <Link to="/auth?mode=signup">{plan.cta}</Link>
               </Button>
             </div>
-          ))}
+        ))}
         </div>
 
         {/* Trust Note */}
         <p className="text-center text-sm text-muted-foreground mt-8">
-          Start protecting yourself today. Upgrade or cancel anytime.
+          Start with a 14-day free trial. No credit card charged until trial ends. Cancel anytime.
         </p>
       </div>
     </section>
