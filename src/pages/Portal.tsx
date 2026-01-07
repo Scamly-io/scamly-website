@@ -376,8 +376,8 @@ export default function Portal() {
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                <tab.icon className="w-4 h-4" />
-                <span className="hidden sm:inline">{tab.label}</span>
+                <tab.icon className="w-4 h-4 hidden sm:block" />
+                <span>{tab.label}</span>
               </button>
             ))}
           </div>
