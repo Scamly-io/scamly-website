@@ -108,6 +108,16 @@ export default function Portal() {
   }, [profile]);
 
   const handleUpdateProfile = async () => {
+    // Validate required fields
+    if (!country) {
+      toast({
+        title: 'Country required',
+        description: 'Please select your country before saving.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     setSaving(true);
     const { error } = await updateProfile({
       first_name: firstName,
