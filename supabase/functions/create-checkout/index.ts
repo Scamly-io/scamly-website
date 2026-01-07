@@ -71,6 +71,24 @@ serve(async (req) => {
     // Initialize Stripe
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-04-30.basil" });
 
+    // =============================================
+    // CHECK TRIAL ELIGIBILITY
+    // User is eligible for trial ONLY if has_consumed_trial is false
+    // This prevents infinite cancellation loops - once a trial is consumed,
+    // future checkouts will be paid immediately (no trial)
+    // =============================================
+    const { data: profileData } = await supabaseAdmin
+      .from("profiles")
+      .select("has_consumed_trial, referral_code, referral_code_active")
+      .eq("id", user.id)
+      .single();
+
+    const isEligibleForTrial = !profileData?.has_consumed_trial;
+    logStep("Trial eligibility check", { 
+      hasConsumedTrial: profileData?.has_consumed_trial, 
+      isEligibleForTrial 
+    });
+
     // Validate referral code if provided
     let validatedReferrer: { id: string; code: string } | null = null;
 
@@ -134,7 +152,8 @@ serve(async (req) => {
     // Get the origin for redirect URLs
     const origin = req.headers.get("origin") || "https://rdrumcjwntyfnjhownbd.lovable.app";
 
-    // Build checkout session params with 14-day free trial
+    // Build checkout session params
+    // ONLY include trial if user is eligible (has_consumed_trial = false)
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
@@ -149,9 +168,11 @@ serve(async (req) => {
       success_url: `${origin}/portal?success=true`,
       cancel_url: `${origin}/portal?canceled=true`,
       subscription_data: {
-        trial_period_days: 14, // 14-day free trial
+        // Only include trial for eligible users
+        ...(isEligibleForTrial && { trial_period_days: 14 }),
         metadata: {
           user_id: user.id,
+          is_trial: isEligibleForTrial ? "true" : "false",
           // Store referrer info in subscription metadata for webhook processing
           ...(validatedReferrer && {
             referrer_user_id: validatedReferrer.id,
@@ -161,6 +182,7 @@ serve(async (req) => {
       },
       metadata: {
         user_id: user.id,
+        is_trial: isEligibleForTrial ? "true" : "false",
         ...(validatedReferrer && {
           referrer_user_id: validatedReferrer.id,
           referral_code_used: validatedReferrer.code,
@@ -177,7 +199,11 @@ serve(async (req) => {
     // Create a checkout session
     const session = await stripe.checkout.sessions.create(sessionParams);
 
-    logStep("Checkout session created", { sessionId: session.id, url: session.url });
+    logStep("Checkout session created", { 
+      sessionId: session.id, 
+      url: session.url,
+      includesTrial: isEligibleForTrial,
+    });
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

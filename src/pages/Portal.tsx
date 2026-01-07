@@ -523,13 +523,33 @@ export default function Portal() {
                   </div>
                 )}
                 
+                {/* Free Trial Banner for non-premium users */}
+                {!isPremium && (
+                  <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/30 mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
+                        <Gift className="w-5 h-5 text-green-600 dark:text-green-400" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-green-700 dark:text-green-300">
+                          14-Day Free Trial Included
+                        </p>
+                        <p className="text-sm text-green-600 dark:text-green-400">
+                          Try Premium free for 14 days. Your card won't be charged until the trial ends.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
                 {/* Plan Options */}
                 {!isPremium && (
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="p-6 rounded-xl border border-border hover:border-primary transition-colors">
                       <h3 className="font-display font-bold text-lg mb-2">Monthly</h3>
                       <p className="text-3xl font-bold mb-1">$10<span className="text-lg font-normal text-muted-foreground">/mo</span></p>
-                      <p className="text-sm text-muted-foreground mb-4">Billed monthly</p>
+                      <p className="text-sm text-muted-foreground mb-2">Billed monthly after trial</p>
+                      <p className="text-sm text-green-600 dark:text-green-400 mb-4">+ 14-day free trial</p>
                       {checkoutReferralCode && (
                         <p className="text-sm text-green-600 mb-2">-10% referral discount applied!</p>
                       )}
@@ -542,19 +562,20 @@ export default function Portal() {
                         ))}
                       </ul>
                       <Button variant="outline" className="w-full" onClick={() => handleUpgrade('monthly')}>
-                        Choose Monthly
+                        Start Free Trial
                       </Button>
                     </div>
                     
                     <div className="p-6 rounded-xl border-2 border-primary relative">
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                         <span className="px-3 py-1 rounded-full gradient-bg text-xs font-semibold text-primary-foreground">
-                          Save $21
+                          Save $21 + Free Trial
                         </span>
                       </div>
                       <h3 className="font-display font-bold text-lg mb-2">Yearly</h3>
                       <p className="text-3xl font-bold mb-1">$99<span className="text-lg font-normal text-muted-foreground">/yr</span></p>
-                      <p className="text-sm text-muted-foreground mb-4">Billed annually</p>
+                      <p className="text-sm text-muted-foreground mb-2">Billed annually after trial</p>
+                      <p className="text-sm text-green-600 dark:text-green-400 mb-4">+ 14-day free trial</p>
                       {checkoutReferralCode && (
                         <p className="text-sm text-green-600 mb-2">-10% referral discount applied!</p>
                       )}
@@ -567,7 +588,7 @@ export default function Portal() {
                         ))}
                       </ul>
                       <Button variant="gradient" className="w-full" onClick={() => handleUpgrade('yearly')}>
-                        Choose Yearly
+                        Start Free Trial
                       </Button>
                     </div>
                   </div>
