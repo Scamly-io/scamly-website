@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Mail, Lock, User, Calendar, MapPin, Sun, Moon, ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Mail, Lock, User, Calendar, MapPin, Sun, Moon, ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import { z } from "zod";
+import { countries } from "@/constants/countries";
 
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -23,20 +24,6 @@ const signUpSchema = z.object({
   country: z.string().min(1, "Country is required"),
   gender: z.string().min(1, "Gender is required"),
 });
-
-const countries = [
-  "Australia",
-  "Canada",
-  "Germany",
-  "France",
-  "India",
-  "Japan",
-  "New Zealand",
-  "Singapore",
-  "United Kingdom",
-  "United States",
-  "Other",
-];
 
 const genders = ["Male", "Female", "Non-binary", "Prefer not to say"];
 
