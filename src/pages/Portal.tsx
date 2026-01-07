@@ -268,7 +268,8 @@ export default function Portal() {
     }
   };
 
-  const isPremium = profile?.subscription_status === 'active';
+  const isPremium = profile?.subscription_status === 'active' || profile?.subscription_status === 'trialing';
+  const isTrialing = profile?.subscription_status === 'trialing';
   const subscriptionEndDate = profile?.subscription_current_period_end 
     ? new Date(profile.subscription_current_period_end).toLocaleDateString()
     : null;
@@ -475,7 +476,7 @@ export default function Portal() {
                     <span className="text-sm text-muted-foreground">Current Plan</span>
                     {isPremium ? (
                       <span className="px-2 py-0.5 rounded-full gradient-bg text-xs font-semibold text-primary-foreground">
-                        Premium
+                        {isTrialing ? 'Free Trial' : 'Premium'}
                       </span>
                     ) : (
                       <span className="px-2 py-0.5 rounded-full bg-muted text-xs font-semibold text-muted-foreground">
@@ -485,15 +486,19 @@ export default function Portal() {
                   </div>
                   <p className="font-display font-bold text-lg">
                     {isPremium 
-                      ? profile?.subscription_plan === 'premium-yearly' ? '$99/year' : '$10/month'
+                      ? isTrialing 
+                        ? 'Free for 14 days'
+                        : profile?.subscription_plan === 'premium-yearly' ? '$99/year' : '$10/month'
                       : '$0/month'
                     }
                   </p>
                   {isPremium && subscriptionEndDate && (
                     <p className="text-sm text-muted-foreground mt-1">
-                      {profile?.subscription_status === 'cancelled' 
-                        ? `Access until ${subscriptionEndDate}`
-                        : `Renews on ${subscriptionEndDate}`
+                      {isTrialing
+                        ? `Trial ends on ${subscriptionEndDate}`
+                        : profile?.subscription_status === 'cancelled' 
+                          ? `Access until ${subscriptionEndDate}`
+                          : `Renews on ${subscriptionEndDate}`
                       }
                     </p>
                   )}
