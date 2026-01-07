@@ -134,7 +134,7 @@ serve(async (req) => {
     // Get the origin for redirect URLs
     const origin = req.headers.get("origin") || "https://rdrumcjwntyfnjhownbd.lovable.app";
 
-    // Build checkout session params
+    // Build checkout session params with 14-day free trial
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
@@ -149,6 +149,7 @@ serve(async (req) => {
       success_url: `${origin}/portal?success=true`,
       cancel_url: `${origin}/portal?canceled=true`,
       subscription_data: {
+        trial_period_days: 14, // 14-day free trial
         metadata: {
           user_id: user.id,
           // Store referrer info in subscription metadata for webhook processing
