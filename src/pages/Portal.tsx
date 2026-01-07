@@ -29,11 +29,7 @@ import {
   Gift
 } from 'lucide-react';
 import { z } from 'zod';
-
-const countries = [
-  'Australia', 'Canada', 'Germany', 'France', 'India', 'Japan', 
-  'New Zealand', 'Singapore', 'United Kingdom', 'United States', 'Other'
-];
+import { countries } from '@/constants/countries';
 
 const genders = ['Male', 'Female', 'Non-binary', 'Prefer not to say'];
 
