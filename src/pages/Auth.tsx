@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, User, Calendar, MapPin, Sun, Moon, ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Mail, Lock, User, Calendar, MapPin, Sun, Moon, ArrowLeft, Eye, EyeOff, Loader2, CheckCircle } from "lucide-react";
 import { z } from "zod";
 import { countries } from "@/constants/countries";
 
@@ -30,14 +30,15 @@ const genders = ["Male", "Female", "Non-binary", "Prefer not to say"];
 export default function Auth() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user, signIn, signUp } = useAuth();
+  const { user, signIn, signUp, resetPassword } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { toast } = useToast();
 
-  const [mode, setMode] = useState<"signin" | "signup">(searchParams.get("mode") === "signup" ? "signup" : "signin");
+  const [mode, setMode] = useState<"signin" | "signup" | "forgot">(searchParams.get("mode") === "signup" ? "signup" : "signin");
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [forgotEmailSent, setForgotEmailSent] = useState(false);
 
   // Form fields
   const [email, setEmail] = useState("");
@@ -175,6 +176,36 @@ export default function Auth() {
     }
   };
 
+  const handleForgotPassword = async () => {
+    try {
+      z.string().email("Please enter a valid email address").parse(email);
+      setErrors({});
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        setErrors({ email: err.errors[0].message });
+      }
+      return;
+    }
+
+    setLoading(true);
+    const { error } = await resetPassword(email);
+    setLoading(false);
+
+    if (error) {
+      toast({
+        title: "Failed to send reset email",
+        description: error.message || "Unable to send password reset email",
+        variant: "destructive",
+      });
+    } else {
+      setForgotEmailSent(true);
+      toast({
+        title: "Check your email",
+        description: "We've sent you a password reset link.",
+      });
+    }
+  };
+
   const handleNextStep = () => {
     if (validateStep1()) {
       setStep(2);
@@ -221,28 +252,45 @@ export default function Auth() {
         {/* Form Container */}
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="w-full max-w-md">
-            {/* Back Button (for step 2) */}
-            {mode === "signup" && step === 2 && (
+            {/* Back Button (for step 2 or forgot password) */}
+            {(mode === "signup" && step === 2) || mode === "forgot" ? (
               <button
-                onClick={() => setStep(1)}
+                onClick={() => {
+                  if (mode === "forgot") {
+                    setMode("signin");
+                    setForgotEmailSent(false);
+                  } else {
+                    setStep(1);
+                  }
+                }}
                 className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back
               </button>
-            )}
+            ) : null}
 
             {/* Header */}
             <div className="text-center mb-8">
               <h2 className="font-display text-2xl font-bold mb-2">
-                {mode === "signin" ? "Welcome back" : step === 1 ? "Create your account" : "Tell us about yourself"}
+                {mode === "signin" 
+                  ? "Welcome back" 
+                  : mode === "forgot"
+                    ? forgotEmailSent ? "Check your email" : "Forgot password?"
+                    : step === 1 
+                      ? "Create your account" 
+                      : "Tell us about yourself"}
               </h2>
               <p className="text-muted-foreground">
                 {mode === "signin"
                   ? "Sign in to access your account"
-                  : step === 1
-                    ? "Start your journey to scam-free living"
-                    : "Just a few more details to get started"}
+                  : mode === "forgot"
+                    ? forgotEmailSent 
+                      ? "We've sent a password reset link to your email"
+                      : "Enter your email and we'll send you a reset link"
+                    : step === 1
+                      ? "Start your journey to scam-free living"
+                      : "Just a few more details to get started"}
               </p>
             </div>
 
@@ -257,7 +305,60 @@ export default function Auth() {
 
             {/* Form */}
             <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
-              {(mode === "signin" || step === 1) && (
+              {/* Forgot Password - Email Sent Success */}
+              {mode === "forgot" && forgotEmailSent && (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 rounded-full gradient-bg flex items-center justify-center mx-auto mb-6">
+                    <CheckCircle className="w-8 h-8 text-primary-foreground" />
+                  </div>
+                  <p className="text-muted-foreground mb-6">
+                    If an account exists for <span className="font-medium text-foreground">{email}</span>, you'll receive an email with instructions to reset your password.
+                  </p>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setMode("signin");
+                      setForgotEmailSent(false);
+                    }}
+                  >
+                    Return to sign in
+                  </Button>
+                </div>
+              )}
+
+              {/* Forgot Password - Email Input */}
+              {mode === "forgot" && !forgotEmailSent && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="you@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                    {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+                  </div>
+
+                  <Button
+                    variant="gradient"
+                    size="lg"
+                    className="w-full mt-6"
+                    onClick={handleForgotPassword}
+                    disabled={loading}
+                  >
+                    {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                    Send Reset Link
+                  </Button>
+                </>
+              )}
+
+              {(mode === "signin" || (mode === "signup" && step === 1)) && (
                 <>
                   {/* Email */}
                   <div className="space-y-2">
@@ -278,7 +379,18 @@ export default function Auth() {
 
                   {/* Password */}
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="password">Password</Label>
+                      {mode === "signin" && (
+                        <button
+                          type="button"
+                          onClick={() => setMode("forgot")}
+                          className="text-sm text-primary hover:underline"
+                        >
+                          Forgot password?
+                        </button>
+                      )}
+                    </div>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                       <Input
@@ -381,56 +493,60 @@ export default function Auth() {
               )}
 
               {/* Submit Button */}
-              <Button
-                variant="gradient"
-                size="lg"
-                className="w-full mt-6"
-                onClick={() => {
-                  if (mode === "signin") {
-                    handleSignIn();
-                  } else if (step === 1) {
-                    handleNextStep();
-                  } else {
-                    handleSignUp();
-                  }
-                }}
-                disabled={loading}
-              >
-                {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                {mode === "signin" ? "Sign In" : step === 1 ? "Continue" : "Create Account"}
-              </Button>
+              {mode !== "forgot" && (
+                <Button
+                  variant="gradient"
+                  size="lg"
+                  className="w-full mt-6"
+                  onClick={() => {
+                    if (mode === "signin") {
+                      handleSignIn();
+                    } else if (step === 1) {
+                      handleNextStep();
+                    } else {
+                      handleSignUp();
+                    }
+                  }}
+                  disabled={loading}
+                >
+                  {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                  {mode === "signin" ? "Sign In" : step === 1 ? "Continue" : "Create Account"}
+                </Button>
+              )}
             </form>
 
             {/* Toggle Mode */}
-            <p className="text-center text-sm text-muted-foreground mt-6">
-              {mode === "signin" ? (
-                <>
-                  Don't have an account?{" "}
-                  <button
-                    onClick={() => {
-                      setMode("signup");
-                      setStep(1);
-                    }}
-                    className="text-primary hover:underline font-medium"
-                  >
-                    Sign up
-                  </button>
-                </>
-              ) : (
-                <>
-                  Already have an account?{" "}
-                  <button
-                    onClick={() => {
-                      setMode("signin");
-                      setStep(1);
-                    }}
-                    className="text-primary hover:underline font-medium"
-                  >
-                    Sign in
-                  </button>
-                </>
-              )}
-            </p>
+            {mode !== "forgot" && (
+              <p className="text-center text-sm text-muted-foreground mt-6">
+                {mode === "signin" ? (
+                  <>
+                    Don't have an account?{" "}
+                    <button
+                      onClick={() => {
+                        setMode("signup");
+                        setStep(1);
+                      }}
+                      className="text-primary hover:underline font-medium"
+                    >
+                      Sign up
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    Already have an account?{" "}
+                    <button
+                      onClick={() => {
+                        setMode("signin");
+                        setStep(1);
+                      }}
+                      className="text-primary hover:underline font-medium"
+                    >
+                      Sign in
+                    </button>
+                  </>
+                )}
+              </p>
+            )}
           </div>
         </div>
       </div>

@@ -14,6 +14,7 @@ interface AuthContextType {
   updateProfile: (data: Partial<Profile>) => Promise<{ error: Error | null }>;
   updateEmail: (newEmail: string) => Promise<{ error: Error | null }>;
   updatePassword: (newPassword: string) => Promise<{ error: Error | null }>;
+  resetPassword: (email: string) => Promise<{ error: Error | null }>;
   refreshProfile: () => Promise<void>;
 }
 
@@ -155,6 +156,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const resetPassword = async (email: string) => {
+    try {
+      const redirectUrl = `${window.location.origin}/reset-password`;
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: redirectUrl,
+      });
+      if (error) throw error;
+      return { error: null };
+    } catch (error) {
+      return { error: error as Error };
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -168,6 +182,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         updateProfile,
         updateEmail,
         updatePassword,
+        resetPassword,
         refreshProfile,
       }}
     >
