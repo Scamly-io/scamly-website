@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Copy, Check, Edit2, Gift, Users, RefreshCw, Percent } from 'lucide-react';
+import { Copy, Check, Edit2, Gift, Users, RefreshCw, Percent, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export function ReferralDashboard() {
@@ -83,6 +83,61 @@ export function ReferralDashboard() {
         <CardContent className="py-6">
           <p className="text-sm text-destructive">{error}</p>
           <Button variant="outline" size="sm" onClick={fetchStats} className="mt-2">Retry</Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Trial users see a different message - they have a code but can't refer yet
+  if (stats?.isTrialing) {
+    const trialEndDate = stats.trialEnd ? new Date(stats.trialEnd) : null;
+    const daysRemaining = trialEndDate 
+      ? Math.max(0, Math.ceil((trialEndDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+      : null;
+
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Gift className="h-5 w-5" />
+            Referral Program
+          </CardTitle>
+          <CardDescription>
+            You'll be able to refer friends once your trial ends
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/30">
+            <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+              <Clock className="h-5 w-5" />
+              <span className="font-medium">Free Trial Active</span>
+            </div>
+            <p className="mt-2 text-sm text-amber-600 dark:text-amber-300">
+              {daysRemaining !== null 
+                ? `${daysRemaining} day${daysRemaining !== 1 ? 's' : ''} remaining in your trial.`
+                : 'Your trial is active.'
+              } Once your subscription is active, you can start referring friends!
+            </p>
+          </div>
+          
+          {stats.referralCode && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-muted-foreground">Your referral code (available after trial)</label>
+              <code className="block rounded-md bg-muted px-4 py-3 font-mono text-lg tracking-wider opacity-50">
+                {stats.referralCode}
+              </code>
+            </div>
+          )}
+          
+          <div className="rounded-lg bg-muted/50 p-4 text-sm text-muted-foreground">
+            <p className="font-medium text-foreground">How it will work:</p>
+            <ul className="mt-2 space-y-1 list-disc pl-4">
+              <li>Share your code with a friend</li>
+              <li>They get <strong>10% off</strong> their first subscription</li>
+              <li>You get <strong>10% off</strong> your next invoice</li>
+              <li>One referral per billing period</li>
+            </ul>
+          </div>
         </CardContent>
       </Card>
     );

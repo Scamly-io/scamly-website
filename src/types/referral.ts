@@ -8,6 +8,9 @@ export interface ReferralStats {
   subscriptionPlan: string;
   totalReferrals: number;
   convertedReferrals: number;
+  // Trial-specific fields
+  isTrialing: boolean;
+  trialEnd: string | null;
   // New simplified model fields
   canReferThisPeriod: boolean;
   hasRewardThisPeriod: boolean;

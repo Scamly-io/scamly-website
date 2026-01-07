@@ -2,9 +2,12 @@
 // GET REFERRAL STATS
 // Returns referral statistics for a user
 // Simplified model: 1 referral per billing period, flat 10% discount
+// Trial users CANNOT refer others until trial ends
+// Uses Stripe as source of truth for trial status
 // =============================================
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
@@ -31,6 +34,11 @@ serve(async (req) => {
       { auth: { persistSession: false } }
     );
 
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
+
+    const stripe = new Stripe(stripeKey, { apiVersion: "2025-04-30.basil" });
+
     // Authenticate user
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header provided");
@@ -46,24 +54,54 @@ serve(async (req) => {
     // Get profile with referral info
     let { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("referral_code, referral_code_active, subscription_status, subscription_plan")
+      .select("referral_code, referral_code_active, subscription_status, subscription_plan, subscription_id")
       .eq("id", user.id)
       .single();
 
-    // Check if user is premium but doesn't have a referral code yet (legacy users)
+    // =============================================
+    // CHECK STRIPE FOR TRIAL STATUS (Source of truth)
+    // =============================================
+    let isTrialing = false;
+    let trialEnd: string | null = null;
+
+    if (profile?.subscription_id) {
+      try {
+        const subscription = await stripe.subscriptions.retrieve(profile.subscription_id);
+        isTrialing = subscription.status === "trialing";
+        
+        if (isTrialing && subscription.trial_end) {
+          trialEnd = new Date(subscription.trial_end * 1000).toISOString();
+        }
+        
+        logStep("Stripe subscription status", { 
+          subscriptionId: profile.subscription_id,
+          status: subscription.status,
+          isTrialing,
+          trialEnd,
+        });
+      } catch (stripeError) {
+        logStep("Error fetching Stripe subscription, falling back to DB", { error: stripeError });
+        // Fall back to database status
+        isTrialing = profile.subscription_status === "trialing";
+      }
+    } else {
+      // No subscription ID, check database status
+      isTrialing = profile?.subscription_status === "trialing";
+    }
+
+    // Check if user is premium (including trialing)
     const isPremium = profile?.subscription_status === "active" || 
                       profile?.subscription_status === "trialing";
     
+    // Generate referral code for premium users without one (legacy users)
     if (isPremium && !profile?.referral_code) {
       logStep("Premium user without referral code, generating one");
       
-      // Generate a unique referral code
       let referralCode: string | null = null;
       let attempts = 0;
       const maxAttempts = 5;
       
       while (!referralCode && attempts < maxAttempts) {
-        // Generate 8-char alphanumeric code
         const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
         let candidate = "";
         for (let i = 0; i < 8; i++) {
@@ -83,23 +121,24 @@ serve(async (req) => {
       }
       
       if (referralCode) {
+        // Trial users get a code but it's NOT active
         const { error: updateError } = await supabaseAdmin
           .from("profiles")
           .update({
             referral_code: referralCode,
-            referral_code_active: true,
+            referral_code_active: !isTrialing,
             referral_code_updated_at: new Date().toISOString(),
           })
           .eq("id", user.id);
         
         if (!updateError) {
-          logStep("Generated referral code for legacy premium user", { referralCode });
-          // Update local profile data
+          logStep("Generated referral code for legacy premium user", { referralCode, isActive: !isTrialing });
           profile = {
             referral_code: referralCode,
-            referral_code_active: true,
+            referral_code_active: !isTrialing,
             subscription_status: profile?.subscription_status,
             subscription_plan: profile?.subscription_plan,
+            subscription_id: profile?.subscription_id,
           };
         } else {
           logStep("Error updating profile with referral code", { error: updateError });
@@ -117,32 +156,37 @@ serve(async (req) => {
     const convertedReferrals = referrals?.filter(r => r.converted).length || 0;
 
     // Check if user can refer someone this billing period
-    // Simple model: 1 referral reward per billing period
-    const now = new Date();
-    let periodStart: Date;
+    // Trial users CANNOT refer anyone
+    let canReferThisPeriod = false;
+    let hasRewardThisPeriod = false;
+    let currentRewardApplied = false;
 
-    if (profile?.subscription_plan === "premium-yearly") {
-      // For yearly: check within the last year
-      periodStart = new Date(now);
-      periodStart.setFullYear(periodStart.getFullYear() - 1);
-    } else {
-      // For monthly: check within the last month
-      periodStart = new Date(now);
-      periodStart.setMonth(periodStart.getMonth() - 1);
+    if (!isTrialing && isPremium) {
+      // Only non-trial premium users can potentially refer
+      const now = new Date();
+      let periodStart: Date;
+
+      if (profile?.subscription_plan === "premium-yearly") {
+        periodStart = new Date(now);
+        periodStart.setFullYear(periodStart.getFullYear() - 1);
+      } else {
+        periodStart = new Date(now);
+        periodStart.setMonth(periodStart.getMonth() - 1);
+      }
+
+      // Check for any rewards created in this billing period
+      const { data: recentRewards } = await supabaseAdmin
+        .from("referral_rewards")
+        .select("id, created_at, applied")
+        .eq("user_id", user.id)
+        .gte("created_at", periodStart.toISOString())
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      hasRewardThisPeriod = !!(recentRewards && recentRewards.length > 0);
+      canReferThisPeriod = !hasRewardThisPeriod;
+      currentRewardApplied = hasRewardThisPeriod && recentRewards ? recentRewards[0].applied : false;
     }
-
-    // Check for any rewards created in this billing period
-    const { data: recentRewards } = await supabaseAdmin
-      .from("referral_rewards")
-      .select("id, created_at, applied")
-      .eq("user_id", user.id)
-      .gte("created_at", periodStart.toISOString())
-      .order("created_at", { ascending: false })
-      .limit(1);
-
-    const hasRewardThisPeriod = recentRewards && recentRewards.length > 0;
-    const canReferThisPeriod = !hasRewardThisPeriod;
-    const currentRewardApplied = hasRewardThisPeriod ? recentRewards[0].applied : false;
 
     // Check if user was referred
     const { data: wasReferred } = await supabaseAdmin
@@ -154,6 +198,7 @@ serve(async (req) => {
     logStep("Stats retrieved", { 
       totalReferrals, 
       convertedReferrals,
+      isTrialing,
       canReferThisPeriod,
       hasRewardThisPeriod,
       currentRewardApplied,
@@ -161,16 +206,20 @@ serve(async (req) => {
 
     return new Response(JSON.stringify({
       referralCode: profile?.referral_code || null,
-      referralCodeActive: profile?.referral_code_active || false,
+      // Trial users have a code but it's NOT active
+      referralCodeActive: isTrialing ? false : (profile?.referral_code_active || false),
       subscriptionStatus: profile?.subscription_status || "free",
       subscriptionPlan: profile?.subscription_plan || "free",
       totalReferrals,
       convertedReferrals,
-      // New simplified model fields
-      canReferThisPeriod,
+      // Trial-specific fields
+      isTrialing,
+      trialEnd,
+      // Simplified model fields
+      canReferThisPeriod: isTrialing ? false : canReferThisPeriod,
       hasRewardThisPeriod,
       currentRewardApplied,
-      // Legacy fields (keeping for backward compat but will be removed from UI)
+      // Legacy fields
       pendingReferrals: 0,
       pendingDiscountPercent: hasRewardThisPeriod && !currentRewardApplied ? 10 : 0,
       wasReferred: wasReferred ? {
