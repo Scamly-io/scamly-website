@@ -277,6 +277,7 @@ export default function Portal() {
 
   const isPremium = profile?.subscription_status === 'active' || profile?.subscription_status === 'trialing';
   const isTrialing = profile?.subscription_status === 'trialing';
+  const isEligibleForTrial = !profile?.has_consumed_trial;
   const subscriptionEndDate = profile?.subscription_current_period_end 
     ? new Date(profile.subscription_current_period_end).toLocaleDateString()
     : null;
@@ -523,8 +524,8 @@ export default function Portal() {
                   </div>
                 )}
                 
-                {/* Free Trial Banner for non-premium users */}
-                {!isPremium && (
+                {/* Free Trial Banner for non-premium users who are eligible */}
+                {!isPremium && isEligibleForTrial && (
                   <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/30 mb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
@@ -548,8 +549,8 @@ export default function Portal() {
                     <div className="p-6 rounded-xl border border-border hover:border-primary transition-colors">
                       <h3 className="font-display font-bold text-lg mb-2">Monthly</h3>
                       <p className="text-3xl font-bold mb-1">$10<span className="text-lg font-normal text-muted-foreground">/mo</span></p>
-                      <p className="text-sm text-muted-foreground mb-2">Billed monthly after trial</p>
-                      <p className="text-sm text-green-600 dark:text-green-400 mb-4">+ 14-day free trial</p>
+                      <p className="text-sm text-muted-foreground mb-2">{isEligibleForTrial ? 'Billed monthly after trial' : 'Billed monthly'}</p>
+                      {isEligibleForTrial && <p className="text-sm text-green-600 dark:text-green-400 mb-4">+ 14-day free trial</p>}
                       {checkoutReferralCode && (
                         <p className="text-sm text-green-600 mb-2">-10% referral discount applied!</p>
                       )}
@@ -562,20 +563,20 @@ export default function Portal() {
                         ))}
                       </ul>
                       <Button variant="outline" className="w-full" onClick={() => handleUpgrade('monthly')}>
-                        Start Free Trial
+                        {isEligibleForTrial ? 'Start Free Trial' : 'Subscribe Now'}
                       </Button>
                     </div>
                     
                     <div className="p-6 rounded-xl border-2 border-primary relative">
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                         <span className="px-3 py-1 rounded-full gradient-bg text-xs font-semibold text-primary-foreground">
-                          Save $21 + Free Trial
+                          {isEligibleForTrial ? 'Save $21 + Free Trial' : 'Save $21'}
                         </span>
                       </div>
                       <h3 className="font-display font-bold text-lg mb-2">Yearly</h3>
                       <p className="text-3xl font-bold mb-1">$99<span className="text-lg font-normal text-muted-foreground">/yr</span></p>
-                      <p className="text-sm text-muted-foreground mb-2">Billed annually after trial</p>
-                      <p className="text-sm text-green-600 dark:text-green-400 mb-4">+ 14-day free trial</p>
+                      <p className="text-sm text-muted-foreground mb-2">{isEligibleForTrial ? 'Billed annually after trial' : 'Billed annually'}</p>
+                      {isEligibleForTrial && <p className="text-sm text-green-600 dark:text-green-400 mb-4">+ 14-day free trial</p>}
                       {checkoutReferralCode && (
                         <p className="text-sm text-green-600 mb-2">-10% referral discount applied!</p>
                       )}
@@ -588,7 +589,7 @@ export default function Portal() {
                         ))}
                       </ul>
                       <Button variant="gradient" className="w-full" onClick={() => handleUpgrade('yearly')}>
-                        Start Free Trial
+                        {isEligibleForTrial ? 'Start Free Trial' : 'Subscribe Now'}
                       </Button>
                     </div>
                   </div>
