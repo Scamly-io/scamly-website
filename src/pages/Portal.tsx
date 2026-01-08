@@ -543,6 +543,25 @@ export default function Portal() {
                   </div>
                 )}
                 
+                {/* Trial Revoked Notice for users who have consumed their trial but are on free plan */}
+                {!isPremium && !isEligibleForTrial && (
+                  <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 mb-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                        <CreditCard className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-amber-700 dark:text-amber-300">
+                          Free Trial Not Available
+                        </p>
+                        <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
+                          Your payment method has already been used for a free trial. You can still subscribe to Scamly Premium and your card will be charged immediately upon checkout.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
                 {/* Plan Options */}
                 {!isPremium && (
                   <div className="grid md:grid-cols-2 gap-4">
