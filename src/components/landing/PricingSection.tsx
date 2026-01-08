@@ -33,7 +33,7 @@ const plans = [
       { text: "Full library access", included: true },
       { text: "AI Chat Assistant", included: true },
       { text: "Contact Search Tool", included: true },
-      { text: "First access to features", included: true },
+      { text: "First access to new features", included: true },
     ],
     cta: "Start 14-Day Free Trial",
     variant: "gradient" as const,
@@ -127,7 +127,7 @@ export function PricingSection() {
                 <Link to="/auth?mode=signup">{plan.cta}</Link>
               </Button>
             </div>
-        ))}
+          ))}
         </div>
 
         {/* Trust Note */}
