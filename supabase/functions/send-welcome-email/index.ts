@@ -21,7 +21,7 @@ const handler = async (req: Request): Promise<Response> => {
 
   const supabaseClient = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
   );
 
   try {
@@ -106,9 +106,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send welcome email
     const emailResponse = await resend.emails.send({
-      from: "Scamly <hello@scamly.io>",
+      from: "Scamly <noreply@scamly.io>",
       to: [userEmail],
-      subject: "Welcome to Scamly! 🛡️",
+      subject: "Welcome to Scamly!",
       html: `
         <!DOCTYPE html>
         <html>
@@ -121,7 +121,7 @@ const handler = async (req: Request): Promise<Response> => {
             <div style="background-color: white; border-radius: 16px; padding: 40px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
               <!-- Logo/Header -->
               <div style="text-align: center; margin-bottom: 32px;">
-                <h1 style="color: #6366f1; font-size: 28px; margin: 0; font-weight: 700;">Scamly</h1>
+                <img style="width: 128px" src="cid:top-logo"/>
                 <p style="color: #71717a; font-size: 14px; margin-top: 4px;">Your AI-Powered Scam Protection</p>
               </div>
               
@@ -156,7 +156,7 @@ const handler = async (req: Request): Promise<Response> => {
               <!-- Support Section -->
               <div style="border-top: 1px solid #e4e4e7; padding-top: 24px; text-align: center;">
                 <p style="color: #71717a; font-size: 14px; line-height: 1.6; margin: 0;">
-                  Have questions? Just reply to this email - we're here to help!
+                  We value your feedback on Scamly. To submit feedback, email feedback@scamly.io
                 </p>
               </div>
             </div>
@@ -174,6 +174,13 @@ const handler = async (req: Request): Promise<Response> => {
         </body>
         </html>
       `,
+      attachments: [
+        {
+          path: "https://scamly-email-assets.s3.ap-southeast-2.amazonaws.com/navbar-logo-light.png",
+          filename: "navbar-logo-light.png",
+          contentId: "top-logo",
+        },
+      ],
     });
 
     if (emailResponse.error) {
