@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useRef, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { Profile } from "@/types/profile";
@@ -25,17 +25,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const welcomeEmailSentRef = useRef<Set<string>>(new Set());
 
   const sendWelcomeEmail = async (userId: string) => {
+    // Prevent duplicate calls using a ref to track in-flight requests
+    if (welcomeEmailSentRef.current.has(userId)) {
+      return;
+    }
+    welcomeEmailSentRef.current.add(userId);
+
     try {
       const { error } = await supabase.functions.invoke("send-welcome-email", {
         body: { userId },
       });
       if (error) {
         console.error("Failed to send welcome email:", error);
+        // Remove from set so it can be retried on next session
+        welcomeEmailSentRef.current.delete(userId);
       }
     } catch (err) {
       console.error("Error sending welcome email:", err);
+      welcomeEmailSentRef.current.delete(userId);
     }
   };
 
