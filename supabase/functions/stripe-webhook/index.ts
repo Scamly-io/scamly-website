@@ -405,6 +405,44 @@ serve(async (req) => {
               logStep("Referral record created successfully");
             }
           }
+
+          // Send trial confirmation email if this is a trial subscription
+          // This is required by Visa's 2020 free trial subscription requirements
+          if (isTrialing) {
+            try {
+              const trialEndDate = currentPeriodEndDate;
+              const firstBillingDate = currentPeriodEndDate; // Same as trial end date
+
+              logStep("Sending trial confirmation email", { userId, trialEndDate });
+
+              const emailResponse = await fetch(
+                `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-trial-confirmation`,
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+                  },
+                  body: JSON.stringify({
+                    userId,
+                    plan: subscriptionPlan === "premium-yearly" ? "yearly" : "monthly",
+                    trialEndDate,
+                    firstBillingDate,
+                  }),
+                },
+              );
+
+              const emailResult = await emailResponse.json();
+              if (emailResponse.ok && emailResult.success) {
+                logStep("Trial confirmation email sent successfully", { emailId: emailResult.emailId });
+              } else {
+                logStep("Failed to send trial confirmation email", { error: emailResult.error });
+              }
+            } catch (emailError) {
+              logStep("Error sending trial confirmation email", { error: emailError });
+              // Don't fail the webhook if email fails - subscription is already created
+            }
+          }
         }
         await insertProcessedEvent(supabaseAdmin, event.id, event.type);
         break;

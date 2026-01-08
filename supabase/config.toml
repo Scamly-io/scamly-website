@@ -20,3 +20,12 @@ verify_jwt = false
 
 [functions.send-welcome-email]
 verify_jwt = false
+
+[functions.send-trial-confirmation]
+verify_jwt = false
+
+[functions.send-trial-reminder]
+verify_jwt = false
+
+[functions.check-trial-reminders]
+verify_jwt = false
