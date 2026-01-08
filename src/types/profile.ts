@@ -11,6 +11,7 @@ export interface Profile {
   subscription_plan: 'free' | 'premium-monthly' | 'premium-yearly';
   subscription_current_period_end: string | null;
   access_expires_at: string | null;
+  has_consumed_trial: boolean;
   created_at: string;
 }
 
