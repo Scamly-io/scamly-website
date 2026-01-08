@@ -19,67 +19,87 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  try {
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
+  const supabaseClient = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+  );
 
-    const { userId }: WelcomeEmailRequest = await req.json();
+  try {
+    const { userId }: Partial<WelcomeEmailRequest> = await req.json();
 
     if (!userId) {
       console.error("No userId provided");
-      return new Response(
-        JSON.stringify({ error: "userId is required" }),
-        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
+      return new Response(JSON.stringify({ error: "userId is required" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
     }
 
     console.log(`Processing welcome email for user: ${userId}`);
 
-    // Check if welcome email has already been sent
-    const { data: profile, error: profileError } = await supabaseClient
+    // IMPORTANT: users often have multiple tabs open during email confirmation.
+    // To prevent duplicate sends, we atomically "claim" the send in the DB.
+    // We temporarily flip welcome_email_sent=true as a lock. If sending fails, we revert it.
+    const { data: claimedRows, error: claimError } = await supabaseClient
       .from("profiles")
-      .select("welcome_email_sent, first_name")
+      .update({ welcome_email_sent: true })
       .eq("id", userId)
-      .single();
+      .eq("welcome_email_sent", false)
+      .select("first_name");
 
-    if (profileError) {
-      console.error("Error fetching profile:", profileError);
-      return new Response(
-        JSON.stringify({ error: "Failed to fetch profile" }),
-        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
+    if (claimError) {
+      console.error("Error claiming welcome email send:", claimError);
+      return new Response(JSON.stringify({ error: "Failed to claim welcome email send" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
     }
 
-    if (profile.welcome_email_sent) {
-      console.log("Welcome email already sent for this user");
-      return new Response(
-        JSON.stringify({ message: "Welcome email already sent" }),
-        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
+    // If no row was updated, the email was already sent OR another request/tab is currently processing it.
+    if (!claimedRows || claimedRows.length === 0) {
+      console.log("Welcome email already sent (or currently processing) for this user");
+      return new Response(JSON.stringify({ message: "Welcome email already sent" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
     }
+
+    const releaseClaim = async () => {
+      const { error: releaseError } = await supabaseClient
+        .from("profiles")
+        .update({ welcome_email_sent: false })
+        .eq("id", userId);
+
+      if (releaseError) {
+        console.error("Error releasing welcome email claim:", releaseError);
+      }
+    };
 
     // Get user email from auth
-    const { data: { user }, error: userError } = await supabaseClient.auth.admin.getUserById(userId);
+    const {
+      data: { user },
+      error: userError,
+    } = await supabaseClient.auth.admin.getUserById(userId);
 
     if (userError || !user) {
       console.error("Error fetching user:", userError);
-      return new Response(
-        JSON.stringify({ error: "Failed to fetch user" }),
-        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
+      await releaseClaim();
+      return new Response(JSON.stringify({ error: "Failed to fetch user" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
     }
 
     const userEmail = user.email;
-    const firstName = profile.first_name || "there";
+    const firstName = claimedRows[0]?.first_name || "there";
 
     if (!userEmail) {
       console.error("User has no email");
-      return new Response(
-        JSON.stringify({ error: "User has no email" }),
-        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
+      await releaseClaim();
+      return new Response(JSON.stringify({ error: "User has no email" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
     }
 
     console.log(`Sending welcome email to: ${userEmail}`);
@@ -158,35 +178,29 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (emailResponse.error) {
       console.error("Error sending email:", emailResponse.error);
-      return new Response(
-        JSON.stringify({ error: emailResponse.error.message }),
-        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
+      await releaseClaim();
+
+      const statusCodeRaw = (emailResponse.error as any)?.statusCode;
+      const statusCode = typeof statusCodeRaw === "number" ? statusCodeRaw : 500;
+
+      return new Response(JSON.stringify({ error: emailResponse.error.message }), {
+        status: statusCode,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
     }
 
     console.log("Email sent successfully:", emailResponse);
 
-    // Mark welcome email as sent
-    const { error: updateError } = await supabaseClient
-      .from("profiles")
-      .update({ welcome_email_sent: true })
-      .eq("id", userId);
-
-    if (updateError) {
-      console.error("Error updating profile:", updateError);
-      // Don't fail the request if we can't update the flag - email was still sent
-    }
-
-    return new Response(
-      JSON.stringify({ success: true, emailId: emailResponse.data?.id }),
-      { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
-    );
+    return new Response(JSON.stringify({ success: true, emailId: emailResponse.data?.id }), {
+      status: 200,
+      headers: { "Content-Type": "application/json", ...corsHeaders },
+    });
   } catch (error: any) {
     console.error("Error in send-welcome-email function:", error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
-    );
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json", ...corsHeaders },
+    });
   }
 };
 
