@@ -12,6 +12,7 @@ export interface Profile {
   subscription_current_period_end: string | null;
   access_expires_at: string | null;
   has_consumed_trial: boolean;
+  welcome_email_sent: boolean;
   created_at: string;
 }
 

@@ -284,6 +284,7 @@ export type Database = {
           subscription_id: string | null
           subscription_plan: string | null
           subscription_status: string | null
+          welcome_email_sent: boolean
         }
         Insert: {
           access_expires_at?: string | null
@@ -304,6 +305,7 @@ export type Database = {
           subscription_id?: string | null
           subscription_plan?: string | null
           subscription_status?: string | null
+          welcome_email_sent?: boolean
         }
         Update: {
           access_expires_at?: string | null
@@ -324,6 +326,7 @@ export type Database = {
           subscription_id?: string | null
           subscription_plan?: string | null
           subscription_status?: string | null
+          welcome_email_sent?: boolean
         }
         Relationships: []
       }

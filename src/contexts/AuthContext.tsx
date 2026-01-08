@@ -26,11 +26,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (userId: string) => {
+  const sendWelcomeEmail = async (userId: string) => {
+    try {
+      const { error } = await supabase.functions.invoke("send-welcome-email", {
+        body: { userId },
+      });
+      if (error) {
+        console.error("Failed to send welcome email:", error);
+      }
+    } catch (err) {
+      console.error("Error sending welcome email:", err);
+    }
+  };
+
+  const fetchProfile = async (userId: string, userEmailConfirmed?: boolean) => {
     const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).single();
 
     if (!error && data) {
       setProfile(data as Profile);
+      
+      // Send welcome email if email is confirmed and welcome email hasn't been sent yet
+      if (userEmailConfirmed && !data.welcome_email_sent) {
+        sendWelcomeEmail(userId);
+      }
     }
     return data;
   };
@@ -51,8 +69,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Defer profile fetch with setTimeout
       if (session?.user) {
+        const isEmailConfirmed = !!session.user.email_confirmed_at;
         setTimeout(() => {
-          fetchProfile(session.user.id);
+          fetchProfile(session.user.id, isEmailConfirmed);
         }, 0);
       } else {
         setProfile(null);
@@ -67,7 +86,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(session?.user ?? null);
 
       if (session?.user) {
-        fetchProfile(session.user.id);
+        const isEmailConfirmed = !!session.user.email_confirmed_at;
+        fetchProfile(session.user.id, isEmailConfirmed);
       }
 
       setLoading(false);
