@@ -121,7 +121,7 @@ const handler = async (req: Request): Promise<Response> => {
             <div style="background-color: white; border-radius: 16px; padding: 40px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
               <!-- Logo/Header -->
               <div style="text-align: center; margin-bottom: 32px;">
-                <img style="width: 128px" src="cid:top-logo"/>
+                <img style="width: 128px" src="https://scamly-email-assets.s3.ap-southeast-2.amazonaws.com/navbar-logo-light.png" alt="Scamly Logo"/>
                 <p style="color: #71717a; font-size: 14px; margin-top: 4px;">Your AI-Powered Scam Protection</p>
               </div>
               
@@ -174,13 +174,6 @@ const handler = async (req: Request): Promise<Response> => {
         </body>
         </html>
       `,
-      attachments: [
-        {
-          path: "https://scamly-email-assets.s3.ap-southeast-2.amazonaws.com/navbar-logo-light.png",
-          filename: "navbar-logo-light.png",
-          contentId: "top-logo",
-        },
-      ],
     });
 
     if (emailResponse.error) {
