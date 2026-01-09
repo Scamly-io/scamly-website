@@ -940,19 +940,51 @@ serve(async (req) => {
           // Find the user by stripe_customer_id
           const { data: profiles } = await supabaseAdmin
             .from("profiles")
-            .select("id")
+            .select("id, subscription_status")
             .eq("stripe_customer_id", invoice.customer as string)
             .limit(1);
 
           if (profiles?.length) {
+            const userId = profiles[0].id;
+            const previousStatus = profiles[0].subscription_status;
+
             await supabaseAdmin
               .from("profiles")
               .update({
                 subscription_status: "past_due",
               })
-              .eq("id", profiles[0].id);
+              .eq("id", userId);
 
-            logStep("Profile updated to past_due", { userId: profiles[0].id });
+            logStep("Profile updated to past_due", { userId });
+
+            // Send payment failed email if transitioning to past_due for the first time
+            if (previousStatus !== "past_due") {
+              try {
+                logStep("Sending payment failed email", { userId });
+
+                const emailResponse = await fetch(
+                  `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-payment-failed-email`,
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+                    },
+                    body: JSON.stringify({ userId }),
+                  },
+                );
+
+                const emailResult = await emailResponse.json();
+                if (emailResponse.ok && emailResult.success) {
+                  logStep("Payment failed email sent successfully", { emailId: emailResult.emailId });
+                } else {
+                  logStep("Failed to send payment failed email", { error: emailResult.error });
+                }
+              } catch (emailError) {
+                logStep("Error sending payment failed email", { error: emailError });
+                // Don't fail the webhook if email fails
+              }
+            }
           }
         }
         await insertProcessedEvent(supabaseAdmin, event.id, event.type);

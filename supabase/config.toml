@@ -24,8 +24,5 @@ verify_jwt = false
 [functions.send-trial-confirmation]
 verify_jwt = false
 
-[functions.send-trial-reminder]
-verify_jwt = false
-
-[functions.check-trial-reminders]
+[functions.send-payment-failed-email]
 verify_jwt = false
