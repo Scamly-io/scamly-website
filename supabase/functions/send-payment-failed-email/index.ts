@@ -9,23 +9,13 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-interface TrialReminderRequest {
+interface PaymentFailedRequest {
   userId: string;
 }
 
 const logStep = (step: string, details?: unknown) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : "";
-  console.log(`[SEND-TRIAL-REMINDER] ${step}${detailsStr}`);
-};
-
-const formatDate = (isoDate: string): string => {
-  const date = new Date(isoDate);
-  return date.toLocaleDateString("en-AU", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  console.log(`[SEND-PAYMENT-FAILED-EMAIL] ${step}${detailsStr}`);
 };
 
 const handler = async (req: Request): Promise<Response> => {
@@ -39,7 +29,7 @@ const handler = async (req: Request): Promise<Response> => {
   );
 
   try {
-    const { userId }: Partial<TrialReminderRequest> = await req.json();
+    const { userId }: Partial<PaymentFailedRequest> = await req.json();
 
     if (!userId) {
       logStep("Missing userId");
@@ -49,12 +39,12 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    logStep("Processing trial reminder email", { userId });
+    logStep("Processing payment failed email", { userId });
 
-    // Get user profile with subscription details
+    // Get user profile
     const { data: profile, error: profileError } = await supabaseClient
       .from("profiles")
-      .select("first_name, subscription_status, subscription_plan, subscription_current_period_end")
+      .select("first_name, subscription_plan")
       .eq("id", userId)
       .single();
 
@@ -62,15 +52,6 @@ const handler = async (req: Request): Promise<Response> => {
       logStep("Error fetching profile", { error: profileError });
       return new Response(JSON.stringify({ error: "Failed to fetch profile" }), {
         status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
-    }
-
-    // Verify user is actually on trial
-    if (profile?.subscription_status !== "trialing") {
-      logStep("User is not on trial, skipping reminder", { status: profile?.subscription_status });
-      return new Response(JSON.stringify({ message: "User is not on trial" }), {
-        status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
@@ -93,20 +74,17 @@ const handler = async (req: Request): Promise<Response> => {
     const userEmail = user.email;
 
     // Get plan details
-    const isYearly = profile.subscription_plan === "premium-yearly";
+    const isYearly = profile?.subscription_plan === "premium-yearly";
     const planDetails = isYearly
-      ? { name: "Premium Yearly", price: "$99.00 AUD", billingPeriod: "year" }
-      : { name: "Premium Monthly", price: "$10.00 AUD", billingPeriod: "month" };
+      ? { name: "Premium Yearly", price: "$99.00 AUD" }
+      : { name: "Premium Monthly", price: "$10.00 AUD" };
 
-    const trialEndDate = profile.subscription_current_period_end;
-    const formattedBillingDate = trialEndDate ? formatDate(trialEndDate) : "in 7 days";
-
-    logStep("Sending trial reminder email", { userEmail, trialEndDate });
+    logStep("Sending payment failed email", { userEmail });
 
     const emailResponse = await resend.emails.send({
       from: "Scamly <noreply@scamly.io>",
       to: [userEmail],
-      subject: "Your Scamly Trial Ends in 7 Days - Action Required",
+      subject: "Action Required: Payment Issue with Your Scamly Subscription",
       html: `
         <!DOCTYPE html>
         <html>
@@ -125,28 +103,27 @@ const handler = async (req: Request): Promise<Response> => {
               <!-- Title -->
               <div style="text-align: center; margin-bottom: 32px;">
                 <h1 style="color: #18181b; font-size: 24px; margin: 0 0 16px 0; font-weight: 600;">
-                  Your Free Trial Ends Soon ⏰
+                  We've Detected a Payment Issue 💳
                 </h1>
                 <p style="color: #52525b; font-size: 16px; line-height: 1.6; margin: 0;">
-                  Hi ${firstName}, this is a friendly reminder that your Scamly Premium free trial will end in 7 days.
+                  Hi ${firstName}, we wanted to let you know that your recent payment for Scamly Premium was unsuccessful.
                 </p>
               </div>
 
-              <!-- Important Notice Box -->
-              <div style="background-color: #fef3c7; border: 1px solid #f59e0b; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
-                <h3 style="color: #92400e; font-size: 16px; margin: 0 0 12px 0; font-weight: 600;">
-                  ⚠️ Upcoming Charge Notice
+              <!-- Alert Box -->
+              <div style="background-color: #fef2f2; border: 1px solid #ef4444; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                <h3 style="color: #991b1b; font-size: 16px; margin: 0 0 12px 0; font-weight: 600;">
+                  ⚠️ What This Means
                 </h3>
-                <p style="color: #78350f; font-size: 14px; line-height: 1.6; margin: 0;">
-                  Your payment method will be automatically charged <strong>${planDetails.price}</strong> on <strong>${formattedBillingDate}</strong> 
-                  when your trial period ends. Your subscription will then continue to renew every ${planDetails.billingPeriod} at this rate.
+                <p style="color: #b91c1c; font-size: 14px; line-height: 1.6; margin: 0;">
+                  Your subscription is currently in a <strong>past due</strong> state. You still have full access to all premium features for now, but we'll need you to update your payment details to continue your subscription.
                 </p>
               </div>
 
-              <!-- Billing Summary -->
+              <!-- Subscription Details -->
               <div style="background-color: #f9fafb; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
-                <h3 style="color: #18181b; font-size: 18px; margin: 0 0 20px 0; font-weight: 600;">
-                  💳 Upcoming Billing Summary
+                <h3 style="color: #18181b; font-size: 18px; margin: 0 0 16px 0; font-weight: 600;">
+                  📋 Your Subscription
                 </h3>
                 
                 <table style="width: 100%; border-collapse: collapse;">
@@ -160,15 +137,7 @@ const handler = async (req: Request): Promise<Response> => {
                   </tr>
                   <tr>
                     <td style="padding: 10px 0; color: #52525b; font-size: 14px; border-bottom: 1px solid #e4e4e7;">
-                      <strong>First Charge Date</strong>
-                    </td>
-                    <td style="padding: 10px 0; color: #dc2626; font-size: 14px; font-weight: 600; text-align: right; border-bottom: 1px solid #e4e4e7;">
-                      ${formattedBillingDate}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 10px 0; color: #52525b; font-size: 14px; border-bottom: 1px solid #e4e4e7;">
-                      <strong>Amount</strong>
+                      <strong>Amount Due</strong>
                     </td>
                     <td style="padding: 10px 0; color: #18181b; font-size: 14px; font-weight: 600; text-align: right; border-bottom: 1px solid #e4e4e7;">
                       ${planDetails.price}
@@ -176,62 +145,59 @@ const handler = async (req: Request): Promise<Response> => {
                   </tr>
                   <tr>
                     <td style="padding: 10px 0; color: #52525b; font-size: 14px;">
-                      <strong>Billing Frequency</strong>
+                      <strong>Status</strong>
                     </td>
-                    <td style="padding: 10px 0; color: #18181b; font-size: 14px; text-align: right;">
-                      Every ${planDetails.billingPeriod}
+                    <td style="padding: 10px 0; color: #dc2626; font-size: 14px; font-weight: 600; text-align: right;">
+                      Past Due
                     </td>
                   </tr>
                 </table>
               </div>
 
-              <!-- Options Section -->
+              <!-- Common Reasons -->
               <div style="margin-bottom: 24px;">
-                <h3 style="color: #18181b; font-size: 18px; margin: 0 0 16px 0; font-weight: 600;">
-                  What would you like to do?
+                <h3 style="color: #18181b; font-size: 16px; margin: 0 0 12px 0; font-weight: 600;">
+                  Common reasons for payment failure:
                 </h3>
-                
-                <!-- Continue Option -->
-                <div style="background-color: #dcfce7; border: 1px solid #22c55e; border-radius: 12px; padding: 16px; margin-bottom: 12px;">
-                  <h4 style="color: #166534; font-size: 14px; margin: 0 0 8px 0; font-weight: 600;">
-                    ✅ Continue with Scamly Premium
-                  </h4>
-                  <p style="color: #15803d; font-size: 13px; line-height: 1.5; margin: 0;">
-                    No action needed! Your subscription will automatically continue and you'll keep enjoying unlimited scans, AI chat, and full article access.
-                  </p>
-                </div>
-
-                <!-- Cancel Option -->
-                <div style="background-color: #fee2e2; border: 1px solid #ef4444; border-radius: 12px; padding: 16px;">
-                  <h4 style="color: #991b1b; font-size: 14px; margin: 0 0 8px 0; font-weight: 600;">
-                    ❌ Cancel Your Subscription
-                  </h4>
-                  <p style="color: #b91c1c; font-size: 13px; line-height: 1.5; margin: 0 0 12px 0;">
-                    If you don't wish to continue, cancel before ${formattedBillingDate} to avoid being charged.
-                  </p>
-                  <a href="https://scamly.io/portal" style="display: inline-block; background-color: #dc2626; color: white; text-decoration: none; padding: 10px 20px; border-radius: 6px; font-size: 14px; font-weight: 600;">
-                    Cancel Subscription →
-                  </a>
-                </div>
+                <ul style="color: #52525b; font-size: 14px; line-height: 1.8; padding-left: 20px; margin: 0;">
+                  <li>Your card has expired or been replaced</li>
+                  <li>Insufficient funds in your account</li>
+                  <li>Your bank declined the transaction</li>
+                  <li>Your billing address has changed</li>
+                </ul>
               </div>
 
-              <!-- Steps to Cancel -->
+              <!-- CTA Button -->
+              <div style="text-align: center; margin-bottom: 32px;">
+                <a href="https://scamly.io/portal" style="display: inline-block; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);">
+                  Update Payment Details →
+                </a>
+              </div>
+
+              <!-- Instructions -->
               <div style="background-color: #f9fafb; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
                 <h3 style="color: #18181b; font-size: 16px; margin: 0 0 12px 0; font-weight: 600;">
-                  How to Cancel:
+                  How to Update Your Payment:
                 </h3>
                 <ol style="color: #52525b; font-size: 14px; line-height: 1.8; padding-left: 20px; margin: 0;">
                   <li>Go to <a href="https://scamly.io/portal" style="color: #6366f1;">scamly.io/portal</a></li>
                   <li>Click <strong>"Manage Subscription"</strong></li>
-                  <li>Select <strong>"Cancel Subscription"</strong></li>
-                  <li>Confirm your cancellation</li>
+                  <li>Update your payment method</li>
+                  <li>We'll automatically retry the payment</li>
                 </ol>
+              </div>
+
+              <!-- Reassurance -->
+              <div style="background-color: #dcfce7; border: 1px solid #22c55e; border-radius: 12px; padding: 16px; margin-bottom: 24px;">
+                <p style="color: #166534; font-size: 14px; line-height: 1.6; margin: 0;">
+                  <strong>Don't worry!</strong> Your premium access remains active while we resolve this. Just update your payment details within the next few days to avoid any interruption to your service.
+                </p>
               </div>
 
               <!-- Support Section -->
               <div style="border-top: 1px solid #e4e4e7; padding-top: 24px; text-align: center;">
                 <p style="color: #71717a; font-size: 14px; line-height: 1.6; margin: 0;">
-                  Questions? Reply to this email or contact us at <a href="mailto:support@scamly.io" style="color: #6366f1;">support@scamly.io</a>
+                  Need help? Reply to this email or contact us at <a href="mailto:support@scamly.io" style="color: #6366f1;">support@scamly.io</a>
                 </p>
               </div>
             </div>
@@ -242,7 +208,7 @@ const handler = async (req: Request): Promise<Response> => {
                 © ${new Date().getFullYear()} Scamly. All rights reserved.
               </p>
               <p style="color: #a1a1aa; font-size: 12px; margin: 8px 0 0 0;">
-                You're receiving this email because you started a free trial on Scamly. This is a required reminder as per Visa's free trial subscription service requirements.
+                You're receiving this email because there was an issue with your Scamly subscription payment.
               </p>
             </div>
           </div>
@@ -259,14 +225,14 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    logStep("Trial reminder email sent successfully", { emailId: emailResponse.data?.id });
+    logStep("Payment failed email sent successfully", { emailId: emailResponse.data?.id });
 
     return new Response(JSON.stringify({ success: true, emailId: emailResponse.data?.id }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (error: any) {
-    logStep("Error in send-trial-reminder function", { error: error.message });
+    logStep("Error in send-payment-failed-email function", { error: error.message });
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { "Content-Type": "application/json", ...corsHeaders },

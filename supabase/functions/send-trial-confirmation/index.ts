@@ -96,11 +96,6 @@ const handler = async (req: Request): Promise<Response> => {
     const formattedTrialEnd = formatDate(trialEndDate);
     const formattedFirstBilling = formatDate(firstBillingDate);
 
-    // Calculate reminder date (7 days before trial end)
-    const reminderDate = new Date(trialEndDate);
-    reminderDate.setDate(reminderDate.getDate() - 7);
-    const formattedReminderDate = formatDate(reminderDate.toISOString());
-
     logStep("Sending trial confirmation email", { userEmail, plan, trialEndDate });
 
     const emailResponse = await resend.emails.send({
@@ -223,17 +218,6 @@ const handler = async (req: Request): Promise<Response> => {
                     </td>
                   </tr>
                 </table>
-              </div>
-
-              <!-- Reminder Notice -->
-              <div style="background-color: #dbeafe; border: 1px solid #3b82f6; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
-                <h3 style="color: #1e40af; font-size: 16px; margin: 0 0 12px 0; font-weight: 600;">
-                  📅 Reminder Notification
-                </h3>
-                <p style="color: #1e3a8a; font-size: 14px; line-height: 1.6; margin: 0;">
-                  We will send you a reminder email <strong>7 days before your trial ends</strong> (on ${formattedReminderDate}) 
-                  to remind you of your upcoming first charge. This gives you time to cancel if you no longer wish to continue.
-                </p>
               </div>
 
               <!-- Cancellation Policy -->
