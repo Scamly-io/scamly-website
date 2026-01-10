@@ -26,3 +26,9 @@ verify_jwt = false
 
 [functions.send-payment-failed-email]
 verify_jwt = false
+
+[functions.send-manual-cancellation-email]
+verify_jwt = false
+
+[functions.send-forced-cancellation-email]
+verify_jwt = false

@@ -528,6 +528,20 @@ serve(async (req) => {
           });
         }
 
+        // Check if this is a new manual cancellation (cancel_at_period_end just became true)
+        // We need to check the previous_attributes to see if this is a new cancellation
+        const previousAttributes = event.data.previous_attributes as Partial<Stripe.Subscription> | undefined;
+        const wasNotCancellingBefore = previousAttributes?.cancel_at_period_end === false;
+        const isNowCancelling = subscription.cancel_at_period_end === true;
+        const isManualCancellation = wasNotCancellingBefore && isNowCancelling;
+        
+        logStep("Manual cancellation check", { 
+          wasNotCancellingBefore, 
+          isNowCancelling, 
+          isManualCancellation,
+          previousCancelAtPeriodEnd: previousAttributes?.cancel_at_period_end,
+        });
+
         // Find the user by stripe_customer_id
         const { data: profiles, error: findError } = await supabaseAdmin
           .from("profiles")
@@ -620,6 +634,36 @@ serve(async (req) => {
             referralCodeActive,
           });
         }
+
+        // Send manual cancellation email if this is a new manual cancellation
+        if (isManualCancellation) {
+          try {
+            logStep("Sending manual cancellation email", { userId, accessExpiresAt });
+
+            const emailResponse = await fetch(
+              `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-manual-cancellation-email`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+                },
+                body: JSON.stringify({ userId, accessExpiresAt }),
+              },
+            );
+
+            const emailResult = await emailResponse.json();
+            if (emailResponse.ok && emailResult.success) {
+              logStep("Manual cancellation email sent successfully", { emailId: emailResult.emailId });
+            } else {
+              logStep("Failed to send manual cancellation email", { error: emailResult.error });
+            }
+          } catch (emailError) {
+            logStep("Error sending manual cancellation email", { error: emailError });
+            // Don't fail the webhook if email fails
+          }
+        }
+
         await insertProcessedEvent(supabaseAdmin, event.id, event.type);
         break;
       }
@@ -646,7 +690,7 @@ serve(async (req) => {
 
         const { data: profiles, error: findError } = await supabaseAdmin
           .from("profiles")
-          .select("id")
+          .select("id, subscription_status")
           .eq("stripe_customer_id", subscription.customer as string)
           .limit(1);
 
@@ -659,6 +703,12 @@ serve(async (req) => {
         }
 
         const userId = profiles[0].id;
+        const previousStatus = profiles[0].subscription_status;
+        
+        // Determine if this was a forced cancellation (from past_due due to failed payments)
+        // vs a manual cancellation that reached end of period
+        const wasForcedCancellation = previousStatus === "past_due";
+        logStep("Cancellation type check", { previousStatus, wasForcedCancellation });
 
         // Reset the profile to free plan, deactivate referral code
         // Note: has_consumed_trial stays true - they used their trial
@@ -679,6 +729,36 @@ serve(async (req) => {
         } else {
           logStep("Profile reset to free, referral code deactivated", { userId });
         }
+
+        // Send forced cancellation email if this was due to failed payments
+        if (wasForcedCancellation) {
+          try {
+            logStep("Sending forced cancellation email", { userId });
+
+            const emailResponse = await fetch(
+              `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-forced-cancellation-email`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+                },
+                body: JSON.stringify({ userId }),
+              },
+            );
+
+            const emailResult = await emailResponse.json();
+            if (emailResponse.ok && emailResult.success) {
+              logStep("Forced cancellation email sent successfully", { emailId: emailResult.emailId });
+            } else {
+              logStep("Failed to send forced cancellation email", { error: emailResult.error });
+            }
+          } catch (emailError) {
+            logStep("Error sending forced cancellation email", { error: emailError });
+            // Don't fail the webhook if email fails
+          }
+        }
+
         await insertProcessedEvent(supabaseAdmin, event.id, event.type);
         break;
       }
