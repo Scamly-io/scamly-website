@@ -18,17 +18,5 @@ verify_jwt = false
 [functions.get-referral-stats]
 verify_jwt = false
 
-[functions.send-welcome-email]
-verify_jwt = false
-
-[functions.send-trial-confirmation]
-verify_jwt = false
-
-[functions.send-payment-failed-email]
-verify_jwt = false
-
-[functions.send-manual-cancellation-email]
-verify_jwt = false
-
-[functions.send-forced-cancellation-email]
+[functions.send-customer-email]
 verify_jwt = false
