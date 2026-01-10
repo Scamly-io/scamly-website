@@ -35,8 +35,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     welcomeEmailSentRef.current.add(userId);
 
     try {
-      const { error } = await supabase.functions.invoke("send-welcome-email", {
-        body: { userId },
+      const { error } = await supabase.functions.invoke("send-customer-email", {
+        body: { type: "welcome", userId },
       });
       if (error) {
         console.error("Failed to send welcome email:", error);

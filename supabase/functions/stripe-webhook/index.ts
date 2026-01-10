@@ -416,7 +416,7 @@ serve(async (req) => {
               logStep("Sending trial confirmation email", { userId, trialEndDate });
 
               const emailResponse = await fetch(
-                `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-trial-confirmation`,
+                `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-customer-email`,
                 {
                   method: "POST",
                   headers: {
@@ -424,6 +424,7 @@ serve(async (req) => {
                     Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
                   },
                   body: JSON.stringify({
+                    type: "trial_confirmation",
                     userId,
                     plan: subscriptionPlan === "premium-yearly" ? "yearly" : "monthly",
                     trialEndDate,
@@ -641,14 +642,14 @@ serve(async (req) => {
             logStep("Sending manual cancellation email", { userId, accessExpiresAt });
 
             const emailResponse = await fetch(
-              `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-manual-cancellation-email`,
+              `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-customer-email`,
               {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
                   Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
                 },
-                body: JSON.stringify({ userId, accessExpiresAt }),
+                body: JSON.stringify({ type: "manual_cancellation", userId, accessExpiresAt }),
               },
             );
 
@@ -736,14 +737,14 @@ serve(async (req) => {
             logStep("Sending forced cancellation email", { userId });
 
             const emailResponse = await fetch(
-              `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-forced-cancellation-email`,
+              `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-customer-email`,
               {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
                   Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
                 },
-                body: JSON.stringify({ userId }),
+                body: JSON.stringify({ type: "forced_cancellation", userId }),
               },
             );
 
@@ -1043,14 +1044,14 @@ serve(async (req) => {
                 logStep("Sending payment failed email", { userId });
 
                 const emailResponse = await fetch(
-                  `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-payment-failed-email`,
+                  `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-customer-email`,
                   {
                     method: "POST",
                     headers: {
                       "Content-Type": "application/json",
                       Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
                     },
-                    body: JSON.stringify({ userId }),
+                    body: JSON.stringify({ type: "payment_failed", userId }),
                   },
                 );
 
