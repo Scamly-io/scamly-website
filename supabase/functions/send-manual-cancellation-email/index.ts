@@ -143,7 +143,7 @@ const handler = async (req: Request): Promise<Response> => {
                   If you have a moment, we'd love to hear about your experience. Was there something we could have done better? Your feedback helps us improve for everyone.
                 </p>
                 <p style="color: #71717a; font-size: 14px; line-height: 1.6; margin: 0;">
-                  Simply reply to this email with any thoughts — no pressure at all.
+                  Simply email feedback@scamly.io with any thoughts — no pressure at all.
                 </p>
               </div>
 
@@ -163,7 +163,7 @@ const handler = async (req: Request): Promise<Response> => {
                   Warm regards,
                 </p>
                 <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0; font-weight: 600;">
-                  Ryan<br>
+                  Joshua<br>
                   <span style="font-weight: 400; color: #71717a;">Founder, Scamly</span>
                 </p>
               </div>
