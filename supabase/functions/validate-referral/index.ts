@@ -90,7 +90,7 @@ serve(async (req) => {
       logStep("Referral code not found", { code: normalizedCode });
       return new Response(JSON.stringify({ 
         valid: false, 
-        error: "Invalid referral code" 
+        error: "Referral code not found" 
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
@@ -114,7 +114,7 @@ serve(async (req) => {
       logStep("Referral code is inactive", { referrerId: referrer.id });
       return new Response(JSON.stringify({ 
         valid: false, 
-        error: "This referral code is no longer active" 
+        error: "Referral code not found" 
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
