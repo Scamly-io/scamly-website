@@ -187,13 +187,6 @@ const handler = async (req: Request): Promise<Response> => {
                 </ol>
               </div>
 
-              <!-- Reassurance -->
-              <div style="background-color: #dcfce7; border: 1px solid #22c55e; border-radius: 12px; padding: 16px; margin-bottom: 24px;">
-                <p style="color: #166534; font-size: 14px; line-height: 1.6; margin: 0;">
-                  <strong>Don't worry!</strong> Your premium access remains active while we resolve this. Just update your payment details within the next few days to avoid any interruption to your service.
-                </p>
-              </div>
-
               <!-- Support Section -->
               <div style="border-top: 1px solid #e4e4e7; padding-top: 24px; text-align: center;">
                 <p style="color: #71717a; font-size: 14px; line-height: 1.6; margin: 0;">
