@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Sparkles } from 'lucide-react';
+import { trackSignupStarted } from '@/lib/analytics';
 
 export function CTASection() {
   return (
@@ -26,7 +27,12 @@ export function CTASection() {
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button variant="gradient" size="xl" asChild>
+            <Button 
+              variant="gradient" 
+              size="xl" 
+              asChild
+              onClick={() => trackSignupStarted('cta_section')}
+            >
               <Link to="/auth?mode=signup">
                 Create Free Account
                 <ArrowRight className="w-5 h-5 ml-1" />

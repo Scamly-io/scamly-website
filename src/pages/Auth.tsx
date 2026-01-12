@@ -10,6 +10,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, User, Calendar, MapPin, Sun, Moon, ArrowLeft, Eye, EyeOff, Loader2, CheckCircle } from "lucide-react";
 import { z } from "zod";
 import { countries } from "@/constants/countries";
+import { trackSignupCompleted } from "@/lib/analytics";
+
 
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -168,6 +170,9 @@ export default function Auth() {
         });
       }
     } else {
+      // Track successful signup completion
+      trackSignupCompleted();
+      
       toast({
         title: "Account created!",
         description: "Please check your email to verify your account.",

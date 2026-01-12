@@ -1,6 +1,8 @@
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Check, X, Sparkles } from "lucide-react";
+import { trackPricingViewed, trackSignupStarted } from "@/lib/analytics";
 
 const plans = [
   {
@@ -42,8 +44,39 @@ const plans = [
 ];
 
 export function PricingSection() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const hasTrackedView = useRef(false);
+
+  // Track when pricing section becomes visible using Intersection Observer
+  // This answers: "What percentage of visitors actually see our pricing?"
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          // Only track once when section becomes at least 30% visible
+          if (entry.isIntersecting && !hasTrackedView.current) {
+            hasTrackedView.current = true;
+            trackPricingViewed();
+          }
+        });
+      },
+      { threshold: 0.3 } // Trigger when 30% of section is visible
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Handler for tracking signup CTA clicks from pricing section
+  const handleSignupClick = (planName: string) => {
+    trackSignupStarted(`pricing_${planName.toLowerCase()}`);
+  };
+
   return (
-    <section id="pricing" className="py-24 bg-muted/50 relative overflow-hidden">
+    <section ref={sectionRef} id="pricing" className="py-24 bg-muted/50 relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-3xl" />
@@ -123,7 +156,13 @@ export function PricingSection() {
               </ul>
 
               {/* CTA */}
-              <Button variant={plan.variant} size="lg" className="w-full" asChild>
+              <Button 
+                variant={plan.variant} 
+                size="lg" 
+                className="w-full" 
+                asChild
+                onClick={() => handleSignupClick(plan.name)}
+              >
                 <Link to="/auth?mode=signup">{plan.cta}</Link>
               </Button>
             </div>

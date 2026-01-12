@@ -4,6 +4,7 @@ import { ArrowRight, Check, Sparkles } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import phoneMockupLight from '@/assets/3d-phone-mockup.png';
 import phoneMockupDark from '@/assets/3d-phone-mockup-dark.png';
+import { trackSignupStarted } from '@/lib/analytics';
 
 export function HeroSection() {
   const { theme } = useTheme();
@@ -53,7 +54,13 @@ export function HeroSection() {
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 opacity-0 animate-fade-up"
             style={{ animationDelay: '0.4s' }}
           >
-            <Button variant="gradient" size="xl" asChild className="group">
+            <Button 
+              variant="gradient" 
+              size="xl" 
+              asChild 
+              className="group"
+              onClick={() => trackSignupStarted('hero')}
+            >
               <Link to="/auth?mode=signup">
                 Start Free Trial
                 <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
