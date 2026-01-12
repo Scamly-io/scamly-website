@@ -10,7 +10,7 @@
  * - Funnel analytics (conversion tracking from landing to signup to payment)
  */
 
-import posthog from 'posthog-js';
+import type { PostHog } from 'posthog-js';
 
 // ============================================================================
 // Configuration
@@ -19,8 +19,8 @@ import posthog from 'posthog-js';
 const POSTHOG_API_KEY = import.meta.env.VITE_POSTHOG_API_KEY || '';
 const POSTHOG_HOST = import.meta.env.VITE_POSTHOG_HOST || 'https://us.i.posthog.com';
 
-// Track whether PostHog has been initialized
-let isInitialized = false;
+// Track PostHog instance after dynamic import
+let posthogInstance: PostHog | null = null;
 
 // ============================================================================
 // Initialization
@@ -30,8 +30,9 @@ let isInitialized = false;
  * Initialize PostHog analytics.
  * Should be called once when the app starts (e.g., in main.tsx or App.tsx).
  * Only initializes in browser environment and when API key is present.
+ * Uses dynamic import to avoid bundling conflicts with React.
  */
-export function initAnalytics(): void {
+export async function initAnalytics(): Promise<void> {
   // Guard: Only run in browser
   if (typeof window === 'undefined') {
     console.warn('[Analytics] Not in browser environment, skipping initialization');
@@ -45,24 +46,31 @@ export function initAnalytics(): void {
   }
 
   // Guard: Prevent double initialization
-  if (isInitialized) {
+  if (posthogInstance) {
     return;
   }
 
-  posthog.init(POSTHOG_API_KEY, {
-    api_host: POSTHOG_HOST,
-    // Capture pageviews manually for more control
-    capture_pageview: false,
-    // Respect Do Not Track browser setting
-    respect_dnt: true,
-    // Persistence for anonymous user tracking
-    persistence: 'localStorage+cookie',
-    // Autocapture disabled - we use explicit events for better control
-    autocapture: false,
-  });
+  try {
+    // Dynamic import to avoid React bundling conflicts
+    const posthog = (await import('posthog-js')).default;
+    
+    posthog.init(POSTHOG_API_KEY, {
+      api_host: POSTHOG_HOST,
+      // Capture pageviews manually for more control
+      capture_pageview: false,
+      // Respect Do Not Track browser setting
+      respect_dnt: true,
+      // Persistence for anonymous user tracking
+      persistence: 'localStorage+cookie',
+      // Autocapture disabled - we use explicit events for better control
+      autocapture: false,
+    });
 
-  isInitialized = true;
-  console.log('[Analytics] PostHog initialized');
+    posthogInstance = posthog;
+    console.log('[Analytics] PostHog initialized');
+  } catch (error) {
+    console.error('[Analytics] Failed to initialize PostHog:', error);
+  }
 }
 
 // ============================================================================
@@ -74,9 +82,9 @@ export function initAnalytics(): void {
  * Call this after successful login/signup to link anonymous events to the user.
  */
 export function identifyUser(userId: string, traits?: Record<string, unknown>): void {
-  if (!isInitialized) return;
+  if (!posthogInstance) return;
   
-  posthog.identify(userId, traits);
+  posthogInstance.identify(userId, traits);
 }
 
 /**
@@ -84,9 +92,9 @@ export function identifyUser(userId: string, traits?: Record<string, unknown>): 
  * This ensures subsequent events are tracked as a new anonymous user.
  */
 export function resetUser(): void {
-  if (!isInitialized) return;
+  if (!posthogInstance) return;
   
-  posthog.reset();
+  posthogInstance.reset();
 }
 
 // ============================================================================
@@ -108,7 +116,7 @@ function getCommonProperties(): Record<string, unknown> {
     referrer: document.referrer || undefined,
     
     // Anonymous ID for tracking users before authentication
-    anonymous_id: posthog.get_distinct_id?.() || undefined,
+    anonymous_id: posthogInstance?.get_distinct_id?.() || undefined,
     
     // Timestamp for accurate event ordering
     client_timestamp: new Date().toISOString(),
@@ -128,9 +136,9 @@ function getCommonProperties(): Record<string, unknown> {
  * Fires when: User lands on the home page
  */
 export function trackPageVisited(pageName: string = 'home'): void {
-  if (!isInitialized) return;
+  if (!posthogInstance) return;
 
-  posthog.capture('page_visited', {
+  posthogInstance.capture('page_visited', {
     ...getCommonProperties(),
     page_name: pageName,
   });
@@ -146,9 +154,9 @@ export function trackPageVisited(pageName: string = 'home'): void {
  * Note: Uses intersection observer, NOT page load, for accurate visibility tracking
  */
 export function trackPricingViewed(): void {
-  if (!isInitialized) return;
+  if (!posthogInstance) return;
 
-  posthog.capture('pricing_viewed', {
+  posthogInstance.capture('pricing_viewed', {
     ...getCommonProperties(),
   });
 }
@@ -163,9 +171,9 @@ export function trackPricingViewed(): void {
  * Fires when: User clicks primary signup CTA button
  */
 export function trackSignupStarted(source: string): void {
-  if (!isInitialized) return;
+  if (!posthogInstance) return;
 
-  posthog.capture('signup_started', {
+  posthogInstance.capture('signup_started', {
     ...getCommonProperties(),
     // Source helps identify which CTA was clicked (hero, pricing, cta_section, etc.)
     signup_source: source,
@@ -182,9 +190,9 @@ export function trackSignupStarted(source: string): void {
  * Note: Only fires AFTER successful signup, not on form submission
  */
 export function trackSignupCompleted(userId?: string): void {
-  if (!isInitialized) return;
+  if (!posthogInstance) return;
 
-  posthog.capture('signup_completed', {
+  posthogInstance.capture('signup_completed', {
     ...getCommonProperties(),
     // Include user_id if available for linking to identified user
     user_id: userId,
@@ -200,9 +208,9 @@ export function trackSignupCompleted(userId?: string): void {
  * Fires when: User is redirected to Stripe Checkout
  */
 export function trackCheckoutStarted(plan: 'monthly' | 'yearly', hasReferralCode: boolean): void {
-  if (!isInitialized) return;
+  if (!posthogInstance) return;
 
-  posthog.capture('checkout_started', {
+  posthogInstance.capture('checkout_started', {
     ...getCommonProperties(),
     // Plan helps analyze which pricing option is more popular
     checkout_plan: plan,
@@ -221,9 +229,9 @@ export function trackCheckoutStarted(plan: 'monthly' | 'yearly', hasReferralCode
  * Note: This relies on the success param in the return URL
  */
 export function trackCheckoutCompleted(plan?: string): void {
-  if (!isInitialized) return;
+  if (!posthogInstance) return;
 
-  posthog.capture('checkout_completed', {
+  posthogInstance.capture('checkout_completed', {
     ...getCommonProperties(),
     // Plan info if available
     checkout_plan: plan,
@@ -239,9 +247,9 @@ export function trackCheckoutCompleted(plan?: string): void {
  * Use specific track* functions when available for consistency.
  */
 export function trackEvent(eventName: string, properties?: Record<string, unknown>): void {
-  if (!isInitialized) return;
+  if (!posthogInstance) return;
 
-  posthog.capture(eventName, {
+  posthogInstance.capture(eventName, {
     ...getCommonProperties(),
     ...properties,
   });
