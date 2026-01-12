@@ -30,6 +30,8 @@ import {
 } from 'lucide-react';
 import { z } from 'zod';
 import { countries } from '@/constants/countries';
+import { trackCheckoutStarted, trackCheckoutCompleted, identifyUser, resetUser } from '@/lib/analytics';
+
 
 const genders = ['Male', 'Female', 'Non-binary', 'Prefer not to say'];
 
@@ -73,6 +75,10 @@ export default function Portal() {
     }
     
     if (success === 'true') {
+      // Track successful checkout completion
+      // This answers: "What's our checkout conversion rate?"
+      trackCheckoutCompleted(profile?.subscription_plan || undefined);
+      
       toast({
         title: 'Subscription activated!',
         description: 'Welcome to Scamly Premium. Your subscription is now active.',
@@ -90,7 +96,17 @@ export default function Portal() {
       });
       setSearchParams({});
     }
-  }, [searchParams, setSearchParams, toast, refreshProfile]);
+  }, [searchParams, setSearchParams, toast, refreshProfile, profile?.subscription_plan]);
+
+  // Identify user for analytics when they're logged in
+  useEffect(() => {
+    if (user) {
+      identifyUser(user.id, {
+        email: user.email,
+        first_name: profile?.first_name,
+      });
+    }
+  }, [user, profile?.first_name]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -212,6 +228,8 @@ export default function Portal() {
   };
 
   const handleSignOut = async () => {
+    // Reset analytics user on logout
+    resetUser();
     await signOut();
     navigate('/');
   };
@@ -231,6 +249,9 @@ export default function Portal() {
       
       if (error) throw error;
       if (data?.url) {
+        // Track checkout started before redirecting to Stripe
+        // This answers: "How many users initiate payment?"
+        trackCheckoutStarted(plan, !!checkoutReferralCode);
         window.location.href = data.url;
       } else {
         throw new Error('No checkout URL received');
