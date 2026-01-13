@@ -8,6 +8,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { ReferralDashboard, ReferralCodeInput } from '@/components/referral';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import logoLight from '@/assets/navbar-logo-light.png';
 import logoDark from '@/assets/navbar-logo-dark.png';
 import {
@@ -26,7 +33,8 @@ import {
   ExternalLink,
   Loader2,
   ArrowUpRight,
-  Gift
+  Gift,
+  AlertTriangle
 } from 'lucide-react';
 import { z } from 'zod';
 import { countries } from '@/constants/countries';
@@ -60,6 +68,9 @@ export default function Portal() {
   
   // Referral code for checkout
   const [checkoutReferralCode, setCheckoutReferralCode] = useState<string | null>(null);
+  
+  // Trial abuse modal state
+  const [showTrialAbuseModal, setShowTrialAbuseModal] = useState(false);
 
   // Handle checkout success/cancel params and referral code from URL
   useEffect(() => {
@@ -120,6 +131,14 @@ export default function Portal() {
       setDob(profile.dob || '');
       setCountry(profile.country || '');
       setGender(profile.gender || '');
+      
+      // Show trial abuse modal if user has consumed trial but is on free plan
+      // This provides a clear explanation of what happened
+      const isPremiumStatus = profile.subscription_status === 'active' || profile.subscription_status === 'trialing';
+      if (!isPremiumStatus && profile.has_consumed_trial) {
+        setShowTrialAbuseModal(true);
+        setActiveTab('subscription');
+      }
     }
   }, [profile]);
 
@@ -564,24 +583,33 @@ export default function Portal() {
                   </div>
                 )}
                 
-                {/* Trial Revoked Notice for users who have consumed their trial but are on free plan */}
-                {!isPremium && !isEligibleForTrial && (
-                  <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 mb-4">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
-                        <CreditCard className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                {/* Trial Abuse Modal - shown when user has consumed trial and visits subscription tab */}
+                <Dialog open={showTrialAbuseModal} onOpenChange={setShowTrialAbuseModal}>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <div className="mx-auto w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center mb-4">
+                        <AlertTriangle className="w-8 h-8 text-amber-500" />
                       </div>
-                      <div>
-                        <p className="font-semibold text-amber-700 dark:text-amber-300">
-                          Free Trial Not Available
+                      <DialogTitle className="text-center text-xl">Free Trial Not Available</DialogTitle>
+                      <DialogDescription className="text-center space-y-3 pt-2">
+                        <p>
+                          We detected that your payment details or email address have been previously used for a free trial.
                         </p>
-                        <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
-                          Your payment method has already been used for a free trial. You can still subscribe to Scamly Premium and your card will be charged immediately upon checkout.
+                        <p>
+                          As a result, your account was not upgraded to Scamly Premium with the free trial.
                         </p>
-                      </div>
+                        <p className="font-medium text-foreground">
+                          You can still subscribe to Scamly Premium — your card will simply be charged immediately upon checkout instead of after a trial period.
+                        </p>
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex justify-center pt-4">
+                      <Button variant="gradient" onClick={() => setShowTrialAbuseModal(false)}>
+                        Got it, show me the plans
+                      </Button>
                     </div>
-                  </div>
-                )}
+                  </DialogContent>
+                </Dialog>
                 
                 {/* Plan Options */}
                 {!isPremium && (
