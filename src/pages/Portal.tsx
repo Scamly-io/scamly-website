@@ -1,28 +1,22 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, Link, useSearchParams } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { useTheme } from '@/contexts/ThemeContext';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
-import { ReferralDashboard, ReferralCodeInput } from '@/components/referral';
+import { useState, useEffect } from "react";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { ReferralDashboard, ReferralCodeInput } from "@/components/referral";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import logoLight from "@/assets/navbar-logo-light.png";
+import logoDark from "@/assets/navbar-logo-dark.png";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import logoLight from '@/assets/navbar-logo-light.png';
-import logoDark from '@/assets/navbar-logo-dark.png';
-import {
-  User, 
-  CreditCard, 
-  Settings, 
-  LogOut, 
-  Sun, 
+  User,
+  CreditCard,
+  Settings,
+  LogOut,
+  Sun,
   Moon,
   Mail,
   Lock,
@@ -34,16 +28,21 @@ import {
   Loader2,
   ArrowUpRight,
   Gift,
-  AlertTriangle
-} from 'lucide-react';
-import { z } from 'zod';
-import { countries } from '@/constants/countries';
-import { trackCheckoutStarted, trackCheckoutCompleted, trackTrialAbuseDetected, identifyUser, resetUser } from '@/lib/analytics';
+  AlertTriangle,
+} from "lucide-react";
+import { z } from "zod";
+import { countries } from "@/constants/countries";
+import {
+  trackCheckoutStarted,
+  trackCheckoutCompleted,
+  trackTrialAbuseDetected,
+  identifyUser,
+  resetUser,
+} from "@/lib/analytics";
 
+const genders = ["Male", "Female", "Non-binary", "Prefer not to say"];
 
-const genders = ['Male', 'Female', 'Non-binary', 'Prefer not to say'];
-
-type Tab = 'profile' | 'subscription' | 'referrals' | 'security';
+type Tab = "profile" | "subscription" | "referrals" | "security";
 
 export default function Portal() {
   const navigate = useNavigate();
@@ -51,59 +50,61 @@ export default function Portal() {
   const { user, profile, loading, signOut, updateProfile, updateEmail, updatePassword, refreshProfile } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { toast } = useToast();
-  
-  const [activeTab, setActiveTab] = useState<Tab>('profile');
+
+  const [activeTab, setActiveTab] = useState<Tab>("profile");
   const [saving, setSaving] = useState(false);
-  
+
   // Profile form
-  const [firstName, setFirstName] = useState('');
-  const [dob, setDob] = useState('');
-  const [country, setCountry] = useState('');
-  const [gender, setGender] = useState('');
-  
+  const [firstName, setFirstName] = useState("");
+  const [dob, setDob] = useState("");
+  const [country, setCountry] = useState("");
+  const [gender, setGender] = useState("");
+
   // Security form
-  const [newEmail, setNewEmail] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  
+  const [newEmail, setNewEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
   // Referral code for checkout
   const [checkoutReferralCode, setCheckoutReferralCode] = useState<string | null>(null);
-  
+
   // Trial abuse modal state
   const [showTrialAbuseModal, setShowTrialAbuseModal] = useState(false);
 
   // Handle checkout success/cancel params and referral code from URL
   useEffect(() => {
-    const success = searchParams.get('success');
-    const canceled = searchParams.get('canceled');
-    const refCode = searchParams.get('ref');
-    
+    const success = searchParams.get("success");
+    const canceled = searchParams.get("canceled");
+    const refCode = searchParams.get("ref");
+
     // Pre-fill referral code if passed from auth page
     if (refCode && !checkoutReferralCode) {
       setCheckoutReferralCode(refCode);
       // Go to subscription tab to show the referral code input
-      setActiveTab('subscription');
+      setActiveTab("subscription");
     }
-    
-    if (success === 'true') {
+
+    if (success === "true") {
       // Track successful checkout completion
       // This answers: "What's our checkout conversion rate?"
       trackCheckoutCompleted(profile?.subscription_plan || undefined);
-      
+
+      console.log("[portal.tsx] Fired trackedCheckoutCompleted");
+
       toast({
-        title: 'Subscription activated!',
-        description: 'Welcome to Scamly Premium. Your subscription is now active.',
+        title: "Subscription activated!",
+        description: "Welcome to Scamly Premium. Your subscription is now active.",
       });
       // Refresh profile to get updated subscription status
       refreshProfile();
       // Clear the query params
       setSearchParams({});
-      setActiveTab('subscription');
-    } else if (canceled === 'true') {
+      setActiveTab("subscription");
+    } else if (canceled === "true") {
       toast({
-        title: 'Checkout canceled',
-        description: 'You can subscribe anytime from your portal.',
-        variant: 'destructive',
+        title: "Checkout canceled",
+        description: "You can subscribe anytime from your portal.",
+        variant: "destructive",
       });
       setSearchParams({});
     }
@@ -121,7 +122,7 @@ export default function Portal() {
 
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/auth');
+      navigate("/auth");
     }
   }, [user, loading, navigate]);
 
@@ -130,21 +131,21 @@ export default function Portal() {
 
   useEffect(() => {
     if (profile && user) {
-      setFirstName(profile.first_name || '');
-      setDob(profile.dob || '');
-      setCountry(profile.country || '');
-      setGender(profile.gender || '');
-      
+      setFirstName(profile.first_name || "");
+      setDob(profile.dob || "");
+      setCountry(profile.country || "");
+      setGender(profile.gender || "");
+
       // Show trial abuse modal only if:
       // 1. User has consumed trial but is on free plan
       // 2. User hasn't already dismissed this modal (checked via localStorage)
-      const isPremiumStatus = profile.subscription_status === 'active' || profile.subscription_status === 'trialing';
+      const isPremiumStatus = profile.subscription_status === "active" || profile.subscription_status === "trialing";
       const modalKey = getTrialAbuseModalKey(user.id);
-      const hasSeenModal = localStorage.getItem(modalKey) === 'true';
-      
+      const hasSeenModal = localStorage.getItem(modalKey) === "true";
+
       if (!isPremiumStatus && profile.has_consumed_trial && !hasSeenModal) {
         setShowTrialAbuseModal(true);
-        setActiveTab('subscription');
+        setActiveTab("subscription");
         trackTrialAbuseDetected();
       }
     }
@@ -153,7 +154,7 @@ export default function Portal() {
   // Handler to dismiss trial abuse modal and save to localStorage
   const handleDismissTrialAbuseModal = () => {
     if (user) {
-      localStorage.setItem(getTrialAbuseModalKey(user.id), 'true');
+      localStorage.setItem(getTrialAbuseModalKey(user.id), "true");
     }
     setShowTrialAbuseModal(false);
   };
@@ -162,13 +163,13 @@ export default function Portal() {
     // Validate required fields
     if (!country) {
       toast({
-        title: 'Country required',
-        description: 'Please select your country before saving.',
-        variant: 'destructive',
+        title: "Country required",
+        description: "Please select your country before saving.",
+        variant: "destructive",
       });
       return;
     }
-    
+
     setSaving(true);
     const { error } = await updateProfile({
       first_name: firstName,
@@ -177,88 +178,88 @@ export default function Portal() {
       gender,
     });
     setSaving(false);
-    
+
     if (error) {
       toast({
-        title: 'Update failed',
+        title: "Update failed",
         description: error.message,
-        variant: 'destructive',
+        variant: "destructive",
       });
     } else {
       toast({
-        title: 'Profile updated',
-        description: 'Your profile has been successfully updated.',
+        title: "Profile updated",
+        description: "Your profile has been successfully updated.",
       });
     }
   };
 
   const handleUpdateEmail = async () => {
     try {
-      z.string().email('Please enter a valid email address').parse(newEmail);
+      z.string().email("Please enter a valid email address").parse(newEmail);
     } catch {
       toast({
-        title: 'Invalid email',
-        description: 'Please enter a valid email address.',
-        variant: 'destructive',
+        title: "Invalid email",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
       });
       return;
     }
-    
+
     setSaving(true);
     const { error } = await updateEmail(newEmail);
     setSaving(false);
-    
+
     if (error) {
       toast({
-        title: 'Update failed',
+        title: "Update failed",
         description: error.message,
-        variant: 'destructive',
+        variant: "destructive",
       });
     } else {
       toast({
-        title: 'Verification sent',
-        description: 'Check your new email address for a verification link.',
+        title: "Verification sent",
+        description: "Check your new email address for a verification link.",
       });
-      setNewEmail('');
+      setNewEmail("");
     }
   };
 
   const handleUpdatePassword = async () => {
     if (newPassword.length < 8) {
       toast({
-        title: 'Invalid password',
-        description: 'Password must be at least 8 characters.',
-        variant: 'destructive',
+        title: "Invalid password",
+        description: "Password must be at least 8 characters.",
+        variant: "destructive",
       });
       return;
     }
-    
+
     if (newPassword !== confirmPassword) {
       toast({
-        title: 'Passwords do not match',
-        description: 'Please make sure your passwords match.',
-        variant: 'destructive',
+        title: "Passwords do not match",
+        description: "Please make sure your passwords match.",
+        variant: "destructive",
       });
       return;
     }
-    
+
     setSaving(true);
     const { error } = await updatePassword(newPassword);
     setSaving(false);
-    
+
     if (error) {
       toast({
-        title: 'Update failed',
+        title: "Update failed",
         description: error.message,
-        variant: 'destructive',
+        variant: "destructive",
       });
     } else {
       toast({
-        title: 'Password updated',
-        description: 'Your password has been successfully changed.',
+        title: "Password updated",
+        description: "Your password has been successfully changed.",
       });
-      setNewPassword('');
-      setConfirmPassword('');
+      setNewPassword("");
+      setConfirmPassword("");
     }
   };
 
@@ -266,22 +267,22 @@ export default function Portal() {
     // Reset analytics user on logout
     resetUser();
     await signOut();
-    navigate('/');
+    navigate("/");
   };
 
   // Stripe checkout functions
-  const handleUpgrade = async (plan: 'monthly' | 'yearly') => {
+  const handleUpgrade = async (plan: "monthly" | "yearly") => {
     setSaving(true);
     toast({
-      title: 'Redirecting to checkout...',
+      title: "Redirecting to checkout...",
       description: `You'll be redirected to complete your ${plan} subscription.`,
     });
-    
+
     try {
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: { plan, referralCode: checkoutReferralCode },
       });
-      
+
       if (error) throw error;
       if (data?.url) {
         // Track checkout started before redirecting to Stripe
@@ -289,14 +290,14 @@ export default function Portal() {
         trackCheckoutStarted(plan, !!checkoutReferralCode);
         window.location.href = data.url;
       } else {
-        throw new Error('No checkout URL received');
+        throw new Error("No checkout URL received");
       }
     } catch (error) {
-      console.error('Checkout error:', error);
+      console.error("Checkout error:", error);
       toast({
-        title: 'Checkout failed',
-        description: error instanceof Error ? error.message : 'Failed to start checkout',
-        variant: 'destructive',
+        title: "Checkout failed",
+        description: error instanceof Error ? error.message : "Failed to start checkout",
+        variant: "destructive",
       });
     } finally {
       setSaving(false);
@@ -306,35 +307,35 @@ export default function Portal() {
   const handleManageSubscription = async () => {
     setSaving(true);
     toast({
-      title: 'Opening billing portal...',
-      description: 'You can manage your subscription there.',
+      title: "Opening billing portal...",
+      description: "You can manage your subscription there.",
     });
-    
+
     try {
-      const { data, error } = await supabase.functions.invoke('customer-portal');
-      
+      const { data, error } = await supabase.functions.invoke("customer-portal");
+
       if (error) throw error;
       if (data?.url) {
         window.location.href = data.url;
       } else {
-        throw new Error('No portal URL received');
+        throw new Error("No portal URL received");
       }
     } catch (error) {
-      console.error('Portal error:', error);
+      console.error("Portal error:", error);
       toast({
-        title: 'Portal failed',
-        description: error instanceof Error ? error.message : 'Failed to open billing portal',
-        variant: 'destructive',
+        title: "Portal failed",
+        description: error instanceof Error ? error.message : "Failed to open billing portal",
+        variant: "destructive",
       });
     } finally {
       setSaving(false);
     }
   };
 
-  const isPremium = profile?.subscription_status === 'active' || profile?.subscription_status === 'trialing';
-  const isTrialing = profile?.subscription_status === 'trialing';
+  const isPremium = profile?.subscription_status === "active" || profile?.subscription_status === "trialing";
+  const isTrialing = profile?.subscription_status === "trialing";
   const isEligibleForTrial = !profile?.has_consumed_trial;
-  const subscriptionEndDate = profile?.subscription_current_period_end 
+  const subscriptionEndDate = profile?.subscription_current_period_end
     ? new Date(profile.subscription_current_period_end).toLocaleDateString()
     : null;
 
@@ -347,10 +348,10 @@ export default function Portal() {
   }
 
   const tabs = [
-    { id: 'profile' as Tab, label: 'Profile', icon: User },
-    { id: 'subscription' as Tab, label: 'Subscription', icon: CreditCard },
-    { id: 'referrals' as Tab, label: 'Referrals', icon: Gift },
-    { id: 'security' as Tab, label: 'Security', icon: Settings },
+    { id: "profile" as Tab, label: "Profile", icon: User },
+    { id: "subscription" as Tab, label: "Subscription", icon: CreditCard },
+    { id: "referrals" as Tab, label: "Referrals", icon: Gift },
+    { id: "security" as Tab, label: "Security", icon: Settings },
   ];
 
   return (
@@ -360,16 +361,12 @@ export default function Portal() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="flex items-center">
-              <img 
-                src={theme === 'dark' ? logoDark : logoLight} 
-                alt="Scamly" 
-                className="h-9 w-auto"
-              />
+              <img src={theme === "dark" ? logoDark : logoLight} alt="Scamly" className="h-9 w-auto" />
             </Link>
-            
+
             <div className="flex items-center gap-3">
               <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
-                {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </Button>
               <Button variant="ghost" onClick={handleSignOut}>
                 <LogOut className="w-4 h-4 mr-2" />
@@ -379,19 +376,15 @@ export default function Portal() {
           </div>
         </div>
       </header>
-      
+
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           {/* Welcome */}
           <div className="mb-8">
-            <h1 className="font-display text-3xl font-bold mb-2">
-              Welcome back, {profile?.first_name || 'there'}!
-            </h1>
-            <p className="text-muted-foreground">
-              Manage your account settings and subscription.
-            </p>
+            <h1 className="font-display text-3xl font-bold mb-2">Welcome back, {profile?.first_name || "there"}!</h1>
+            <p className="text-muted-foreground">Manage your account settings and subscription.</p>
           </div>
-          
+
           {/* Subscription Status Banner */}
           {!isPremium && (
             <div className="mb-8 p-6 rounded-2xl gradient-bg relative overflow-hidden">
@@ -402,25 +395,18 @@ export default function Portal() {
                     <Crown className="w-6 h-6 text-primary-foreground" />
                   </div>
                   <div>
-                    <h3 className="font-display font-bold text-primary-foreground text-lg">
-                      Upgrade to Premium
-                    </h3>
-                    <p className="text-primary-foreground/80 text-sm">
-                      Get unlimited scans, AI chat, and more.
-                    </p>
+                    <h3 className="font-display font-bold text-primary-foreground text-lg">Upgrade to Premium</h3>
+                    <p className="text-primary-foreground/80 text-sm">Get unlimited scans, AI chat, and more.</p>
                   </div>
                 </div>
-                <Button
-                  variant="secondary"
-                  onClick={() => setActiveTab('subscription')}
-                >
+                <Button variant="secondary" onClick={() => setActiveTab("subscription")}>
                   View Plans
                   <ArrowUpRight className="w-4 h-4 ml-1" />
                 </Button>
               </div>
             </div>
           )}
-          
+
           {/* Tabs */}
           <div className="grid grid-cols-2 md:flex gap-1 p-1 rounded-xl bg-muted mb-8">
             {tabs.map((tab) => (
@@ -429,8 +415,8 @@ export default function Portal() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`md:flex-1 flex items-center justify-center gap-2 py-2.5 px-3 md:px-4 rounded-lg text-sm font-medium transition-all ${
                   activeTab === tab.id
-                    ? 'bg-card shadow-sm text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? "bg-card shadow-sm text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <tab.icon className="w-4 h-4 hidden sm:block" />
@@ -438,19 +424,17 @@ export default function Portal() {
               </button>
             ))}
           </div>
-          
+
           {/* Tab Content */}
           <div className="bg-card rounded-2xl border border-border p-6 md:p-8">
             {/* Profile Tab */}
-            {activeTab === 'profile' && (
+            {activeTab === "profile" && (
               <div className="space-y-6">
                 <div>
                   <h2 className="font-display text-xl font-bold mb-1">Profile Information</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Update your personal details here.
-                  </p>
+                  <p className="text-sm text-muted-foreground">Update your personal details here.</p>
                 </div>
-                
+
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="firstName">First Name</Label>
@@ -461,30 +445,18 @@ export default function Portal() {
                       placeholder="John"
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      value={user?.email || ''}
-                      disabled
-                      className="opacity-60"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Change email in Security settings
-                    </p>
+                    <Input id="email" value={user?.email || ""} disabled className="opacity-60" />
+                    <p className="text-xs text-muted-foreground">Change email in Security settings</p>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="dob">Date of Birth</Label>
-                    <Input
-                      id="dob"
-                      type="date"
-                      value={dob}
-                      onChange={(e) => setDob(e.target.value)}
-                    />
+                    <Input id="dob" type="date" value={dob} onChange={(e) => setDob(e.target.value)} />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="country">Country</Label>
                     <select
@@ -495,11 +467,13 @@ export default function Portal() {
                     >
                       <option value="">Select your country</option>
                       {countries.map((c) => (
-                        <option key={c} value={c}>{c}</option>
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
                       ))}
                     </select>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="gender">Gender</Label>
                     <select
@@ -510,12 +484,14 @@ export default function Portal() {
                     >
                       <option value="">Select your gender</option>
                       {genders.map((g) => (
-                        <option key={g} value={g}>{g}</option>
+                        <option key={g} value={g}>
+                          {g}
+                        </option>
                       ))}
                     </select>
                   </div>
                 </div>
-                
+
                 <div className="flex justify-end">
                   <Button variant="gradient" onClick={handleUpdateProfile} disabled={saving}>
                     {saving && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
@@ -524,24 +500,22 @@ export default function Portal() {
                 </div>
               </div>
             )}
-            
+
             {/* Subscription Tab */}
-            {activeTab === 'subscription' && (
+            {activeTab === "subscription" && (
               <div className="space-y-6">
                 <div>
                   <h2 className="font-display text-xl font-bold mb-1">Subscription</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Manage your Scamly subscription and billing.
-                  </p>
+                  <p className="text-sm text-muted-foreground">Manage your Scamly subscription and billing.</p>
                 </div>
-                
+
                 {/* Current Plan */}
                 <div className="p-4 rounded-xl bg-muted/50 border border-border">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-muted-foreground">Current Plan</span>
                     {isPremium ? (
                       <span className="px-2 py-0.5 rounded-full gradient-bg text-xs font-semibold text-primary-foreground">
-                        {isTrialing ? 'Free Trial' : 'Premium'}
+                        {isTrialing ? "Free Trial" : "Premium"}
                       </span>
                     ) : (
                       <span className="px-2 py-0.5 rounded-full bg-muted text-xs font-semibold text-muted-foreground">
@@ -550,36 +524,36 @@ export default function Portal() {
                     )}
                   </div>
                   <p className="font-display font-bold text-lg">
-                    {isPremium 
-                      ? isTrialing 
-                        ? 'Free for 14 days'
-                        : profile?.subscription_plan === 'premium-yearly' ? '$99/year' : '$10/month'
-                      : '$0/month'
-                    }
+                    {isPremium
+                      ? isTrialing
+                        ? "Free for 14 days"
+                        : profile?.subscription_plan === "premium-yearly"
+                          ? "$99/year"
+                          : "$10/month"
+                      : "$0/month"}
                   </p>
                   {isPremium && subscriptionEndDate && (
                     <p className="text-sm text-muted-foreground mt-1">
                       {isTrialing
                         ? `Trial ends on ${subscriptionEndDate}`
-                        : profile?.subscription_status === 'cancelled' 
+                        : profile?.subscription_status === "cancelled"
                           ? `Access until ${subscriptionEndDate}`
-                          : `Renews on ${subscriptionEndDate}`
-                      }
+                          : `Renews on ${subscriptionEndDate}`}
                     </p>
                   )}
                 </div>
-                
+
                 {/* Referral Code Input for non-premium users */}
                 {!isPremium && (
                   <div className="mb-6">
                     <ReferralCodeInput
-                      initialValue={checkoutReferralCode || ''}
+                      initialValue={checkoutReferralCode || ""}
                       onValidCode={(code) => setCheckoutReferralCode(code)}
                       onClear={() => setCheckoutReferralCode(null)}
                     />
                   </div>
                 )}
-                
+
                 {/* Free Trial Banner for non-premium users who are eligible */}
                 {!isPremium && isEligibleForTrial && (
                   <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/30 mb-4">
@@ -588,9 +562,7 @@ export default function Portal() {
                         <Gift className="w-5 h-5 text-green-600 dark:text-green-400" />
                       </div>
                       <div>
-                        <p className="font-semibold text-green-700 dark:text-green-300">
-                          14-Day Free Trial Included
-                        </p>
+                        <p className="font-semibold text-green-700 dark:text-green-300">14-Day Free Trial Included</p>
                         <p className="text-sm text-green-600 dark:text-green-400">
                           Try Premium free for 14 days. Your card won't be charged until the trial ends.
                         </p>
@@ -598,10 +570,10 @@ export default function Portal() {
                     </div>
                   </div>
                 )}
-                
+
                 {/* Trial Abuse Modal - shown when user has consumed trial and visits subscription tab */}
-                <Dialog 
-                  open={showTrialAbuseModal} 
+                <Dialog
+                  open={showTrialAbuseModal}
                   onOpenChange={(open) => {
                     if (!open) handleDismissTrialAbuseModal();
                   }}
@@ -614,13 +586,13 @@ export default function Portal() {
                       <DialogTitle className="text-center text-xl">Free Trial Not Available</DialogTitle>
                       <DialogDescription className="text-center space-y-3 pt-2">
                         <p>
-                          We detected that your payment details or email address have been previously used for a free trial.
+                          We detected that your payment details or email address have been previously used for a free
+                          trial.
                         </p>
-                        <p>
-                          As a result, your account was not upgraded to Scamly Premium with the free trial.
-                        </p>
+                        <p>As a result, your account was not upgraded to Scamly Premium with the free trial.</p>
                         <p className="font-medium text-foreground">
-                          You can still subscribe to Scamly Premium — your card will simply be charged immediately upon checkout instead of after a trial period.
+                          You can still subscribe to Scamly Premium — your card will simply be charged immediately upon
+                          checkout instead of after a trial period.
                         </p>
                       </DialogDescription>
                     </DialogHeader>
@@ -631,59 +603,71 @@ export default function Portal() {
                     </div>
                   </DialogContent>
                 </Dialog>
-                
+
                 {/* Plan Options */}
                 {!isPremium && (
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="p-6 rounded-xl border border-border hover:border-primary transition-colors">
                       <h3 className="font-display font-bold text-lg mb-2">Monthly</h3>
-                      <p className="text-3xl font-bold mb-1">$10<span className="text-lg font-normal text-muted-foreground">/mo</span></p>
-                      <p className="text-sm text-muted-foreground mb-2">{isEligibleForTrial ? 'Billed monthly after trial' : 'Billed monthly'}</p>
-                      {isEligibleForTrial && <p className="text-sm text-green-600 dark:text-green-400 mb-4">+ 14-day free trial</p>}
+                      <p className="text-3xl font-bold mb-1">
+                        $10<span className="text-lg font-normal text-muted-foreground">/mo</span>
+                      </p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {isEligibleForTrial ? "Billed monthly after trial" : "Billed monthly"}
+                      </p>
+                      {isEligibleForTrial && (
+                        <p className="text-sm text-green-600 dark:text-green-400 mb-4">+ 14-day free trial</p>
+                      )}
                       {checkoutReferralCode && (
                         <p className="text-sm text-green-600 mb-2">-10% referral discount applied!</p>
                       )}
                       <ul className="space-y-2 mb-6">
-                        {['Unlimited scans', 'AI Chat', 'Contact Search', 'Full Library'].map((feature) => (
+                        {["Unlimited scans", "AI Chat", "Contact Search", "Full Library"].map((feature) => (
                           <li key={feature} className="flex items-center gap-2 text-sm">
                             <Check className="w-4 h-4 text-green-500" />
                             {feature}
                           </li>
                         ))}
                       </ul>
-                      <Button variant="outline" className="w-full" onClick={() => handleUpgrade('monthly')}>
-                        {isEligibleForTrial ? 'Start Free Trial' : 'Subscribe Now'}
+                      <Button variant="outline" className="w-full" onClick={() => handleUpgrade("monthly")}>
+                        {isEligibleForTrial ? "Start Free Trial" : "Subscribe Now"}
                       </Button>
                     </div>
-                    
+
                     <div className="p-6 rounded-xl border-2 border-primary relative">
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                         <span className="px-3 py-1 rounded-full gradient-bg text-xs font-semibold text-primary-foreground">
-                          {isEligibleForTrial ? 'Save $21 + Free Trial' : 'Save $21'}
+                          {isEligibleForTrial ? "Save $21 + Free Trial" : "Save $21"}
                         </span>
                       </div>
                       <h3 className="font-display font-bold text-lg mb-2">Yearly</h3>
-                      <p className="text-3xl font-bold mb-1">$99<span className="text-lg font-normal text-muted-foreground">/yr</span></p>
-                      <p className="text-sm text-muted-foreground mb-2">{isEligibleForTrial ? 'Billed annually after trial' : 'Billed annually'}</p>
-                      {isEligibleForTrial && <p className="text-sm text-green-600 dark:text-green-400 mb-4">+ 14-day free trial</p>}
+                      <p className="text-3xl font-bold mb-1">
+                        $99<span className="text-lg font-normal text-muted-foreground">/yr</span>
+                      </p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {isEligibleForTrial ? "Billed annually after trial" : "Billed annually"}
+                      </p>
+                      {isEligibleForTrial && (
+                        <p className="text-sm text-green-600 dark:text-green-400 mb-4">+ 14-day free trial</p>
+                      )}
                       {checkoutReferralCode && (
                         <p className="text-sm text-green-600 mb-2">-10% referral discount applied!</p>
                       )}
                       <ul className="space-y-2 mb-6">
-                        {['Unlimited scans', 'AI Chat', 'Contact Search', 'Full Library'].map((feature) => (
+                        {["Unlimited scans", "AI Chat", "Contact Search", "Full Library"].map((feature) => (
                           <li key={feature} className="flex items-center gap-2 text-sm">
                             <Check className="w-4 h-4 text-green-500" />
                             {feature}
                           </li>
                         ))}
                       </ul>
-                      <Button variant="gradient" className="w-full" onClick={() => handleUpgrade('yearly')}>
-                        {isEligibleForTrial ? 'Start Free Trial' : 'Subscribe Now'}
+                      <Button variant="gradient" className="w-full" onClick={() => handleUpgrade("yearly")}>
+                        {isEligibleForTrial ? "Start Free Trial" : "Subscribe Now"}
                       </Button>
                     </div>
                   </div>
                 )}
-                
+
                 {/* Manage Subscription */}
                 {isPremium && (
                   <div className="flex flex-col sm:flex-row gap-4">
@@ -691,16 +675,20 @@ export default function Portal() {
                       <ExternalLink className="w-4 h-4 mr-2" />
                       Manage Billing
                     </Button>
-                    <Button variant="ghost" className="text-destructive hover:text-destructive" onClick={handleManageSubscription}>
+                    <Button
+                      variant="ghost"
+                      className="text-destructive hover:text-destructive"
+                      onClick={handleManageSubscription}
+                    >
                       Cancel Subscription
                     </Button>
                   </div>
                 )}
               </div>
             )}
-            
+
             {/* Referrals Tab */}
-            {activeTab === 'referrals' && (
+            {activeTab === "referrals" && (
               <div className="space-y-6">
                 <div>
                   <h2 className="font-display text-xl font-bold mb-1">Referral Program</h2>
@@ -711,17 +699,15 @@ export default function Portal() {
                 <ReferralDashboard />
               </div>
             )}
-            
+
             {/* Security Tab */}
-            {activeTab === 'security' && (
+            {activeTab === "security" && (
               <div className="space-y-8">
                 <div>
                   <h2 className="font-display text-xl font-bold mb-1">Security Settings</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Update your email address and password.
-                  </p>
+                  <p className="text-sm text-muted-foreground">Update your email address and password.</p>
                 </div>
-                
+
                 {/* Change Email */}
                 <div className="space-y-4">
                   <h3 className="font-semibold">Change Email</h3>
@@ -748,7 +734,7 @@ export default function Portal() {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Change Password */}
                 <div className="space-y-4 pt-4 border-t border-border">
                   <h3 className="font-semibold">Change Password</h3>
