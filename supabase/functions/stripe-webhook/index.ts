@@ -74,7 +74,7 @@ serve(async (req) => {
        * 4. If no abuse: Store fingerprint, mark has_consumed_trial, generate referral code
        * 5. Update the users profile with the subscription info and referral code.
        * 6. Create a referral intent record (if the user was referred)
-       * 
+       *
        * NOTE: Trial users get a referral code but it's NOT active until trial ends.
        */
       case "checkout.session.completed": {
@@ -138,11 +138,11 @@ serve(async (req) => {
 
             // Get the payment method used for this subscription
             const paymentMethodId = subscription.default_payment_method as string;
-            
+
             if (paymentMethodId) {
               try {
                 const paymentMethod = await stripe.paymentMethods.retrieve(paymentMethodId);
-                logStep("Payment method retrieved", { 
+                logStep("Payment method retrieved", {
                   type: paymentMethod.type,
                   id: paymentMethod.id,
                 });
@@ -193,17 +193,16 @@ serve(async (req) => {
                       logStep("TRIAL ABUSE DETECTED - User already consumed trial", { userId });
                     } else {
                       // No abuse - store the fingerprint for future checks
-                      const { error: fingerprintError } = await supabaseAdmin
-                        .from("payment_fingerprints")
-                        .insert({
-                          fingerprint,
-                          fingerprint_type: fingerprintType,
-                          user_id: userId,
-                        });
+                      const { error: fingerprintError } = await supabaseAdmin.from("payment_fingerprints").insert({
+                        fingerprint,
+                        fingerprint_type: fingerprintType,
+                        user_id: userId,
+                      });
 
                       if (fingerprintError) {
                         // Could be a race condition - another request inserted first
-                        if (fingerprintError.code === "23505") { // Unique constraint violation
+                        if (fingerprintError.code === "23505") {
+                          // Unique constraint violation
                           trialAbuseDetected = true;
                           abuseReason = "Payment fingerprint was just registered by another request";
                           logStep("TRIAL ABUSE DETECTED - Race condition on fingerprint insert", {
@@ -211,8 +210,8 @@ serve(async (req) => {
                             error: fingerprintError,
                           });
                         } else {
-                          logStep("Error inserting fingerprint, allowing trial anyway", { 
-                            error: fingerprintError 
+                          logStep("Error inserting fingerprint, allowing trial anyway", {
+                            error: fingerprintError,
                           });
                         }
                       } else {
@@ -225,8 +224,8 @@ serve(async (req) => {
                   // This handles edge cases where payment method data is incomplete
                   trialAbuseDetected = true;
                   abuseReason = "Could not extract payment fingerprint - trial denied for safety";
-                  logStep("TRIAL DENIED - No fingerprint available", { 
-                    paymentMethodType: paymentMethod.type 
+                  logStep("TRIAL DENIED - No fingerprint available", {
+                    paymentMethodType: paymentMethod.type,
                   });
                 }
               } catch (pmError) {
@@ -239,7 +238,7 @@ serve(async (req) => {
               // No default payment method on subscription - this shouldn't happen for trials
               // but handle it anyway by denying trial
               logStep("No payment method on trial subscription - checking setup intent");
-              
+
               // For some checkout configurations, payment method might be on the setup intent
               // Default to denying trial if we can't verify the payment method
               trialAbuseDetected = true;
@@ -251,7 +250,7 @@ serve(async (req) => {
             // Cancel subscription immediately and reset user to free
             // =============================================
             if (trialAbuseDetected) {
-              logStep("Handling trial abuse - cancelling subscription", { 
+              logStep("Handling trial abuse - cancelling subscription", {
                 subscriptionId: subscription.id,
                 reason: abuseReason,
               });
@@ -283,7 +282,7 @@ serve(async (req) => {
                 const posthogApiKey = Deno.env.get("POSTHOG_API_KEY");
                 if (posthogApiKey) {
                   try {
-                    await fetch("https://us.i.posthog.com/capture", {
+                    await fetch("https://us.i.posthog.com/i/v0/e", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({
@@ -305,14 +304,17 @@ serve(async (req) => {
 
                 // We're done - don't continue with normal checkout processing
                 await insertProcessedEvent(supabaseAdmin, event.id, event.type);
-                return new Response(JSON.stringify({ 
-                  received: true, 
-                  trialAbuse: true,
-                  reason: abuseReason,
-                }), {
-                  headers: { ...corsHeaders, "Content-Type": "application/json" },
-                  status: 200,
-                });
+                return new Response(
+                  JSON.stringify({
+                    received: true,
+                    trialAbuse: true,
+                    reason: abuseReason,
+                  }),
+                  {
+                    headers: { ...corsHeaders, "Content-Type": "application/json" },
+                    status: 200,
+                  },
+                );
               } catch (cancelError) {
                 logStep("Error cancelling abusive trial subscription", { error: cancelError });
                 // Continue anyway - better to have the profile updated than leave in bad state
@@ -445,23 +447,20 @@ serve(async (req) => {
 
               logStep("Sending trial confirmation email", { userId, trialEndDate });
 
-              const emailResponse = await fetch(
-                `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-customer-email`,
-                {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
-                  },
-                  body: JSON.stringify({
-                    type: "trial_confirmation",
-                    userId,
-                    plan: subscriptionPlan === "premium-yearly" ? "yearly" : "monthly",
-                    trialEndDate,
-                    firstBillingDate,
-                  }),
+              const emailResponse = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-customer-email`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
                 },
-              );
+                body: JSON.stringify({
+                  type: "trial_confirmation",
+                  userId,
+                  plan: subscriptionPlan === "premium-yearly" ? "yearly" : "monthly",
+                  trialEndDate,
+                  firstBillingDate,
+                }),
+              });
 
               const emailResult = await emailResponse.json();
               if (emailResponse.ok && emailResult.success) {
@@ -538,14 +537,14 @@ serve(async (req) => {
        * Functions (in order of execution):
        * 1. Get the subscription information from the webhook data
        * 2. Update the users profile with the subscription info
-       * 
+       *
        * IMPORTANT: This handles trial-to-active transitions when trial ends successfully.
        * When status changes from "trialing" to "active", we activate the referral code.
        */
       case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription;
-        logStep("Subscription updated", { 
-          subscriptionId: subscription.id, 
+        logStep("Subscription updated", {
+          subscriptionId: subscription.id,
           status: subscription.status,
           cancelAtPeriodEnd: subscription.cancel_at_period_end,
         });
@@ -565,10 +564,10 @@ serve(async (req) => {
         const wasNotCancellingBefore = previousAttributes?.cancel_at_period_end === false;
         const isNowCancelling = subscription.cancel_at_period_end === true;
         const isManualCancellation = wasNotCancellingBefore && isNowCancelling;
-        
-        logStep("Manual cancellation check", { 
-          wasNotCancellingBefore, 
-          isNowCancelling, 
+
+        logStep("Manual cancellation check", {
+          wasNotCancellingBefore,
+          isNowCancelling,
           isManualCancellation,
           previousCancelAtPeriodEnd: previousAttributes?.cancel_at_period_end,
         });
@@ -611,11 +610,10 @@ serve(async (req) => {
 
         // Check if this is a trialing subscription
         const isTrialing = subscription.status === "trialing";
-        
+
         // Check if subscription is being cancelled
-        const isCancelling = subscription.cancel_at_period_end || 
-                             subscription.status === "canceled" || 
-                             subscription.cancel_at;
+        const isCancelling =
+          subscription.cancel_at_period_end || subscription.status === "canceled" || subscription.cancel_at;
 
         if (isCancelling) {
           // Subscription is being cancelled
@@ -659,8 +657,8 @@ serve(async (req) => {
         if (updateError) {
           logStep("Error updating profile", { error: updateError });
         } else {
-          logStep("Profile updated successfully", { 
-            userId, 
+          logStep("Profile updated successfully", {
+            userId,
             status: subscription.status,
             referralCodeActive,
           });
@@ -671,17 +669,14 @@ serve(async (req) => {
           try {
             logStep("Sending manual cancellation email", { userId, accessExpiresAt });
 
-            const emailResponse = await fetch(
-              `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-customer-email`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
-                },
-                body: JSON.stringify({ type: "manual_cancellation", userId, accessExpiresAt }),
+            const emailResponse = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-customer-email`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
               },
-            );
+              body: JSON.stringify({ type: "manual_cancellation", userId, accessExpiresAt }),
+            });
 
             const emailResult = await emailResponse.json();
             if (emailResponse.ok && emailResult.success) {
@@ -735,7 +730,7 @@ serve(async (req) => {
 
         const userId = profiles[0].id;
         const previousStatus = profiles[0].subscription_status;
-        
+
         // Determine if this was a forced cancellation (from past_due due to failed payments)
         // vs a manual cancellation that reached end of period
         const wasForcedCancellation = previousStatus === "past_due";
@@ -766,17 +761,14 @@ serve(async (req) => {
           try {
             logStep("Sending forced cancellation email", { userId });
 
-            const emailResponse = await fetch(
-              `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-customer-email`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
-                },
-                body: JSON.stringify({ type: "forced_cancellation", userId }),
+            const emailResponse = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-customer-email`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
               },
-            );
+              body: JSON.stringify({ type: "forced_cancellation", userId }),
+            });
 
             const emailResult = await emailResponse.json();
             if (emailResponse.ok && emailResult.success) {
@@ -802,7 +794,7 @@ serve(async (req) => {
        * 2. Update the users profile with the subscription info
        * 3. Convert the inactive referral intent to an active referral
        * 4. Grant the 10% discount to the referring user (simple model: one referral = one 10% discount)
-       * 
+       *
        * IMPORTANT: Trial invoices have amount_paid = 0. We must:
        * - NOT update has_paid_first_invoice for $0 trial invoices
        * - NOT convert referrals for $0 trial invoices
@@ -811,9 +803,9 @@ serve(async (req) => {
       case "invoice.payment_succeeded": {
         const invoice = event.data.object as Stripe.Invoice;
         const amountPaid = invoice.amount_paid ?? 0;
-        
-        logStep("Invoice payment succeeded", { 
-          invoiceId: invoice.id, 
+
+        logStep("Invoice payment succeeded", {
+          invoiceId: invoice.id,
           billingReason: invoice.billing_reason,
           amountPaid,
           isTrialInvoice: amountPaid === 0,
@@ -871,7 +863,7 @@ serve(async (req) => {
             // =============================================
             if (amountPaid === 0 && isTrialing) {
               logStep("Trial invoice ($0), updating status but NOT marking as paid", { userId });
-              
+
               await supabaseAdmin
                 .from("profiles")
                 .update({
@@ -913,7 +905,7 @@ serve(async (req) => {
               // REFERRAL CONVERSION LOGIC (SIMPLIFIED MODEL)
               // One referral = flat 10% discount for referrer
               // Only on FIRST successful PAID invoice (not trial $0 invoices)
-              // billing_reason can be "subscription_create" (first after trial ends) 
+              // billing_reason can be "subscription_create" (first after trial ends)
               // or "subscription_cycle" (renewal)
               // We check has_paid_first_invoice to determine if this is truly the first payment
               // =============================================
@@ -1073,17 +1065,14 @@ serve(async (req) => {
               try {
                 logStep("Sending payment failed email", { userId });
 
-                const emailResponse = await fetch(
-                  `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-customer-email`,
-                  {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                      Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
-                    },
-                    body: JSON.stringify({ type: "payment_failed", userId }),
+                const emailResponse = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-customer-email`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
                   },
-                );
+                  body: JSON.stringify({ type: "payment_failed", userId }),
+                });
 
                 const emailResult = await emailResponse.json();
                 if (emailResponse.ok && emailResult.success) {
