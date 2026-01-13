@@ -246,6 +246,28 @@ export function trackCheckoutCompleted(plan?: string): void {
 // ============================================================================
 
 /**
+ * TRIAL_ABUSE_DETECTED Event
+ *
+ * Business Question: How many users are attempting to abuse the trial system?
+ * This helps us understand the scale of trial abuse and optimize our detection.
+ *
+ * Fires when: Trial abuse is detected and the modal is shown for the first time
+ */
+export function trackTrialAbuseDetected(): void {
+  if (!posthogInstance) return;
+
+  posthogInstance.capture("trial_abuse_detected", {
+    ...getCommonProperties(),
+  });
+
+  console.log("[Analytics] Trial abuse detected event tracked");
+}
+
+// ============================================================================
+// Generic Event Capture (for future extensibility)
+// ============================================================================
+
+/**
  * Generic event capture for custom events.
  * Use specific track* functions when available for consistency.
  */
