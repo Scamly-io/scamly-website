@@ -58,12 +58,11 @@ export async function initAnalytics(): Promise<void> {
       api_host: POSTHOG_HOST,
       // Capture pageviews manually for more control
       capture_pageview: false,
-      // Respect Do Not Track browser setting
-      respect_dnt: true,
       // Persistence for anonymous user tracking
       persistence: "localStorage+cookie",
       // Autocapture enabled
       autocapture: true,
+      enable_heatmaps: true,
     });
 
     posthogInstance = posthog;
