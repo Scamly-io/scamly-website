@@ -177,6 +177,8 @@ export function trackSignupStarted(source: string): void {
     // Source helps identify which CTA was clicked (hero, pricing, cta_section, etc.)
     signup_source: source,
   });
+
+  console.log("[Analytics] Signup started event tracked");
 }
 
 /**
@@ -196,6 +198,8 @@ export function trackSignupCompleted(userId?: string): void {
     // Include user_id if available for linking to identified user
     user_id: userId,
   });
+
+  console.log("[Analytics] Signup completed event tracked");
 }
 
 /**
