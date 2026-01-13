@@ -350,7 +350,8 @@ serve(async (req) => {
 
           // Trial users get a referral code but it's NOT active until trial ends
           // This prevents trial users from referring others
-          // IMPORTANT: Mark has_consumed_trial = true to prevent future trial abuse
+          // IMPORTANT: Mark has_consumed_trial = true if this was a trial checkout
+          // Do NOT set has_consumed_trial to false for non-trial checkouts (it may already be true from abuse detection)
           const updateData: Record<string, unknown> = {
             stripe_customer_id: session.customer as string,
             subscription_id: subscription.id,
@@ -359,8 +360,13 @@ serve(async (req) => {
             subscription_current_period_end: currentPeriodEndDate,
             access_expires_at: null,
             referral_code_active: !isTrialing, // Inactive during trial
-            has_consumed_trial: isTrialing ? true : false, // Mark trial as consumed if this was a trial
           };
+
+          // Only set has_consumed_trial to true if this was a trial
+          // Never set it to false - it should only be marked true, never unmarked
+          if (isTrialing) {
+            updateData.has_consumed_trial = true;
+          }
 
           if (!existingProfile?.referral_code) {
             updateData.referral_code = referralCode;
