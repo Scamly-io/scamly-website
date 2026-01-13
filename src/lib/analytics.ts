@@ -22,6 +22,62 @@ const POSTHOG_HOST = import.meta.env.VITE_POSTHOG_HOST || "https://us.i.posthog.
 // Track PostHog instance after dynamic import
 let posthogInstance: PostHog | null = null;
 
+// Event queue for events fired before PostHog initializes
+type QueuedEvent = {
+  type: "capture" | "identify" | "reset";
+  eventName?: string;
+  properties?: Record<string, unknown>;
+  userId?: string;
+  traits?: Record<string, unknown>;
+};
+const eventQueue: QueuedEvent[] = [];
+let isInitializing = false;
+
+/**
+ * Process queued events after PostHog initializes
+ */
+function flushEventQueue(): void {
+  if (!posthogInstance || eventQueue.length === 0) return;
+
+  console.log(`[Analytics] Flushing ${eventQueue.length} queued event(s)`);
+
+  while (eventQueue.length > 0) {
+    const event = eventQueue.shift();
+    if (!event) continue;
+
+    switch (event.type) {
+      case "capture":
+        if (event.eventName) {
+          posthogInstance.capture(event.eventName, event.properties);
+          console.log(`[Analytics] Flushed queued event: ${event.eventName}`);
+        }
+        break;
+      case "identify":
+        if (event.userId) {
+          posthogInstance.identify(event.userId, event.traits);
+        }
+        break;
+      case "reset":
+        posthogInstance.reset();
+        break;
+    }
+  }
+}
+
+/**
+ * Capture an event, queuing if PostHog isn't ready yet
+ */
+function captureEvent(eventName: string, properties?: Record<string, unknown>): void {
+  if (posthogInstance) {
+    posthogInstance.capture(eventName, properties);
+    console.log(`[Analytics] ${eventName} event tracked`);
+  } else {
+    // Queue the event for later
+    eventQueue.push({ type: "capture", eventName, properties });
+    console.log(`[Analytics] ${eventName} event queued (PostHog not ready)`);
+  }
+}
+
 // ============================================================================
 // Initialization
 // ============================================================================
@@ -46,9 +102,11 @@ export async function initAnalytics(): Promise<void> {
   }
 
   // Guard: Prevent double initialization
-  if (posthogInstance) {
+  if (posthogInstance || isInitializing) {
     return;
   }
+
+  isInitializing = true;
 
   try {
     // Dynamic import to avoid React bundling conflicts
@@ -67,8 +125,13 @@ export async function initAnalytics(): Promise<void> {
 
     posthogInstance = posthog;
     console.log("[Analytics] PostHog initialized");
+
+    // Flush any events that were queued before initialization
+    flushEventQueue();
   } catch (error) {
     console.error("[Analytics] Failed to initialize PostHog:", error);
+  } finally {
+    isInitializing = false;
   }
 }
 
@@ -81,9 +144,12 @@ export async function initAnalytics(): Promise<void> {
  * Call this after successful login/signup to link anonymous events to the user.
  */
 export function identifyUser(userId: string, traits?: Record<string, unknown>): void {
-  if (!posthogInstance) return;
-
-  posthogInstance.identify(userId, traits);
+  if (posthogInstance) {
+    posthogInstance.identify(userId, traits);
+  } else {
+    eventQueue.push({ type: "identify", userId, traits });
+    console.log(`[Analytics] identify event queued (PostHog not ready)`);
+  }
 }
 
 /**
@@ -91,9 +157,11 @@ export function identifyUser(userId: string, traits?: Record<string, unknown>): 
  * This ensures subsequent events are tracked as a new anonymous user.
  */
 export function resetUser(): void {
-  if (!posthogInstance) return;
-
-  posthogInstance.reset();
+  if (posthogInstance) {
+    posthogInstance.reset();
+  } else {
+    eventQueue.push({ type: "reset" });
+  }
 }
 
 // ============================================================================
@@ -135,9 +203,7 @@ function getCommonProperties(): Record<string, unknown> {
  * Fires when: User lands on the home page
  */
 export function trackPageVisited(pageName: string = "home"): void {
-  if (!posthogInstance) return;
-
-  posthogInstance.capture("page_visited", {
+  captureEvent("page_visited", {
     ...getCommonProperties(),
     page_name: pageName,
   });
@@ -153,9 +219,7 @@ export function trackPageVisited(pageName: string = "home"): void {
  * Note: Uses intersection observer, NOT page load, for accurate visibility tracking
  */
 export function trackPricingViewed(): void {
-  if (!posthogInstance) return;
-
-  posthogInstance.capture("pricing_viewed", {
+  captureEvent("pricing_viewed", {
     ...getCommonProperties(),
   });
 }
@@ -170,15 +234,11 @@ export function trackPricingViewed(): void {
  * Fires when: User clicks primary signup CTA button
  */
 export function trackSignupStarted(source: string): void {
-  if (!posthogInstance) return;
-
-  posthogInstance.capture("signup_started", {
+  captureEvent("signup_started", {
     ...getCommonProperties(),
     // Source helps identify which CTA was clicked (hero, pricing, cta_section, etc.)
     signup_source: source,
   });
-
-  console.log("[Analytics] Signup started event tracked");
 }
 
 /**
@@ -191,15 +251,11 @@ export function trackSignupStarted(source: string): void {
  * Note: Only fires AFTER successful signup, not on form submission
  */
 export function trackSignupCompleted(userId?: string): void {
-  if (!posthogInstance) return;
-
-  posthogInstance.capture("signup_completed", {
+  captureEvent("signup_completed", {
     ...getCommonProperties(),
     // Include user_id if available for linking to identified user
     user_id: userId,
   });
-
-  console.log("[Analytics] Signup completed event tracked");
 }
 
 /**
@@ -211,17 +267,13 @@ export function trackSignupCompleted(userId?: string): void {
  * Fires when: User is redirected to Stripe Checkout
  */
 export function trackCheckoutStarted(plan: "monthly" | "yearly", hasReferralCode: boolean): void {
-  if (!posthogInstance) return;
-
-  posthogInstance.capture("checkout_started", {
+  captureEvent("checkout_started", {
     ...getCommonProperties(),
     // Plan helps analyze which pricing option is more popular
     checkout_plan: plan,
     // Referral tracking for attribution
     has_referral_code: hasReferralCode,
   });
-
-  console.log("[Analytics] Checkout started event tracked");
 }
 
 /**
@@ -234,20 +286,12 @@ export function trackCheckoutStarted(plan: "monthly" | "yearly", hasReferralCode
  * Note: This relies on the success param in the return URL
  */
 export function trackCheckoutCompleted(plan?: string): void {
-  if (!posthogInstance) return;
-
-  posthogInstance.capture("checkout_completed", {
+  captureEvent("checkout_completed", {
     ...getCommonProperties(),
     // Plan info if available
     checkout_plan: plan,
   });
-
-  console.log("[Analytics] Checkout completed event tracked");
 }
-
-// ============================================================================
-// Generic Event Capture (for future extensibility)
-// ============================================================================
 
 /**
  * TRIAL_ABUSE_DETECTED Event
@@ -258,13 +302,9 @@ export function trackCheckoutCompleted(plan?: string): void {
  * Fires when: Trial abuse is detected and the modal is shown for the first time
  */
 export function trackTrialAbuseDetected(): void {
-  if (!posthogInstance) return;
-
-  posthogInstance.capture("trial_abuse_detected", {
+  captureEvent("trial_abuse_detected", {
     ...getCommonProperties(),
   });
-
-  console.log("[Analytics] Trial abuse detected event tracked");
 }
 
 // ============================================================================
@@ -276,9 +316,7 @@ export function trackTrialAbuseDetected(): void {
  * Use specific track* functions when available for consistency.
  */
 export function trackEvent(eventName: string, properties?: Record<string, unknown>): void {
-  if (!posthogInstance) return;
-
-  posthogInstance.capture(eventName, {
+  captureEvent(eventName, {
     ...getCommonProperties(),
     ...properties,
   });
