@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Menu, X, Sun, Moon } from 'lucide-react';
+import { trackSignupStarted } from '@/lib/analytics';
 import logoLight from '@/assets/navbar-logo-light.png';
 import logoDark from '@/assets/navbar-logo-dark.png';
 
@@ -71,7 +72,7 @@ export function Navbar() {
                 <Button variant="ghost" asChild>
                   <Link to="/auth">Sign In</Link>
                 </Button>
-                <Button variant="gradient" asChild>
+                <Button variant="gradient" asChild onClick={() => trackSignupStarted('navbar')}>
                   <Link to="/auth?mode=signup">Get Started</Link>
                 </Button>
               </>
@@ -126,7 +127,7 @@ export function Navbar() {
                     <Button variant="outline" asChild className="w-full">
                       <Link to="/auth">Sign In</Link>
                     </Button>
-                    <Button variant="gradient" asChild className="w-full">
+                    <Button variant="gradient" asChild className="w-full" onClick={() => trackSignupStarted('navbar_mobile')}>
                       <Link to="/auth?mode=signup">Get Started</Link>
                     </Button>
                   </>
