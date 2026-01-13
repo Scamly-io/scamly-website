@@ -272,6 +272,10 @@ export default function Portal() {
 
   // Stripe checkout functions
   const handleUpgrade = async (plan: "monthly" | "yearly") => {
+    // Track checkout started immediately on button click
+    // This answers: "How many users initiate payment?"
+    trackCheckoutStarted(plan, !!checkoutReferralCode);
+    
     setSaving(true);
     toast({
       title: "Redirecting to checkout...",
@@ -285,9 +289,6 @@ export default function Portal() {
 
       if (error) throw error;
       if (data?.url) {
-        // Track checkout started before redirecting to Stripe
-        // This answers: "How many users initiate payment?"
-        trackCheckoutStarted(plan, !!checkoutReferralCode);
         window.location.href = data.url;
       } else {
         throw new Error("No checkout URL received");
