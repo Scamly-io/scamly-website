@@ -125,22 +125,37 @@ export default function Portal() {
     }
   }, [user, loading, navigate]);
 
+  // Helper to get user-specific localStorage key for trial abuse modal
+  const getTrialAbuseModalKey = (userId: string) => `trial_abuse_modal_dismissed_${userId}`;
+
   useEffect(() => {
-    if (profile) {
+    if (profile && user) {
       setFirstName(profile.first_name || '');
       setDob(profile.dob || '');
       setCountry(profile.country || '');
       setGender(profile.gender || '');
       
-      // Show trial abuse modal if user has consumed trial but is on free plan
-      // This provides a clear explanation of what happened
+      // Show trial abuse modal only if:
+      // 1. User has consumed trial but is on free plan
+      // 2. User hasn't already dismissed this modal (checked via localStorage)
       const isPremiumStatus = profile.subscription_status === 'active' || profile.subscription_status === 'trialing';
-      if (!isPremiumStatus && profile.has_consumed_trial) {
+      const modalKey = getTrialAbuseModalKey(user.id);
+      const hasSeenModal = localStorage.getItem(modalKey) === 'true';
+      
+      if (!isPremiumStatus && profile.has_consumed_trial && !hasSeenModal) {
         setShowTrialAbuseModal(true);
         setActiveTab('subscription');
       }
     }
-  }, [profile]);
+  }, [profile, user]);
+
+  // Handler to dismiss trial abuse modal and save to localStorage
+  const handleDismissTrialAbuseModal = () => {
+    if (user) {
+      localStorage.setItem(getTrialAbuseModalKey(user.id), 'true');
+    }
+    setShowTrialAbuseModal(false);
+  };
 
   const handleUpdateProfile = async () => {
     // Validate required fields
@@ -584,7 +599,12 @@ export default function Portal() {
                 )}
                 
                 {/* Trial Abuse Modal - shown when user has consumed trial and visits subscription tab */}
-                <Dialog open={showTrialAbuseModal} onOpenChange={setShowTrialAbuseModal}>
+                <Dialog 
+                  open={showTrialAbuseModal} 
+                  onOpenChange={(open) => {
+                    if (!open) handleDismissTrialAbuseModal();
+                  }}
+                >
                   <DialogContent className="sm:max-w-md">
                     <DialogHeader>
                       <div className="mx-auto w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center mb-4">
@@ -604,7 +624,7 @@ export default function Portal() {
                       </DialogDescription>
                     </DialogHeader>
                     <div className="flex justify-center pt-4">
-                      <Button variant="gradient" onClick={() => setShowTrialAbuseModal(false)}>
+                      <Button variant="gradient" onClick={handleDismissTrialAbuseModal}>
                         Got it, show me the plans
                       </Button>
                     </div>
