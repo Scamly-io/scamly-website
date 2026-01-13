@@ -237,6 +237,24 @@ export function trackCheckoutCompleted(plan?: string): void {
   });
 }
 
+/**
+ * TRIAL_ABUSE_DETECTED Event
+ *
+ * Business Question: How often do users attempt to abuse the free trial?
+ * This helps us understand the prevalence of trial abuse and measure the
+ * effectiveness of our abuse detection system.
+ *
+ * Fires when: User is detected as having previously used a free trial
+ * (shown when they visit the portal and modal is displayed)
+ */
+export function trackTrialAbuseDetected(): void {
+  if (!posthogInstance) return;
+
+  posthogInstance.capture("trial_abuse_detected", {
+    ...getCommonProperties(),
+  });
+}
+
 // ============================================================================
 // Generic Event Capture (for future extensibility)
 // ============================================================================
