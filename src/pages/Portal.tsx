@@ -35,7 +35,6 @@ import { countries } from "@/constants/countries";
 import {
   trackCheckoutStarted,
   trackCheckoutCompleted,
-  trackTrialAbuseDetected,
   identifyUser,
   resetUser,
 } from "@/lib/analytics";
@@ -146,7 +145,7 @@ export default function Portal() {
       if (!isPremiumStatus && profile.has_consumed_trial && !hasSeenModal) {
         setShowTrialAbuseModal(true);
         setActiveTab("subscription");
-        trackTrialAbuseDetected();
+        // Note: trial_abuse_detected event is now tracked server-side in stripe-webhook
       }
     }
   }, [profile, user]);

@@ -279,6 +279,30 @@ serve(async (req) => {
 
                 logStep("User reset to free due to trial abuse", { userId, reason: abuseReason });
 
+                // Track trial abuse event in PostHog (server-side, guaranteed single fire)
+                const posthogApiKey = Deno.env.get("POSTHOG_API_KEY");
+                if (posthogApiKey) {
+                  try {
+                    await fetch("https://us.i.posthog.com/capture", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        api_key: posthogApiKey,
+                        event: "trial_abuse_detected",
+                        distinct_id: userId,
+                        properties: {
+                          reason: abuseReason,
+                          subscription_id: subscription.id,
+                          $current_url: "stripe-webhook",
+                        },
+                      }),
+                    });
+                    logStep("PostHog trial_abuse_detected event sent", { userId });
+                  } catch (posthogError) {
+                    logStep("Failed to send PostHog event", { error: posthogError });
+                  }
+                }
+
                 // We're done - don't continue with normal checkout processing
                 await insertProcessedEvent(supabaseAdmin, event.id, event.type);
                 return new Response(JSON.stringify({ 
