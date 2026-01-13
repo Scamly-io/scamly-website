@@ -38,7 +38,7 @@ import {
 } from 'lucide-react';
 import { z } from 'zod';
 import { countries } from '@/constants/countries';
-import { trackCheckoutStarted, trackCheckoutCompleted, identifyUser, resetUser } from '@/lib/analytics';
+import { trackCheckoutStarted, trackCheckoutCompleted, trackTrialAbuseDetected, identifyUser, resetUser } from '@/lib/analytics';
 
 
 const genders = ['Male', 'Female', 'Non-binary', 'Prefer not to say'];
@@ -145,6 +145,7 @@ export default function Portal() {
       if (!isPremiumStatus && profile.has_consumed_trial && !hasSeenModal) {
         setShowTrialAbuseModal(true);
         setActiveTab('subscription');
+        trackTrialAbuseDetected();
       }
     }
   }, [profile, user]);
