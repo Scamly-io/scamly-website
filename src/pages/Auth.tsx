@@ -6,11 +6,23 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, User, Calendar, MapPin, Sun, Moon, ArrowLeft, Eye, EyeOff, Loader2, CheckCircle } from "lucide-react";
 import { z } from "zod";
 import { countries } from "@/constants/countries";
 import { trackSignupCompleted } from "@/lib/analytics";
+
+const referralSourceOptions = [
+  "Facebook",
+  "Instagram",
+  "X (Twitter)",
+  "Youtube",
+  "Other social media",
+  "Google search",
+  "Word of Mouth",
+  "Other",
+];
 
 
 const signInSchema = z.object({
@@ -25,6 +37,8 @@ const signUpSchema = z.object({
   dob: z.string().min(1, "Date of birth is required"),
   country: z.string().min(1, "Country is required"),
   gender: z.string().min(1, "Gender is required"),
+  referralSources: z.array(z.string()).min(1, "Please select at least one option"),
+  termsAccepted: z.literal(true, { errorMap: () => ({ message: "You must accept the Terms & Conditions and Privacy Policy" }) }),
 });
 
 const genders = ["Male", "Female", "Non-binary", "Prefer not to say"];
@@ -49,6 +63,8 @@ export default function Auth() {
   const [dob, setDob] = useState("");
   const [country, setCountry] = useState("");
   const [gender, setGender] = useState("");
+  const [referralSources, setReferralSources] = useState<string[]>([]);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -102,7 +118,9 @@ export default function Auth() {
         dob: z.string().min(1, "Date of birth is required"),
         country: z.string().min(1, "Country is required"),
         gender: z.string().min(1, "Gender is required"),
-      }).parse({ firstName, dob, country, gender });
+        referralSources: z.array(z.string()).min(1, "Please select at least one option"),
+        termsAccepted: z.literal(true, { errorMap: () => ({ message: "You must accept the Terms & Conditions and Privacy Policy" }) }),
+      }).parse({ firstName, dob, country, gender, referralSources, termsAccepted });
       setErrors({});
       return true;
     } catch (err) {
@@ -117,6 +135,14 @@ export default function Auth() {
       }
       return false;
     }
+  };
+
+  const toggleReferralSource = (source: string) => {
+    setReferralSources((prev) =>
+      prev.includes(source)
+        ? prev.filter((s) => s !== source)
+        : [...prev, source]
+    );
   };
 
   const handleSignIn = async () => {
@@ -150,6 +176,8 @@ export default function Auth() {
       dob,
       country,
       gender,
+      referral_sources: referralSources,
+      terms_accepted_at: new Date().toISOString(),
     });
     setLoading(false);
 
@@ -493,6 +521,63 @@ export default function Auth() {
                       ))}
                     </select>
                     {errors.gender && <p className="text-sm text-destructive">{errors.gender}</p>}
+                  </div>
+
+                  {/* How did you hear about us */}
+                  <div className="space-y-3">
+                    <Label>How did you hear about us?</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {referralSourceOptions.map((source) => (
+                        <button
+                          key={source}
+                          type="button"
+                          onClick={() => toggleReferralSource(source)}
+                          className={`px-3 py-2 text-sm rounded-lg border transition-all text-left ${
+                            referralSources.includes(source)
+                              ? "border-primary bg-primary/10 text-primary"
+                              : "border-input bg-background text-foreground hover:border-primary/50"
+                          }`}
+                        >
+                          {source}
+                        </button>
+                      ))}
+                    </div>
+                    {errors.referralSources && <p className="text-sm text-destructive">{errors.referralSources}</p>}
+                  </div>
+
+                  {/* Terms & Conditions */}
+                  <div className="space-y-2 pt-2">
+                    <div className="flex items-start gap-3">
+                      <Checkbox
+                        id="terms"
+                        checked={termsAccepted}
+                        onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+                        className="mt-0.5"
+                      />
+                      <Label htmlFor="terms" className="text-sm font-normal leading-relaxed cursor-pointer">
+                        I agree to the{" "}
+                        <a
+                          href="/terms"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Terms & Conditions
+                        </a>{" "}
+                        and{" "}
+                        <a
+                          href="/privacy"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Privacy Policy
+                        </a>
+                      </Label>
+                    </div>
+                    {errors.termsAccepted && <p className="text-sm text-destructive">{errors.termsAccepted}</p>}
                   </div>
                 </>
               )}

@@ -278,12 +278,14 @@ export type Database = {
           referral_code: string | null
           referral_code_active: boolean
           referral_code_updated_at: string | null
+          referral_sources: string[] | null
           referred_user: boolean
           stripe_customer_id: string | null
           subscription_current_period_end: string | null
           subscription_id: string | null
           subscription_plan: string | null
           subscription_status: string | null
+          terms_accepted_at: string | null
           welcome_email_sent: boolean
         }
         Insert: {
@@ -299,12 +301,14 @@ export type Database = {
           referral_code?: string | null
           referral_code_active?: boolean
           referral_code_updated_at?: string | null
+          referral_sources?: string[] | null
           referred_user?: boolean
           stripe_customer_id?: string | null
           subscription_current_period_end?: string | null
           subscription_id?: string | null
           subscription_plan?: string | null
           subscription_status?: string | null
+          terms_accepted_at?: string | null
           welcome_email_sent?: boolean
         }
         Update: {
@@ -320,12 +324,14 @@ export type Database = {
           referral_code?: string | null
           referral_code_active?: boolean
           referral_code_updated_at?: string | null
+          referral_sources?: string[] | null
           referred_user?: boolean
           stripe_customer_id?: string | null
           subscription_current_period_end?: string | null
           subscription_id?: string | null
           subscription_plan?: string | null
           subscription_status?: string | null
+          terms_accepted_at?: string | null
           welcome_email_sent?: boolean
         }
         Relationships: []
