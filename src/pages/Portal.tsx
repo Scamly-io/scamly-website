@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { ReferralDashboard, ReferralCodeInput } from "@/components/referral";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { PolicyAcceptanceModal } from "@/components/policy";
+import { usePolicyCompliance } from "@/hooks/usePolicyCompliance";
 import logoLight from "@/assets/navbar-logo-light.png";
 import logoDark from "@/assets/navbar-logo-dark.png";
 import {
@@ -49,6 +51,16 @@ export default function Portal() {
   const { user, profile, loading, signOut, updateProfile, updateEmail, updatePassword, refreshProfile } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { toast } = useToast();
+  
+  // Policy compliance
+  const {
+    isLoading: policyLoading,
+    isCompliant: isPolicyCompliant,
+    pendingPolicies,
+    currentPolicies,
+    complianceStatus,
+    acceptAllPolicies,
+  } = usePolicyCompliance();
 
   const [activeTab, setActiveTab] = useState<Tab>("profile");
   const [saving, setSaving] = useState(false);
@@ -356,6 +368,15 @@ export default function Portal() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Policy Acceptance Modal - blocks UI until policies are accepted */}
+      <PolicyAcceptanceModal
+        isOpen={!policyLoading && !isPolicyCompliant && pendingPolicies.length > 0}
+        pendingPolicies={pendingPolicies}
+        currentPolicies={currentPolicies}
+        complianceStatus={complianceStatus}
+        onAccept={acceptAllPolicies}
+        isLoading={policyLoading}
+      />
       {/* Header */}
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4">

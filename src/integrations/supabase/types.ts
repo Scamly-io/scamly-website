@@ -246,6 +246,74 @@ export type Database = {
         }
         Relationships: []
       }
+      policies: {
+        Row: {
+          content_hash: string | null
+          created_at: string
+          id: string
+          policy_type: string
+          published_at: string
+          version: string
+        }
+        Insert: {
+          content_hash?: string | null
+          created_at?: string
+          id?: string
+          policy_type: string
+          published_at?: string
+          version: string
+        }
+        Update: {
+          content_hash?: string | null
+          created_at?: string
+          id?: string
+          policy_type?: string
+          published_at?: string
+          version?: string
+        }
+        Relationships: []
+      }
+      policy_acceptances: {
+        Row: {
+          accepted_at: string
+          id: string
+          ip_address: unknown
+          policy_id: string | null
+          policy_type: string
+          policy_version: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          accepted_at?: string
+          id?: string
+          ip_address?: unknown
+          policy_id?: string | null
+          policy_type: string
+          policy_version: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          accepted_at?: string
+          id?: string
+          ip_address?: unknown
+          policy_id?: string | null
+          policy_type?: string
+          policy_version?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "policy_acceptances_policy_id_fkey"
+            columns: ["policy_id"]
+            isOneToOne: false
+            referencedRelation: "policies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       processed_stripe_events: {
         Row: {
           event_type: string
@@ -285,7 +353,6 @@ export type Database = {
           subscription_id: string | null
           subscription_plan: string | null
           subscription_status: string | null
-          terms_accepted_at: string | null
           welcome_email_sent: boolean
         }
         Insert: {
@@ -308,7 +375,6 @@ export type Database = {
           subscription_id?: string | null
           subscription_plan?: string | null
           subscription_status?: string | null
-          terms_accepted_at?: string | null
           welcome_email_sent?: boolean
         }
         Update: {
@@ -331,7 +397,6 @@ export type Database = {
           subscription_id?: string | null
           subscription_plan?: string | null
           subscription_status?: string | null
-          terms_accepted_at?: string | null
           welcome_email_sent?: boolean
         }
         Relationships: []
@@ -459,7 +524,27 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_user_policy_compliance: {
+        Args: { p_user_id: string }
+        Returns: {
+          accepted_at: string
+          current_version: string
+          is_compliant: boolean
+          policy_type: string
+          user_accepted_version: string
+        }[]
+      }
       generate_referral_code: { Args: never; Returns: string }
+      get_current_policy_version: {
+        Args: { p_policy_type: string }
+        Returns: {
+          content_hash: string
+          id: string
+          policy_type: string
+          published_at: string
+          version: string
+        }[]
+      }
       get_referral_stats: {
         Args: { p_user_id: string }
         Returns: {

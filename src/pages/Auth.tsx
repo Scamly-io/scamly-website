@@ -3,6 +3,7 @@ import authLogo from "@/assets/auth-logo.png";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -169,7 +170,6 @@ export default function Auth() {
       country,
       gender,
       referral_source: referralSource,
-      terms_accepted_at: new Date().toISOString(),
     });
     setLoading(false);
 
