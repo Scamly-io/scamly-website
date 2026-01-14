@@ -14,7 +14,7 @@ export interface Profile {
   has_consumed_trial: boolean;
   welcome_email_sent: boolean;
   created_at: string;
-  referral_sources: string[] | null;
+  referral_source: string | null;
   terms_accepted_at: string | null;
 }
 
