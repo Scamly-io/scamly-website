@@ -278,7 +278,7 @@ export type Database = {
           referral_code: string | null
           referral_code_active: boolean
           referral_code_updated_at: string | null
-          referral_sources: string[] | null
+          referral_source: string | null
           referred_user: boolean
           stripe_customer_id: string | null
           subscription_current_period_end: string | null
@@ -301,7 +301,7 @@ export type Database = {
           referral_code?: string | null
           referral_code_active?: boolean
           referral_code_updated_at?: string | null
-          referral_sources?: string[] | null
+          referral_source?: string | null
           referred_user?: boolean
           stripe_customer_id?: string | null
           subscription_current_period_end?: string | null
@@ -324,7 +324,7 @@ export type Database = {
           referral_code?: string | null
           referral_code_active?: boolean
           referral_code_updated_at?: string | null
-          referral_sources?: string[] | null
+          referral_source?: string | null
           referred_user?: boolean
           stripe_customer_id?: string | null
           subscription_current_period_end?: string | null

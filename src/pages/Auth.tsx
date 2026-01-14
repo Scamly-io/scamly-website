@@ -37,7 +37,7 @@ const signUpSchema = z.object({
   dob: z.string().min(1, "Date of birth is required"),
   country: z.string().min(1, "Country is required"),
   gender: z.string().min(1, "Gender is required"),
-  referralSources: z.array(z.string()).min(1, "Please select at least one option"),
+  referralSource: z.string().min(1, "Please select how you heard about us"),
   termsAccepted: z.literal(true, { errorMap: () => ({ message: "You must accept the Terms & Conditions and Privacy Policy" }) }),
 });
 
@@ -63,7 +63,7 @@ export default function Auth() {
   const [dob, setDob] = useState("");
   const [country, setCountry] = useState("");
   const [gender, setGender] = useState("");
-  const [referralSources, setReferralSources] = useState<string[]>([]);
+  const [referralSource, setReferralSource] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -118,9 +118,9 @@ export default function Auth() {
         dob: z.string().min(1, "Date of birth is required"),
         country: z.string().min(1, "Country is required"),
         gender: z.string().min(1, "Gender is required"),
-        referralSources: z.array(z.string()).min(1, "Please select at least one option"),
+        referralSource: z.string().min(1, "Please select how you heard about us"),
         termsAccepted: z.literal(true, { errorMap: () => ({ message: "You must accept the Terms & Conditions and Privacy Policy" }) }),
-      }).parse({ firstName, dob, country, gender, referralSources, termsAccepted });
+      }).parse({ firstName, dob, country, gender, referralSource, termsAccepted });
       setErrors({});
       return true;
     } catch (err) {
@@ -135,14 +135,6 @@ export default function Auth() {
       }
       return false;
     }
-  };
-
-  const toggleReferralSource = (source: string) => {
-    setReferralSources((prev) =>
-      prev.includes(source)
-        ? prev.filter((s) => s !== source)
-        : [...prev, source]
-    );
   };
 
   const handleSignIn = async () => {
@@ -176,7 +168,7 @@ export default function Auth() {
       dob,
       country,
       gender,
-      referral_sources: referralSources,
+      referral_source: referralSource,
       terms_accepted_at: new Date().toISOString(),
     });
     setLoading(false);
@@ -524,25 +516,22 @@ export default function Auth() {
                   </div>
 
                   {/* How did you hear about us */}
-                  <div className="space-y-3">
-                    <Label>How did you hear about us?</Label>
-                    <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="referralSource">How did you hear about us?</Label>
+                    <select
+                      id="referralSource"
+                      value={referralSource}
+                      onChange={(e) => setReferralSource(e.target.value)}
+                      className="w-full h-11 px-4 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                    >
+                      <option value="">Select an option</option>
                       {referralSourceOptions.map((source) => (
-                        <button
-                          key={source}
-                          type="button"
-                          onClick={() => toggleReferralSource(source)}
-                          className={`px-3 py-2 text-sm rounded-lg border transition-all text-left ${
-                            referralSources.includes(source)
-                              ? "border-primary bg-primary/10 text-primary"
-                              : "border-input bg-background text-foreground hover:border-primary/50"
-                          }`}
-                        >
+                        <option key={source} value={source}>
                           {source}
-                        </button>
+                        </option>
                       ))}
-                    </div>
-                    {errors.referralSources && <p className="text-sm text-destructive">{errors.referralSources}</p>}
+                    </select>
+                    {errors.referralSource && <p className="text-sm text-destructive">{errors.referralSource}</p>}
                   </div>
 
                   {/* Terms & Conditions */}
