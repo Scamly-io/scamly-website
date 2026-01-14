@@ -190,11 +190,8 @@ export default function Auth() {
       // Track successful signup completion
       trackSignupCompleted();
       
-      toast({
-        title: "Account created!",
-        description: "Please check your email to verify your account.",
-      });
-      navigate("/portal");
+      // Redirect to check email page
+      navigate("/check-email");
     }
   };
 

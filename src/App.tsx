@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import CheckEmail from "./pages/CheckEmail";
 import Portal from "./pages/Portal";
 import ResetPassword from "./pages/ResetPassword";
 import Terms from "./pages/Terms";
@@ -26,6 +27,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/check-email" element={<CheckEmail />} />
               <Route path="/portal" element={<Portal />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/terms" element={<Terms />} />
