@@ -265,13 +265,20 @@ export default function Auth() {
       {/* Right Panel - Form */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-end p-4 lg:p-6">
+        <div className="flex items-center justify-between p-4 lg:p-6">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => navigate("/")} 
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Home
+          </Button>
 
-          <div className="flex items-center gap-2 ml-auto">
-            <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
-              {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </Button>
-          </div>
+          <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
+            {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </Button>
         </div>
 
         {/* Form Container */}
