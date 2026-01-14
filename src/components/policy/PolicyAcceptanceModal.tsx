@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Dialog,
@@ -38,6 +38,14 @@ export function PolicyAcceptanceModal({
   const [error, setError] = useState<string | null>(null);
 
   const allPendingAccepted = pendingPolicies.every(type => accepted[type]);
+
+  // Determine if this is a new user (no previous acceptances) or a policy update
+  const isNewUser = useMemo(() => {
+    return pendingPolicies.every(policyType => {
+      const status = complianceStatus.find(s => s.policy_type === policyType);
+      return !status?.user_accepted_version;
+    });
+  }, [pendingPolicies, complianceStatus]);
 
   const handleAccept = async () => {
     if (!allPendingAccepted) return;
@@ -96,10 +104,13 @@ export function PolicyAcceptanceModal({
             <FileText className="w-8 h-8 text-primary" />
           </div>
           <DialogTitle className="text-center text-xl">
-            Policy Updates Required
+            {isNewUser ? 'Accept Our Policies' : 'Policy Updates Required'}
           </DialogTitle>
           <DialogDescription className="text-center pt-2">
-            We've updated our policies. Please review and accept the latest versions to continue using Scamly.
+            {isNewUser 
+              ? 'Before you continue, please review and accept our policies.'
+              : "We've updated our policies. Please review and accept the latest versions to continue using Scamly."
+            }
           </DialogDescription>
         </DialogHeader>
 

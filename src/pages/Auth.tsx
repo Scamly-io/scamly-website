@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, User, Calendar, MapPin, Sun, Moon, ArrowLeft, Eye, EyeOff, Loader2, CheckCircle } from "lucide-react";
 import { z } from "zod";
@@ -39,7 +39,6 @@ const signUpSchema = z.object({
   country: z.string().min(1, "Country is required"),
   gender: z.string().min(1, "Gender is required"),
   referralSource: z.string().min(1, "Please select how you heard about us"),
-  termsAccepted: z.literal(true, { errorMap: () => ({ message: "You must accept the Terms & Conditions and Privacy Policy" }) }),
 });
 
 const genders = ["Male", "Female", "Non-binary", "Prefer not to say"];
@@ -65,7 +64,6 @@ export default function Auth() {
   const [country, setCountry] = useState("");
   const [gender, setGender] = useState("");
   const [referralSource, setReferralSource] = useState("");
-  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -120,8 +118,7 @@ export default function Auth() {
         country: z.string().min(1, "Country is required"),
         gender: z.string().min(1, "Gender is required"),
         referralSource: z.string().min(1, "Please select how you heard about us"),
-        termsAccepted: z.literal(true, { errorMap: () => ({ message: "You must accept the Terms & Conditions and Privacy Policy" }) }),
-      }).parse({ firstName, dob, country, gender, referralSource, termsAccepted });
+      }).parse({ firstName, dob, country, gender, referralSource });
       setErrors({});
       return true;
     } catch (err) {
@@ -541,40 +538,6 @@ export default function Auth() {
                     {errors.referralSource && <p className="text-sm text-destructive">{errors.referralSource}</p>}
                   </div>
 
-                  {/* Terms & Conditions */}
-                  <div className="space-y-2 pt-2">
-                    <div className="flex items-start gap-3">
-                      <Checkbox
-                        id="terms"
-                        checked={termsAccepted}
-                        onCheckedChange={(checked) => setTermsAccepted(checked === true)}
-                        className="mt-0.5"
-                      />
-                      <Label htmlFor="terms" className="text-sm font-normal leading-relaxed cursor-pointer">
-                        I agree to the{" "}
-                        <a
-                          href="/terms"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-primary hover:underline"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          Terms & Conditions
-                        </a>{" "}
-                        and{" "}
-                        <a
-                          href="/privacy"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-primary hover:underline"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          Privacy Policy
-                        </a>
-                      </Label>
-                    </div>
-                    {errors.termsAccepted && <p className="text-sm text-destructive">{errors.termsAccepted}</p>}
-                  </div>
                 </>
               )}
 
