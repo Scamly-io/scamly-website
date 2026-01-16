@@ -9,15 +9,45 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import * as Sentry from "https://deno.land/x/sentry@8.55.0/index.mjs";
+
+const FUNCTION_NAME = "get-referral-stats";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Initialize Sentry for edge function monitoring
+const sentryDsn = Deno.env.get("SENTRY_DSN");
+if (sentryDsn) {
+  Sentry.init({
+    dsn: sentryDsn,
+    environment: "production",
+    tracesSampleRate: 0.1,
+    beforeSend(event) {
+      if (event.request?.headers) {
+        delete event.request.headers["authorization"];
+      }
+      return event;
+    },
+  });
+}
+
 const logStep = (step: string, details?: unknown) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
-  console.log(`[GET-REFERRAL-STATS] ${step}${detailsStr}`);
+  console.log(`[${FUNCTION_NAME.toUpperCase()}] ${step}${detailsStr}`);
+};
+
+const captureError = (error: Error, context: Record<string, unknown>) => {
+  if (!sentryDsn) return;
+  
+  Sentry.withScope((scope) => {
+    scope.setTag("function", FUNCTION_NAME);
+    scope.setTag("source", "edge-function");
+    scope.setContext("details", context);
+    Sentry.captureException(error);
+  });
 };
 
 serve(async (req) => {
@@ -35,20 +65,36 @@ serve(async (req) => {
     );
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
+    if (!stripeKey) {
+      const error = new Error("STRIPE_SECRET_KEY is not set");
+      captureError(error, { step: "env_check" });
+      throw error;
+    }
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-04-30.basil" });
 
     // Authenticate user
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header provided");
+    if (!authHeader) {
+      const error = new Error("No authorization header provided");
+      captureError(error, { step: "authentication" });
+      throw error;
+    }
 
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
-    if (userError) throw new Error(`Authentication error: ${userError.message}`);
+    if (userError) {
+      const error = new Error(`Authentication error: ${userError.message}`);
+      captureError(error, { step: "authentication", errorCode: userError.code });
+      throw error;
+    }
     
     const user = userData.user;
-    if (!user) throw new Error("User not authenticated");
+    if (!user) {
+      const error = new Error("User not authenticated");
+      captureError(error, { step: "authentication" });
+      throw error;
+    }
     logStep("User authenticated", { userId: user.id });
 
     // Get profile with referral info
@@ -80,8 +126,12 @@ serve(async (req) => {
           trialEnd,
         });
       } catch (stripeError) {
+        // Log but don't fail - fall back to database status
         logStep("Error fetching Stripe subscription, falling back to DB", { error: stripeError });
-        // Fall back to database status
+        captureError(
+          stripeError instanceof Error ? stripeError : new Error(String(stripeError)),
+          { step: "stripe_subscription_fetch", subscriptionId: profile.subscription_id }
+        );
         isTrialing = profile.subscription_status === "trialing";
       }
     } else {
@@ -141,16 +191,29 @@ serve(async (req) => {
             subscription_id: profile?.subscription_id,
           };
         } else {
+          captureError(new Error("Error updating profile with referral code"), { 
+            step: "generate_referral_code", 
+            userId: user.id,
+            errorMessage: updateError.message 
+          });
           logStep("Error updating profile with referral code", { error: updateError });
         }
       }
     }
 
     // Get total referral counts (all time)
-    const { data: referrals } = await supabaseAdmin
+    const { data: referrals, error: referralsError } = await supabaseAdmin
       .from("referrals")
       .select("id, converted, converted_at")
       .eq("referrer_user_id", user.id);
+
+    if (referralsError) {
+      captureError(new Error("Error fetching referrals"), { 
+        step: "fetch_referrals", 
+        userId: user.id,
+        errorMessage: referralsError.message 
+      });
+    }
 
     const totalReferrals = referrals?.length || 0;
     const convertedReferrals = referrals?.filter(r => r.converted).length || 0;
@@ -234,6 +297,11 @@ serve(async (req) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR", { message: errorMessage });
+    
+    if (error instanceof Error && sentryDsn) {
+      captureError(error, { step: "unhandled", message: errorMessage });
+    }
+    
     return new Response(JSON.stringify({ error: errorMessage }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
