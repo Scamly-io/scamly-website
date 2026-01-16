@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, useRef, ReactNode } fro
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { Profile } from "@/types/profile";
+import { captureError } from "@/lib/sentry";
 
 interface AuthContextType {
   user: User | null;
@@ -40,11 +41,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       if (error) {
         console.error("Failed to send welcome email:", error);
+        captureError(new Error(error.message || "Failed to send welcome email"), {
+          source: "AuthContext",
+          action: "sendWelcomeEmail",
+          userId,
+        });
         // Remove from set so it can be retried on next session
         welcomeEmailSentRef.current.delete(userId);
       }
     } catch (err) {
       console.error("Error sending welcome email:", err);
+      captureError(err instanceof Error ? err : new Error("Unknown error sending welcome email"), {
+        source: "AuthContext",
+        action: "sendWelcomeEmail",
+        userId,
+      });
       welcomeEmailSentRef.current.delete(userId);
     }
   };

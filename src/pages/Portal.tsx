@@ -3,6 +3,7 @@ import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { supabase } from "@/integrations/supabase/client";
+import { captureError } from "@/lib/sentry";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -306,6 +307,12 @@ export default function Portal() {
       }
     } catch (error) {
       console.error("Checkout error:", error);
+      captureError(error instanceof Error ? error : new Error("Checkout failed"), {
+        source: "Portal",
+        action: "handleUpgrade",
+        userId: user?.id,
+        metadata: { plan },
+      });
       toast({
         title: "Checkout failed",
         description: error instanceof Error ? error.message : "Failed to start checkout",
@@ -334,6 +341,11 @@ export default function Portal() {
       }
     } catch (error) {
       console.error("Portal error:", error);
+      captureError(error instanceof Error ? error : new Error("Billing portal failed"), {
+        source: "Portal",
+        action: "handleManageSubscription",
+        userId: user?.id,
+      });
       toast({
         title: "Portal failed",
         description: error instanceof Error ? error.message : "Failed to open billing portal",

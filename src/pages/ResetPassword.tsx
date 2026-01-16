@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { captureError } from "@/lib/sentry";
 import { Lock, Sun, Moon, Eye, EyeOff, Loader2, CheckCircle } from "lucide-react";
 import { z } from "zod";
 import authLogo from "@/assets/auth-logo.png";
@@ -59,6 +60,10 @@ export default function ResetPassword() {
     setLoading(false);
 
     if (error) {
+      captureError(error, {
+        source: "ResetPassword",
+        action: "handleSubmit",
+      });
       toast({
         title: "Password reset failed",
         description: error.message || "Unable to reset password",
