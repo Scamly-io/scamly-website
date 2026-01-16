@@ -1,16 +1,45 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import * as Sentry from "https://deno.land/x/sentry@8.55.0/index.mjs";
+
+const FUNCTION_NAME = "create-checkout";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Helper logging function for debugging
+// Initialize Sentry for edge function monitoring
+const sentryDsn = Deno.env.get("SENTRY_DSN");
+if (sentryDsn) {
+  Sentry.init({
+    dsn: sentryDsn,
+    environment: "production",
+    tracesSampleRate: 0.1,
+    beforeSend(event) {
+      if (event.request?.headers) {
+        delete event.request.headers["authorization"];
+      }
+      return event;
+    },
+  });
+}
+
 const logStep = (step: string, details?: unknown) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : "";
-  console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
+  console.log(`[${FUNCTION_NAME.toUpperCase()}] ${step}${detailsStr}`);
+};
+
+const captureError = (error: Error, context: Record<string, unknown>) => {
+  if (!sentryDsn) return;
+  
+  Sentry.withScope((scope) => {
+    scope.setTag("function", FUNCTION_NAME);
+    scope.setTag("source", "edge-function");
+    scope.setContext("details", context);
+    Sentry.captureException(error);
+  });
 };
 
 // Price IDs from Stripe
@@ -34,7 +63,11 @@ serve(async (req) => {
     logStep("Function started");
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
+    if (!stripeKey) {
+      const error = new Error("STRIPE_SECRET_KEY is not set");
+      captureError(error, { step: "env_check" });
+      throw error;
+    }
     logStep("Stripe key verified");
 
     // Create Supabase client with service role for referral operations
@@ -46,21 +79,34 @@ serve(async (req) => {
 
     // Get the authorization header
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header provided");
+    if (!authHeader) {
+      const error = new Error("No authorization header provided");
+      captureError(error, { step: "authentication" });
+      throw error;
+    }
     logStep("Authorization header found");
 
     // Authenticate the user
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
-    if (userError) throw new Error(`Authentication error: ${userError.message}`);
+    if (userError) {
+      const error = new Error(`Authentication error: ${userError.message}`);
+      captureError(error, { step: "authentication", errorCode: userError.code });
+      throw error;
+    }
 
     const user = userData.user;
-    if (!user?.email) throw new Error("User not authenticated or email not available");
-    logStep("User authenticated", { userId: user.id, email: user.email });
+    if (!user?.email) {
+      const error = new Error("User not authenticated or email not available");
+      captureError(error, { step: "authentication" });
+      throw error;
+    }
+    logStep("User authenticated", { userId: user.id });
 
     // Parse request body for plan selection and optional referral code
     const { plan, referralCode } = await req.json();
     if (!plan || !["monthly", "yearly"].includes(plan)) {
+      // Validation error - don't send to Sentry
       throw new Error("Invalid plan. Must be 'monthly' or 'yearly'");
     }
     logStep("Plan selected", { plan, hasReferralCode: !!referralCode });
@@ -77,11 +123,19 @@ serve(async (req) => {
     // This prevents infinite cancellation loops - once a trial is consumed,
     // future checkouts will be paid immediately (no trial)
     // =============================================
-    const { data: profileData } = await supabaseAdmin
+    const { data: profileData, error: profileError } = await supabaseAdmin
       .from("profiles")
       .select("has_consumed_trial, referral_code, referral_code_active")
       .eq("id", user.id)
       .single();
+
+    if (profileError) {
+      captureError(new Error("Error fetching user profile"), { 
+        step: "fetch_profile", 
+        userId: user.id,
+        errorMessage: profileError.message 
+      });
+    }
 
     const isEligibleForTrial = !profileData?.has_consumed_trial;
     logStep("Trial eligibility check", { 
@@ -123,6 +177,11 @@ serve(async (req) => {
             })
             .eq("id", user.id);
           if (updateError) {
+            captureError(new Error("Error updating referred user profile"), { 
+              step: "update_referred_user", 
+              userId: user.id,
+              errorMessage: updateError.message 
+            });
             logStep("Error updating referred user profile", { error: updateError });
           } else {
             logStep("Referred user profile updated successfully", { userId: user.id });
@@ -212,6 +271,11 @@ serve(async (req) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR in create-checkout", { message: errorMessage });
+    
+    if (error instanceof Error && sentryDsn) {
+      captureError(error, { step: "unhandled", message: errorMessage });
+    }
+    
     return new Response(JSON.stringify({ error: errorMessage }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,

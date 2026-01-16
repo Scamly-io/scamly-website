@@ -1,16 +1,45 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import * as Sentry from "https://deno.land/x/sentry@8.55.0/index.mjs";
+
+const FUNCTION_NAME = "stripe-webhook";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, stripe-signature",
 };
 
-// Helper logging function for debugging
+// Initialize Sentry
+const sentryDsn = Deno.env.get("SENTRY_DSN");
+if (sentryDsn) {
+  Sentry.init({
+    dsn: sentryDsn,
+    environment: "production",
+    tracesSampleRate: 0.1,
+    beforeSend(event) {
+      if (event.request?.headers) {
+        delete event.request.headers["authorization"];
+        delete event.request.headers["stripe-signature"];
+      }
+      return event;
+    },
+  });
+}
+
 const logStep = (step: string, details?: unknown) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : "";
-  console.log(`[STRIPE-WEBHOOK] ${step}${detailsStr}`);
+  console.log(`[${FUNCTION_NAME.toUpperCase()}] ${step}${detailsStr}`);
+};
+
+const captureError = (error: Error, context: Record<string, unknown>) => {
+  if (!sentryDsn) return;
+  Sentry.withScope((scope) => {
+    scope.setTag("function", FUNCTION_NAME);
+    scope.setTag("source", "edge-function");
+    scope.setContext("details", context);
+    Sentry.captureException(error);
+  });
 };
 
 // Stripe coupon ID for referrals - flat 10% for both referrer and referred
