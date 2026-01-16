@@ -124,12 +124,16 @@ export function usePolicyCompliance(): UsePolicyComplianceReturn {
     }
   }, [user, currentPolicies, refreshCompliance]);
 
+  // Compute pendingPolicies inside the callback to avoid stale closure issues
   const acceptAllPolicies = useCallback(async (): Promise<{ error: Error | null }> => {
     if (!user) {
       return { error: new Error('User not authenticated') };
     }
 
-    const pending = pendingPolicies;
+    // Get the current pending policies from complianceStatus directly
+    const pending: PolicyType[] = complianceStatus
+      .filter(status => !status.is_compliant)
+      .map(status => status.policy_type as PolicyType);
     
     for (const policyType of pending) {
       const result = await acceptPolicy(policyType);
@@ -139,7 +143,7 @@ export function usePolicyCompliance(): UsePolicyComplianceReturn {
     }
 
     return { error: null };
-  }, [user, acceptPolicy]);
+  }, [user, acceptPolicy, complianceStatus]);
 
   // Derived state
   const isCompliant = complianceStatus.length > 0 && 
