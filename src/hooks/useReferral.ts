@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { captureError } from '@/lib/sentry';
 import type { 
   ReferralStats, 
   ValidateReferralResponse, 
@@ -32,7 +33,12 @@ export function useReferral() {
 
       setStats(data as ReferralStats);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch referral stats');
+      const errorMsg = err instanceof Error ? err.message : 'Failed to fetch referral stats';
+      setError(errorMsg);
+      captureError(err instanceof Error ? err : new Error(errorMsg), {
+        source: 'useReferral',
+        action: 'fetchStats',
+      });
     } finally {
       setLoading(false);
     }
@@ -57,6 +63,10 @@ export function useReferral() {
       if (fnError) throw fnError;
       return data as ValidateReferralResponse;
     } catch (err) {
+      captureError(err instanceof Error ? err : new Error('Referral validation failed'), {
+        source: 'useReferral',
+        action: 'validateCode',
+      });
       return { 
         valid: false, 
         error: err instanceof Error ? err.message : 'Validation failed' 
@@ -89,6 +99,10 @@ export function useReferral() {
       
       return data as UpdateReferralCodeResponse;
     } catch (err) {
+      captureError(err instanceof Error ? err : new Error('Referral code update failed'), {
+        source: 'useReferral',
+        action: 'updateCode',
+      });
       return { 
         success: false, 
         error: err instanceof Error ? err.message : 'Update failed' 

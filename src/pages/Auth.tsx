@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { supabase } from "@/integrations/supabase/client";
+import { captureError } from "@/lib/sentry";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -143,6 +144,14 @@ export default function Auth() {
     setLoading(false);
 
     if (error) {
+      // Only log non-credential errors (wrong password is expected user error)
+      if (!error.message?.toLowerCase().includes("invalid") && 
+          !error.message?.toLowerCase().includes("credentials")) {
+        captureError(error, {
+          source: "Auth",
+          action: "handleSignIn",
+        });
+      }
       toast({
         title: "Sign in failed",
         description: error.message || "Invalid email or password",
@@ -172,6 +181,7 @@ export default function Auth() {
 
     if (error) {
       if (error.message?.includes("already registered")) {
+        // Expected error - user already exists
         toast({
           title: "Account exists",
           description: "This email is already registered. Please sign in instead.",
@@ -180,6 +190,11 @@ export default function Auth() {
         setMode("signin");
         setStep(1);
       } else {
+        // Unexpected signup error - log to Sentry
+        captureError(error, {
+          source: "Auth",
+          action: "handleSignUp",
+        });
         toast({
           title: "Sign up failed",
           description: error.message || "Unable to create account",
@@ -211,6 +226,10 @@ export default function Auth() {
     setLoading(false);
 
     if (error) {
+      captureError(error, {
+        source: "Auth",
+        action: "handleForgotPassword",
+      });
       toast({
         title: "Failed to send reset email",
         description: error.message || "Unable to send password reset email",

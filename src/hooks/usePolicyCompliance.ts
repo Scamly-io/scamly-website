@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Policy, PolicyComplianceStatus, PolicyType } from '@/types/policy';
 import { useAuth } from '@/contexts/AuthContext';
+import { captureError } from '@/lib/sentry';
 
 interface UsePolicyComplianceReturn {
   isLoading: boolean;
@@ -64,12 +65,22 @@ export function usePolicyCompliance(): UsePolicyComplianceReturn {
 
       if (error) {
         console.error('Error checking policy compliance:', error);
+        captureError(new Error(error.message || 'Failed to check policy compliance'), {
+          source: 'usePolicyCompliance',
+          action: 'fetchComplianceStatus',
+          userId: user.id,
+        });
         setComplianceStatus([]);
       } else if (data) {
         setComplianceStatus(data as PolicyComplianceStatus[]);
       }
     } catch (err) {
       console.error('Error in fetchComplianceStatus:', err);
+      captureError(err instanceof Error ? err : new Error('Unknown error in fetchComplianceStatus'), {
+        source: 'usePolicyCompliance',
+        action: 'fetchComplianceStatus',
+        userId: user.id,
+      });
       setComplianceStatus([]);
     } finally {
       setIsLoading(false);
@@ -111,6 +122,12 @@ export function usePolicyCompliance(): UsePolicyComplianceReturn {
 
       if (error) {
         console.error('Error accepting policy:', error);
+        captureError(new Error(error.message || 'Failed to accept policy'), {
+          source: 'usePolicyCompliance',
+          action: 'acceptPolicy',
+          userId: user.id,
+          metadata: { policyType },
+        });
         return { error: error as Error };
       }
 
@@ -120,6 +137,12 @@ export function usePolicyCompliance(): UsePolicyComplianceReturn {
       return { error: null };
     } catch (err) {
       console.error('Error in acceptPolicy:', err);
+      captureError(err instanceof Error ? err : new Error('Unknown error in acceptPolicy'), {
+        source: 'usePolicyCompliance',
+        action: 'acceptPolicy',
+        userId: user.id,
+        metadata: { policyType },
+      });
       return { error: err as Error };
     }
   }, [user, currentPolicies, refreshCompliance]);
