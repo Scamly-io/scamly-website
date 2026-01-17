@@ -15,7 +15,7 @@ const FUNCTION_NAME = "get-referral-stats";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, baggage, sentry-trace",
 };
 
 // Initialize Sentry for edge function monitoring
