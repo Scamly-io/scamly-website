@@ -24,8 +24,8 @@ export function initSentry() {
     // Performance monitoring - conservative sampling
     tracesSampleRate: 0.1,
     
-    // Only enable in production to reduce noise
-    enabled: import.meta.env.PROD,
+    // Enable in both production and preview environments
+    enabled: true,
     
     // Filter out non-critical errors
     beforeSend(event, hint) {
@@ -35,15 +35,14 @@ export function initSentry() {
       if (error instanceof Error) {
         const message = error.message.toLowerCase();
         
-        // Skip common non-critical errors
+        // Skip common user-initiated validation errors only
+        // Note: We DO want to capture network/fetch errors as they indicate real issues
         if (
           message.includes("validation") ||
           message.includes("invalid email") ||
-          message.includes("password") ||
-          message.includes("network request failed") ||
-          message.includes("failed to fetch") ||
-          message.includes("load failed") ||
-          message.includes("aborted")
+          message.includes("password must") ||
+          message.includes("passwords do not match") ||
+          message.includes("aborted") // User cancelled request
         ) {
           return null;
         }
