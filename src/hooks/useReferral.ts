@@ -16,20 +16,20 @@ export function useReferral() {
 
   // Fetch referral stats
   const fetchStats = useCallback(async () => {
-    if (!session?.access_token) return;
+    if (!session) return;
 
     setLoading(true);
     setError(null);
 
     try {
-      const { data, error: fnError } = await supabase.functions.invoke('get-referral-stats', {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      });
+      // Let the Supabase client handle auth headers automatically
+      const { data, error: fnError } = await supabase.functions.invoke('get-referral-stats');
 
-      if (fnError) throw fnError;
-      if (data.error) throw new Error(data.error);
+      if (fnError) {
+        console.error('[useReferral] Edge function error:', fnError);
+        throw fnError;
+      }
+      if (data?.error) throw new Error(data.error);
 
       setStats(data as ReferralStats);
     } catch (err) {
@@ -42,25 +42,26 @@ export function useReferral() {
     } finally {
       setLoading(false);
     }
-  }, [session?.access_token]);
+  }, [session]);
 
   // Validate a referral code
   const validateCode = useCallback(async (
     referralCode: string
   ): Promise<ValidateReferralResponse> => {
-    if (!session?.access_token) {
+    if (!session) {
       return { valid: false, error: 'Not authenticated' };
     }
 
     try {
+      // Let the Supabase client handle auth headers automatically
       const { data, error: fnError } = await supabase.functions.invoke('validate-referral', {
         body: { referralCode },
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
       });
 
-      if (fnError) throw fnError;
+      if (fnError) {
+        console.error('[useReferral] Validate code error:', fnError);
+        throw fnError;
+      }
       return data as ValidateReferralResponse;
     } catch (err) {
       captureError(err instanceof Error ? err : new Error('Referral validation failed'), {
@@ -72,25 +73,26 @@ export function useReferral() {
         error: err instanceof Error ? err.message : 'Validation failed' 
       };
     }
-  }, [session?.access_token]);
+  }, [session]);
 
   // Update referral code
   const updateCode = useCallback(async (
     newCode: string
   ): Promise<UpdateReferralCodeResponse> => {
-    if (!session?.access_token) {
+    if (!session) {
       return { success: false, error: 'Not authenticated' };
     }
 
     try {
+      // Let the Supabase client handle auth headers automatically
       const { data, error: fnError } = await supabase.functions.invoke('update-referral-code', {
         body: { newCode },
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
       });
 
-      if (fnError) throw fnError;
+      if (fnError) {
+        console.error('[useReferral] Update code error:', fnError);
+        throw fnError;
+      }
       
       // Refresh stats after update
       if (data.success) {
@@ -108,14 +110,14 @@ export function useReferral() {
         error: err instanceof Error ? err.message : 'Update failed' 
       };
     }
-  }, [session?.access_token, fetchStats]);
+  }, [session, fetchStats]);
 
   // Fetch stats on mount and when session changes
   useEffect(() => {
-    if (session?.access_token) {
+    if (session) {
       fetchStats();
     }
-  }, [session?.access_token, fetchStats]);
+  }, [session, fetchStats]);
 
   return {
     stats,
