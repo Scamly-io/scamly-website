@@ -295,23 +295,37 @@ export default function Portal() {
     });
 
     try {
+      console.log("[Portal] Starting checkout for plan:", plan);
+      
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: { plan, referralCode: checkoutReferralCode },
       });
 
-      if (error) throw error;
+      console.log("[Portal] Checkout response:", { data, error });
+
+      if (error) {
+        // FunctionsHttpError, FunctionsRelayError, or FunctionsFetchError
+        const errorMessage = error.message || "Unknown edge function error";
+        const errorContext = error.context || {};
+        console.error("[Portal] Edge function error:", { errorMessage, errorContext, error });
+        throw new Error(errorMessage);
+      }
+      
       if (data?.url) {
         window.location.href = data.url;
+      } else if (data?.error) {
+        // Handle error returned in the response body
+        throw new Error(data.error);
       } else {
         throw new Error("No checkout URL received");
       }
     } catch (error) {
-      console.error("Checkout error:", error);
+      console.error("[Portal] Checkout error:", error);
       captureError(error instanceof Error ? error : new Error("Checkout failed"), {
         source: "Portal",
         action: "handleUpgrade",
         userId: user?.id,
-        metadata: { plan },
+        metadata: { plan, errorDetails: error instanceof Error ? error.message : String(error) },
       });
       toast({
         title: "Checkout failed",
@@ -331,20 +345,32 @@ export default function Portal() {
     });
 
     try {
+      console.log("[Portal] Opening billing portal");
+      
       const { data, error } = await supabase.functions.invoke("customer-portal");
 
-      if (error) throw error;
+      console.log("[Portal] Billing portal response:", { data, error });
+
+      if (error) {
+        const errorMessage = error.message || "Unknown edge function error";
+        console.error("[Portal] Edge function error:", { errorMessage, error });
+        throw new Error(errorMessage);
+      }
+      
       if (data?.url) {
         window.location.href = data.url;
+      } else if (data?.error) {
+        throw new Error(data.error);
       } else {
         throw new Error("No portal URL received");
       }
     } catch (error) {
-      console.error("Portal error:", error);
+      console.error("[Portal] Billing portal error:", error);
       captureError(error instanceof Error ? error : new Error("Billing portal failed"), {
         source: "Portal",
         action: "handleManageSubscription",
         userId: user?.id,
+        metadata: { errorDetails: error instanceof Error ? error.message : String(error) },
       });
       toast({
         title: "Portal failed",
