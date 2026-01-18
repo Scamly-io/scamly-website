@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { PasswordGate } from "@/components/PasswordGate";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import CheckEmail from "./pages/CheckEmail";
@@ -16,7 +17,7 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const AppContent = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <AuthProvider>
@@ -41,5 +42,16 @@ const App = () => (
     </ThemeProvider>
   </QueryClientProvider>
 );
+
+const App = () => {
+  if (import.meta.env.VITE_PRIVATE_MODE === 'true') {
+    return (
+      <PasswordGate>
+        <AppContent />
+      </PasswordGate>
+    );
+  }
+  return <AppContent />;
+};
 
 export default App;

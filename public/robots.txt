@@ -1,14 +1,19 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
+# Private testing mode - block all crawlers
 User-agent: *
-Allow: /
+Disallow: /
+
+# Production rollback: Replace with the following to allow crawling:
+# User-agent: Googlebot
+# Allow: /
+# 
+# User-agent: Bingbot
+# Allow: /
+# 
+# User-agent: Twitterbot
+# Allow: /
+# 
+# User-agent: facebookexternalhit
+# Allow: /
+# 
+# User-agent: *
+# Allow: /
