@@ -77,7 +77,7 @@ function FeatureShowcase({
           <img
             src={currentImage}
             alt={title}
-            className="relative w-[280px] sm:w-[320px] rounded-[32px] shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]"
+            className="relative w-[280px] sm:w-[320px] rounded-[48px] shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]"
           />
 
           {/* Floating decoration */}
