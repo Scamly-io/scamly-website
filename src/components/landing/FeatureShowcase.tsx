@@ -63,7 +63,7 @@ function FeatureShowcase({
       ref={ref}
       className={`flex flex-col ${reverse ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center gap-12 lg:gap-20`}
     >
-      {/* Phone Mockup */}
+      {/* Screenshot */}
       <div
         className={`flex-1 flex justify-center transition-all duration-700 ${
           isVisible
@@ -73,25 +73,14 @@ function FeatureShowcase({
       >
         <div className="relative group">
           {/* Glow effect */}
-          <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-[3rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           
-          {/* Phone frame */}
-          <div className="relative w-[280px] sm:w-[320px] aspect-[9/19] rounded-[2.5rem] bg-gradient-to-b from-muted/50 to-muted p-2 shadow-2xl">
-            <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-br from-foreground/10 to-transparent pointer-events-none" />
-            
-            {/* Screen */}
-            <div className="relative w-full h-full rounded-[2rem] overflow-hidden bg-background">
-              {/* Notch */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-foreground/90 rounded-b-2xl z-10" />
-              
-              {/* Screenshot */}
-              <img
-                src={currentImage}
-                alt={title}
-                className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.02]"
-              />
-            </div>
-          </div>
+          {/* Screenshot */}
+          <img
+            src={currentImage}
+            alt={title}
+            className="relative w-[280px] sm:w-[320px] rounded-2xl shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]"
+          />
           
           {/* Floating decoration */}
           <div className="absolute -bottom-4 -right-4 w-24 h-24 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 blur-xl animate-pulse" />
