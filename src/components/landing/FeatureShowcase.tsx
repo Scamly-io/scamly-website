@@ -89,7 +89,7 @@ function FeatureShowcase({
       <div
         className={`flex-1 text-center lg:text-left transition-all duration-700 delay-200 ${
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
-        } ${!reverse ? "lg:pl-12 xl:pl-20" : "lg:pr-12 xl:pr-20"}`}
+        }`}
       >
         {/* Subtitle */}
         <span className="text-sm font-semibold uppercase tracking-wider text-secondary mb-2 block">{subtitle}</span>
