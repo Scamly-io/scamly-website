@@ -61,7 +61,7 @@ function FeatureShowcase({
   return (
     <div
       ref={ref}
-      className={`flex flex-col ${reverse ? "lg:flex-row-reverse" : "lg:flex-row"} items-center gap-12 lg:gap-20 container`}
+      className={`flex flex-col ${reverse ? "lg:flex-row-reverse" : "lg:flex-row"} items-center gap-12 lg:gap-20 max-w-4xl`}
     >
       {/* Screenshot */}
       <div
