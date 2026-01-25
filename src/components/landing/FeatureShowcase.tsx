@@ -231,7 +231,7 @@ export function FeatureShowcaseSection() {
         </div>
 
         {/* Features */}
-        <div className="space-y-32 flex justify-center">
+        <div className="space-y-32 flex flex-col justify-center">
           {features.map((feature, index) => (
             <FeatureShowcase key={feature.title} {...feature} reverse={index % 2 === 1} />
           ))}
