@@ -1,10 +1,23 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { GoogleGenAI, Type } from "https://esm.sh/@google/genai@0.14.0";
+import { GoogleGenAI, createPartFromUri } from "https://esm.sh/@google/genai@0.14.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+type ScanResult = {
+  is_scam: boolean;
+  risk_level: "low" | "medium" | "high";
+  confidence: number;
+  detections: {
+    category: string;
+    description: string;
+    severity: "low" | "medium" | "high";
+  }[];
+  scan_successful: boolean;
+  scan_failure_reason: string | null;
 };
 
 // Error response helper
@@ -39,109 +52,129 @@ function successResponse(data: Record<string, unknown>) {
 }
 
 // Get user billing period (preserved from original logic)
-function getUserBillingPeriod(createdAt: string): { start: Date; end: Date } {
-  const accountCreatedAt = new Date(createdAt);
+function getUserBillingPeriod(createdAt: string): { periodStart: Date; nextPeriodStart: Date } {
+  const created = new Date(createdAt);
   const now = new Date();
 
-  // Get the day of month the account was created (1-31)
-  const billingDay = accountCreatedAt.getDate();
+  // Build period start in UTC
+  let periodStart = new Date(Date.UTC(
+    now.getUTCFullYear(),
+    created.getUTCMonth(),
+    created.getUTCDate(),
+    0, 0, 0, 0
+  ));
 
-  // Start with current month
-  let periodStart = new Date(now.getFullYear(), now.getMonth(), billingDay);
-
-  // If we haven't reached the billing day this month yet, go back one month
-  if (now < periodStart) {
-    periodStart = new Date(now.getFullYear(), now.getMonth() - 1, billingDay);
+  // Go back one month if the user has not reached the anniversary yet.
+  if (periodStart > now) {
+    periodStart = new Date(Date.UTC(
+      now.getUTCFullYear(),
+      created.getUTCMonth() - 1,
+      created.getUTCDate(),
+      0, 0, 0, 0
+    ));
   }
 
-  // Period end is one month after start
-  const periodEnd = new Date(periodStart.getFullYear(), periodStart.getMonth() + 1, billingDay);
+  const nextPeriodStart = new Date(Date.UTC(
+    periodStart.getUTCFullYear(),
+    periodStart.getUTCMonth() + 1,
+    periodStart.getUTCDate(),
+    0, 0, 0, 0
+  ));
 
-  return { start: periodStart, end: periodEnd };
+  return { periodStart, nextPeriodStart };
 }
 
-// System prompt (preserved exactly from original)
-const systemPrompt = `You are a scam detection assistant. Analyze the image for scam indicators.
+const systemPrompt = `
+  You are an AI scam detection tool. Your role is to analyze screenshots of text messages, emails, social media posts, advertisements, or other online media to determine if they are scams. Generate an output according to the provided schema.
 
-ALWAYS attempt to scan the image - even if content is:
-- Blurry, low quality, or partially visible
-- In any language (translate and analyze)
-- Missing some context
-- A screenshot of social media, email, messages, websites, apps
-- Containing financial requests, urgent warnings, prizes, or unusual offers
+  Your output must reflect careful reasoning and cautious judgment, as users may trust your assessment. You should analyze tone, urgency, language patterns, sender identity, formatting, links, and overall message structure to decide if the content is fraudulent, suspicious, or safe.
 
-Only set scan_successful: false if:
-- The image is completely black/white/empty
-- Contains no readable content whatsoever
-- Is corrupted or cannot be processed
+  Rules:
+  1. Purpose: Identify potential scams and assess their likelihood and risk level based on scam indicators such as requests for money, urgency, impersonation, links, or poor grammar.
+  2. Confidence: Provide a confidence score representing how certain you are in your judgment (in whole numbers 0 to 99). It must never be 100%. Base this on the strength of your evidence and clarity of the scam indicators, not randomness.
+  3. Risk level:
+    - "low" → content appears legitimate or no strong scam indicators.
+    - "medium" → some suspicious traits or uncertain legitimacy.
+    - "high" → clear or multiple strong scam indicators.
+  4. isScam:
+    - true for "medium" or "high" risk.
+    - false for "low" risk.
+    - never false for "high" risk.
+  5. Detections (3–6 items):
+    - Each detection highlights a specific clue or pattern that supports your assessment.
+    - Include a "category" (e.g., Grammar, Tone, Sender, Link, Offer, Format, Credibility),
+      a short descriptive "description" explaining what was noticed,
+      and a "severity" of "low", "medium", or "high" showing how you believe it contributes to the legitmacy. Low risk detections are things that positively influence the legitimacy, and vice versa.
+    - Example:
+      { "category": "Urgency", "description": "Message pressures user to act immediately or lose access", "severity": "high" }
+  6. Caution: When uncertain, lean toward treating the content as a potential scam, but explain your reasoning clearly through detections and confidence level.
+  7. Success: If you are unable to properly assess the content (for example, due to poor image quality, unreadable text, or missing information), set "scan_successful" to false and include a short, user-readable explanation in "scan_failure_reason". If the scan is successful, set "scan_successful" to true and "scan_failure_reason" to null.
+  8. Relevance: If a user provides an image that is not related to any form of online media communication (a selfie, a picture of a dog, explicit images). Set "scan_successful" to false and set "scan_failure_reason" to "You have provided an image that is not related to detecting a scam." 
 
-For ALL other images, set scan_successful: true and provide your best analysis.
+  Output only valid data according to the provided schema. Do not include extra commentary, reasoning steps, or text outside the structured result.
+`;
 
-Analyze for these scam categories:
-- Phishing (fake login pages, credential harvesting)
-- Financial scams (fake invoices, payment requests, cryptocurrency)
-- Impersonation (fake brands, government agencies, people)
-- Romance/relationship scams
-- Tech support scams
-- Prize/lottery scams
-- Investment scams
-- Job/employment scams
-- Charity scams
-- Urgency/fear tactics
-
-Provide detection results even with limited information - users need protection.`;
-
-// JSON schema for structured output (preserved exactly from original)
-const scanResponseSchema = {
-  type: Type.OBJECT,
-  properties: {
-    scan_successful: {
-      type: Type.BOOLEAN,
-      description: "Whether the scan was able to analyze the image content",
+const JSONSchema = {
+  "type": "object",
+  "properties": {
+    "is_scam": {
+      "type": "boolean",
+      "description": "Whether the content is determined to be a scam or not."
     },
-    scan_failure_reason: {
-      type: Type.STRING,
-      nullable: true,
-      description: "If scan failed, the reason why",
+    "risk_level": {
+      "type": "string",
+      "enum": ["low", "medium", "high"],
+      "description": "The assessed risk level based on the likelihood of a scam."
     },
-    is_scam: {
-      type: Type.BOOLEAN,
-      description: "Whether the image contains scam indicators",
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 99,
+      "description": "Confidence score (never 100) reflecting how certain the detection is."
     },
-    risk_level: {
-      type: Type.STRING,
-      enum: ["low", "medium", "high"],
-      description: "Overall risk level of the content",
-    },
-    confidence: {
-      type: Type.NUMBER,
-      description: "Confidence score from 0 to 100",
-    },
-    detections: {
-      type: Type.ARRAY,
-      items: {
-        type: Type.OBJECT,
-        properties: {
-          category: {
-            type: Type.STRING,
-            description: "Category of scam detected",
+    "detections": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "description": "Category of the finding (e.g., grammar, link, tone, sender, urgency)."
           },
-          description: {
-            type: Type.STRING,
-            description: "Description of the scam indicator",
+          "description": {
+            "type": "string",
+            "description": "Short explanation of what was detected."
           },
-          severity: {
-            type: Type.STRING,
-            enum: ["low", "medium", "high"],
-            description: "Severity of this particular indicator",
-          },
+          "severity": {
+            "type": "string",
+            "enum": ["low", "medium", "high"],
+            "description": "Severity of the detection based on its influence on the scam likelihood."
+          }
         },
-        required: ["category", "description", "severity"],
-      },
-      description: "List of detected scam indicators",
+        "required": ["category", "description", "severity"],
+        "additionalProperties": false
+      }
     },
+    "scan_successful": {
+      "type": "boolean",
+      "description": "True if the scan was performed successfully; false if not enough information was available."
+    },
+    "scan_failure_reason": {
+      "type": ["string", "null"],
+      "description": "If scan_successful is false, provide a short reason; otherwise null."
+    }
   },
-  required: ["scan_successful", "is_scam", "risk_level", "confidence", "detections"],
+  "required": [
+    "is_scam",
+    "risk_level",
+    "confidence",
+    "detections",
+    "scan_successful",
+    "scan_failure_reason"
+  ],
+  "additionalProperties": false
 };
 
 serve(async (req) => {
@@ -211,7 +244,7 @@ serve(async (req) => {
 
     // Parse request body
     const body = await req.json();
-    const { imageUrl, imageBlob, fileName, freeTierScanLimit = 5 } = body;
+    const { imageUrl, imageBlob, fileName, freeTierScanLimit = 6 } = body;
 
     if (!imageUrl || !imageBlob || !fileName) {
       return errorResponse(
@@ -253,8 +286,8 @@ serve(async (req) => {
         .from("scans")
         .select("*", { count: "exact", head: true })
         .eq("user_id", user.id)
-        .gte("created_at", billingPeriod.start.toISOString())
-        .lt("created_at", billingPeriod.end.toISOString());
+        .gte("created_at", billingPeriod.periodStart.toISOString())
+        .lt("created_at", billingPeriod.nextPeriodStart.toISOString());
 
       if (countError) {
         console.error("Scan count error:", countError);
@@ -277,8 +310,8 @@ serve(async (req) => {
             currentCount: scanCount, 
             limit: freeTierScanLimit,
             billingPeriod: {
-              start: billingPeriod.start.toISOString(),
-              end: billingPeriod.end.toISOString()
+              start: billingPeriod.periodStart.toISOString(),
+              end: billingPeriod.nextPeriodStart.toISOString()
             }
           },
           403
@@ -286,97 +319,92 @@ serve(async (req) => {
       }
     }
 
-    // Upload to S3 via Lambda (main bucket)
-    console.log("Uploading to S3 main bucket...");
-    const mainUploadResponse = await fetch(
+    let mainUploadUrl = "";
+    let tempUploadUrl = "";
+
+    const response = await fetch(
       "https://0i3wpw1lxk.execute-api.ap-southeast-2.amazonaws.com/dev/upload",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: user.id,
-          image_data: imageBlob,
-          file_name: fileName,
-        }),
+        body: JSON.stringify({ fileName }),
       }
     );
 
-    if (!mainUploadResponse.ok) {
-      const errorText = await mainUploadResponse.text();
-      console.error("Main S3 upload failed:", errorText);
+    if (!response.ok) {
+      const errorText = await response.text();
+      return errorResponse(
+        "Failed to fetch the upload URLs",
+        "upload",
+        "S3_UPLOAD_URL_FETCH_FAILED",
+        { status: response.status, response: errorText },
+        502
+      )
+    }
+
+    const data = await response.json();
+    mainUploadUrl = data.mainUploadUrl;
+    tempUploadUrl = data.tempUploadUrl;
+
+    const [uploadMainResponse, uploadTempResponse] = await Promise.all([
+      fetch(mainUploadUrl, {
+        method: "PUT",
+        headers: { "Content-Type": "image/jpeg" },
+        body: imageBlob,
+      }),
+      fetch(tempUploadUrl, {
+        method: "PUT",
+        headers: { "Content-Type": "image/jpeg" },
+        body: imageBlob,
+      }),
+    ]);
+
+    if (!uploadMainResponse.ok) {
+      const errorText = await uploadMainResponse.text();
       return errorResponse(
         "Failed to upload image to storage",
         "upload",
         "S3_MAIN_UPLOAD_FAILED",
-        { status: mainUploadResponse.status, response: errorText },
+        { status: uploadMainResponse.status, response: errorText },
         502
       );
     }
 
-    // Upload to S3 via Lambda (temp bucket)
-    console.log("Uploading to S3 temp bucket...");
-    const tempUploadResponse = await fetch(
-      "https://0i3wpw1lxk.execute-api.ap-southeast-2.amazonaws.com/dev/upload",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: user.id,
-          image_data: imageBlob,
-          file_name: fileName,
-          temp: true,
-        }),
-      }
-    );
-
-    if (!tempUploadResponse.ok) {
-      const errorText = await tempUploadResponse.text();
-      console.error("Temp S3 upload failed:", errorText);
+    if (!uploadTempResponse.ok) {
+      const errorText = await uploadTempResponse.text();
       return errorResponse(
         "Failed to upload image to temporary storage",
         "upload",
         "S3_TEMP_UPLOAD_FAILED",
-        { status: tempUploadResponse.status, response: errorText },
+        { status: uploadTempResponse.status, response: errorText },
         502
       );
     }
 
     // Call Google GenAI
-    console.log("Calling Google GenAI...");
     const genai = new GoogleGenAI({ apiKey: googleApiKey });
 
-    let scanResult;
+    let scanResult: ScanResult;
+
     try {
       const response = await genai.models.generateContent({
-        model: "gemini-2.0-flash",
+        model: "gemini-3-flash-preview",
         contents: [
-          {
-            role: "user",
-            parts: [
-              { text: "Analyze this image for scam indicators:" },
-              {
-                fileData: {
-                  fileUri: imageUrl,
-                  mimeType: "image/jpeg",
-                },
-              },
-            ],
-          },
+          createPartFromUri(imageUrl, "image/jpeg"),
+          "Scan this screenshot for scams according to the system instructions, return the result in JSON format accoridng to the provided Schema."
         ],
         config: {
           systemInstruction: systemPrompt,
           responseMimeType: "application/json",
-          responseSchema: scanResponseSchema,
-        },
+          responseJsonSchema: JSONSchema,
+        }
       });
 
-      const responseText = response.text;
-      if (!responseText) {
+      if (!response ||!response.text) {
         throw new Error("Empty response from GenAI");
       }
 
-      scanResult = JSON.parse(responseText);
-      console.log("GenAI scan result:", JSON.stringify(scanResult));
+      scanResult = JSON.parse(response.text) as ScanResult;
     } catch (genaiError) {
       console.error("GenAI error:", genaiError);
       return errorResponse(
@@ -389,7 +417,6 @@ serve(async (req) => {
     }
 
     // Store scan result in database
-    console.log("Storing scan result...");
     const { error: insertError } = await supabaseAdmin.from("scans").insert({
       user_id: user.id,
       output: JSON.stringify(scanResult),
