@@ -336,6 +336,7 @@ serve(async (req) => {
 
     if (!response.ok) {
       const errorText = await response.text();
+      console.error("Failed to fetch the upload URLs:", errorText);
       return errorResponse(
         "Failed to fetch the upload URLs",
         "upload",
@@ -364,6 +365,7 @@ serve(async (req) => {
 
     if (!uploadMainResponse.ok) {
       const errorText = await uploadMainResponse.text();
+      console.error("Failed to upload image to storage:", errorText);
       return errorResponse(
         "Failed to upload image to storage",
         "upload",
@@ -375,6 +377,7 @@ serve(async (req) => {
 
     if (!uploadTempResponse.ok) {
       const errorText = await uploadTempResponse.text();
+      console.error("Failed to upload image to temporary storage:", errorText);
       return errorResponse(
         "Failed to upload image to temporary storage",
         "upload",
