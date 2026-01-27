@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.send-customer-email]
 verify_jwt = false
+
+[functions.scan-image]
+verify_jwt = false
