@@ -20,6 +20,9 @@ type ScanResult = {
   scan_failure_reason: string | null;
 };
 
+// 6 monthly scans for free users
+const FREE_TIER_SCAN_LIMIT = 6;
+
 // Error response helper
 function errorResponse(
   message: string,
@@ -244,7 +247,7 @@ serve(async (req) => {
 
     // Parse request body
     const body = await req.json();
-    const { imageUrl, imageBlob, fileName, freeTierScanLimit = 6 } = body;
+    const { imageUrl, imageBlob, fileName } = body;
 
     if (!imageUrl || !imageBlob || !fileName) {
       return errorResponse(
@@ -300,18 +303,18 @@ serve(async (req) => {
         );
       }
 
-      if (scanCount !== null && scanCount >= freeTierScanLimit) {
-        console.log(`Quota exceeded for user ${user.id}: ${scanCount}/${freeTierScanLimit}`);
+      if (scanCount !== null && scanCount >= FREE_TIER_SCAN_LIMIT) {
+        console.log(`Quota exceeded for user ${user.id}: ${scanCount}/${FREE_TIER_SCAN_LIMIT}`);
         return errorResponse(
           "Free tier scan limit reached",
           "quota_exceeded",
           "QUOTA_EXCEEDED",
           { 
             currentCount: scanCount, 
-            limit: freeTierScanLimit,
+            limit: FREE_TIER_SCAN_LIMIT,
             billingPeriod: {
-              start: billingPeriod.periodStart.toISOString(),
-              end: billingPeriod.nextPeriodStart.toISOString()
+              periodStart: billingPeriod.periodStart.toISOString(),
+              nextPeriodStart: billingPeriod.nextPeriodStart.toISOString()
             }
           },
           403
