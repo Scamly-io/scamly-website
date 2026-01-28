@@ -247,19 +247,19 @@ serve(async (req) => {
 
     // Parse request body
     const body = await req.json();
-    const { imageUrl, imageBlob, fileName } = body;
+    const { imageB64 } = body;
 
-    if (!imageUrl || !imageBlob || !fileName) {
+    if (!imageB64) {
       return errorResponse(
-        "Missing required fields: imageUrl, imageBlob, and fileName are required",
+        "Missing required fields: imageB64 is required",
         "validation",
         "MISSING_FIELDS",
-        { provided: { imageUrl: !!imageUrl, imageBlob: !!imageBlob, fileName: !!fileName } },
+        { provided: { imageB64: !!imageB64 } },
         400
       );
     }
 
-    console.log(`Processing scan for user ${user.id}, file: ${fileName}`);
+    console.log(`Processing scan for user ${user.id}`);
 
     // Get user profile
     const { data: profile, error: profileError } = await supabaseAdmin
@@ -322,72 +322,7 @@ serve(async (req) => {
       }
     }
 
-    let mainUploadUrl = "";
-    let tempUploadUrl = "";
-
-    const response = await fetch(
-      "https://0i3wpw1lxk.execute-api.ap-southeast-2.amazonaws.com/dev/upload",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fileName }),
-      }
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Failed to fetch the upload URLs:", errorText);
-      return errorResponse(
-        "Failed to fetch the upload URLs",
-        "upload",
-        "S3_UPLOAD_URL_FETCH_FAILED",
-        { status: response.status, response: errorText },
-        502
-      )
-    }
-
-    const data = await response.json();
-    mainUploadUrl = data.mainUploadUrl;
-    tempUploadUrl = data.tempUploadUrl;
-
-    const [uploadMainResponse, uploadTempResponse] = await Promise.all([
-      fetch(mainUploadUrl, {
-        method: "PUT",
-        headers: { "Content-Type": "image/jpeg" },
-        body: imageBlob,
-      }),
-      fetch(tempUploadUrl, {
-        method: "PUT",
-        headers: { "Content-Type": "image/jpeg" },
-        body: imageBlob,
-      }),
-    ]);
-
-    if (!uploadMainResponse.ok) {
-      const errorText = await uploadMainResponse.text();
-      console.error("Failed to upload image to storage:", errorText);
-      return errorResponse(
-        "Failed to upload image to storage",
-        "upload",
-        "S3_MAIN_UPLOAD_FAILED",
-        { status: uploadMainResponse.status, response: errorText },
-        502
-      );
-    }
-
-    if (!uploadTempResponse.ok) {
-      const errorText = await uploadTempResponse.text();
-      console.error("Failed to upload image to temporary storage:", errorText);
-      return errorResponse(
-        "Failed to upload image to temporary storage",
-        "upload",
-        "S3_TEMP_UPLOAD_FAILED",
-        { status: uploadTempResponse.status, response: errorText },
-        502
-      );
-    }
-
-    // Call Google GenAI
+    // Call Google GenAI - scans the b64 image.
     const genai = new GoogleGenAI({ apiKey: googleApiKey });
 
     let scanResult: ScanResult;
@@ -396,8 +331,13 @@ serve(async (req) => {
       const response = await genai.models.generateContent({
         model: "gemini-3-flash-preview",
         contents: [
-          createPartFromUri(imageUrl, "image/jpeg"),
-          "Scan this screenshot for scams according to the system instructions, return the result in JSON format accoridng to the provided Schema."
+          {
+            inlineData: {
+              mimeType: "image/jpeg",
+              data: imageB64,
+            },
+          },
+          { text: "Scan this screenshot for scams according to the system instructions, return the result in JSON format accoridng to the provided Schema."}
         ],
         config: {
           systemInstruction: systemPrompt,
