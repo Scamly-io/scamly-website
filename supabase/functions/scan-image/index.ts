@@ -353,8 +353,8 @@ serve(async (req) => {
       }
 
       scanResult = JSON.parse(response.text) as ScanResult;
-      inputTokens = response.usageMetadata.promptTokenCount;
-      outputTokens = response.usageMetadata.totalTokenCount - inputTokens;
+      inputTokens = response.usageMetadata?.promptTokenCount ?? 0;
+      outputTokens = (response.usageMetadata?.totalTokenCount ?? 0) - inputTokens;
     } catch (genaiError) {
       console.error("GenAI error:", genaiError);
       return errorResponse(
