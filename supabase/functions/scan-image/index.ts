@@ -326,6 +326,8 @@ serve(async (req) => {
     const genai = new GoogleGenAI({ apiKey: googleApiKey });
 
     let scanResult: ScanResult;
+    let inputTokens: number;
+    let outputTokens: number;
 
     try {
       const response = await genai.models.generateContent({
@@ -346,16 +348,13 @@ serve(async (req) => {
         }
       });
 
-      console.log(response);
-      console.log(response.totalTokenCount);
-      console.log(response.usageMetadata.totalTokenCount);
-      console.log(response.usageMetadata.promptTokenCount);
-
       if (!response ||!response.text) {
         throw new Error("Empty response from GenAI");
       }
 
       scanResult = JSON.parse(response.text) as ScanResult;
+      inputTokens = response.usageMetadata.promptTokenCount;
+      outputTokens = response.usageMetadata.totalTokenCount - inputTokens;
     } catch (genaiError) {
       console.error("GenAI error:", genaiError);
       return errorResponse(
@@ -372,6 +371,8 @@ serve(async (req) => {
       user_id: user.id,
       output: JSON.stringify(scanResult),
       created_at: new Date().toISOString(),
+      input_tokens: inputTokens,
+      output_tokens: outputTokens,
     });
 
     if (insertError) {
