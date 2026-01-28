@@ -347,6 +347,9 @@ serve(async (req) => {
       });
 
       console.log(response);
+      console.log(response.totalTokenCount);
+      console.log(response.usageMetadata.totalTokenCount);
+      console.log(response.usageMetadata.promptTokenCount);
 
       if (!response ||!response.text) {
         throw new Error("Empty response from GenAI");
