@@ -346,6 +346,8 @@ serve(async (req) => {
         }
       });
 
+      console.log(response);
+
       if (!response ||!response.text) {
         throw new Error("Empty response from GenAI");
       }
