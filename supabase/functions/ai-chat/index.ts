@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import OpenAI from "https://esm.sh/openai@4.73.0";
+import OpenAI from "https://esm.sh/openai";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -138,9 +138,9 @@ serve(async (req) => {
     // Route to appropriate handler
     switch (action) {
       case "createConversationId":
-        return await handleCreateConversationId(supabase, openai, body, userId);
+        return await handleCreateConversationId(supabase, openai, body);
       case "deleteConversationId":
-        return await handleDeleteConversationId(supabase, openai, body, userId);
+        return await handleDeleteConversationId(supabase, openai, body);
       case "generateResponse":
         return await handleGenerateResponse(supabase, openai, body, userId);
       default:
@@ -160,12 +160,14 @@ serve(async (req) => {
 
 /**
  * Creates a new OpenAI conversation ID and stores it in the database
+ * 
+ * Expects chatId {string}
+ * Returns {conversationId: string}
  */
 async function handleCreateConversationId(
   supabase: any,
   openai: OpenAI,
   body: Record<string, unknown>,
-  userId: string
 ) {
   const chatId = body.chatId as string;
   
@@ -215,12 +217,14 @@ async function handleCreateConversationId(
 
 /**
  * Deletes an OpenAI conversation and removes the chat from the database
+ * 
+ * Expects chatId {string}
+ * Returns deleted {boolean}
  */
 async function handleDeleteConversationId(
   supabase: any,
   openai: OpenAI,
   body: Record<string, unknown>,
-  userId: string
 ) {
   const chatId = body.chatId as string;
   
@@ -259,7 +263,6 @@ async function handleDeleteConversationId(
     const conversationId = conversationData.openai_conversation_id;
     if (conversationId) {
       try {
-        // @ts-ignore - conversations API exists in newer OpenAI SDK
         await openai.conversations.delete(conversationId);
         console.log(`[deleteConversationId] Deleted OpenAI conversation: ${conversationId}`);
       } catch (openaiError) {
@@ -300,6 +303,9 @@ async function handleDeleteConversationId(
 
 /**
  * Generates an AI response for the user's message
+ * 
+ * Expects content {string}, chatId {string}, conversationId {string}, userId {string}
+ * returns {response: string}
  */
 async function handleGenerateResponse(
   supabase: any,
@@ -310,6 +316,7 @@ async function handleGenerateResponse(
   const content = body.content as string;
   const chatId = body.chatId as string;
   const conversationId = body.conversationId as string;
+  const bodyUserId = body.userId as string;
 
   // Validate required fields
   if (!content) {
@@ -320,6 +327,9 @@ async function handleGenerateResponse(
   }
   if (!conversationId) {
     return errorResponse("Missing conversationId", "validation", "MISSING_CONVERSATION_ID", {}, 400);
+  }
+  if (bodyUserId !== userId) {
+    return errorResponse("User ID mismatch", "validation", "USER_ID_MISMATCH", {}, 400);
   }
 
   console.log(`[generateResponse] Generating response for chat: ${chatId}`);
@@ -414,10 +424,9 @@ async function handleGenerateResponse(
 
   // Generate AI response
   try {
-    // @ts-ignore - responses API exists in newer OpenAI SDK
     const response = await openai.responses.create({
       model: "gpt-5-mini",
-      input: [{ role: "user", content }],
+      input: [{ "role": "user", "content": content }],
       conversation: conversationId,
       instructions: systemPrompt,
       reasoning: { effort: "low" },
@@ -440,9 +449,7 @@ async function handleGenerateResponse(
       response.output?.[0]?.content?.[0]?.text ||
       response.output?.[0]?.refusal ||
       "Sorry, there was an error processing your message.";
-
-    console.log(`[generateResponse] Generated response length: ${fullText.length}`);
-
+    
     // Upload the agent message and update the "last_message" in the chats table
     // Log DB errors but don't fail the response - user already has the message
     const [addAgentMessage, updateChatsAgent] = await Promise.all([
