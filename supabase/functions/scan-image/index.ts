@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { GoogleGenAI, createPartFromUri } from "https://esm.sh/@google/genai@0.14.0";
+import { GoogleGenAI } from "https://esm.sh/@google/genai";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
