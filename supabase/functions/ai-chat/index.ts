@@ -137,7 +137,7 @@ serve(async (req) => {
       case "deleteConversationId":
         return await handleDeleteConversationId(supabase,body);
       case "generateResponse":
-        return await handleGenerateResponse(supabase, body, userId);
+        return await handleGenerateResponse(supabase, body);
       default:
         return errorResponse("Unknown action", "validation", "UNKNOWN_ACTION", {}, 400);
     }
