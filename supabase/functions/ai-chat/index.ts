@@ -303,12 +303,11 @@ async function handleDeleteConversationId(
 async function handleGenerateResponse(
   supabase: any,
   body: Record<string, unknown>,
-  userId: string
 ) {
   const content = body.content as string;
   const chatId = body.chatId as string;
   const conversationId = body.conversationId as string;
-  const bodyUserId = body.userId as string;
+  const userId = body.userId as string;
 
   // Validate required fields
   if (!content) {
@@ -319,9 +318,6 @@ async function handleGenerateResponse(
   }
   if (!conversationId) {
     return errorResponse("Missing conversationId", "validation", "MISSING_CONVERSATION_ID", {}, 400);
-  }
-  if (bodyUserId !== userId) {
-    return errorResponse("User ID mismatch", "validation", "USER_ID_MISMATCH", {}, 400);
   }
 
   console.log(`[generateResponse] Generating response for chat: ${chatId}`);
