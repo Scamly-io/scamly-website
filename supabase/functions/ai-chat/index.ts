@@ -435,11 +435,9 @@ async function handleGenerateResponse(
       );
     }
 
-    // The actual response we need may appear in different locations
+    // The actual response we need - output_text is the primary source
     const fullText =
       response.output_text ||
-      response.output?.[0]?.content?.[0]?.text ||
-      response.output?.[0]?.refusal ||
       "Sorry, there was an error processing your message.";
     
     // Upload the agent message and update the "last_message" in the chats table
