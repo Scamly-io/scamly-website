@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import Perplexity from "https://esm.sh/@perplexity-ai/perplexity_ai"
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -70,7 +71,7 @@ function getSearchPrompt(companyName: string): string {
       - General enquiries phone number
       - International enquiries phone number
       - Official website domain (domain only, no protocol or paths, e.g "apple.com", not "www.apple.com" or "https://apple.com")
-      - Contact us page (domain + path only, e.g. "example.com/contact")
+      - Contact us page (domain + path only, e.g. "example.com/contact"). Try to avoid returning a specific contact us page, and rather the companies general contact us page. For example, something like "example.com/contact-us" is better than "example.com/contact-us/department/country/support".
 
       Rules:
       - Only use information found on the company's official website
@@ -82,32 +83,19 @@ function getSearchPrompt(companyName: string): string {
 }
 
 // Search result schema for Perplexity
-const searchResultSchema = {
-  type: "json_schema",
-  json_schema: {
-    schema: {
-      type: "object",
-      properties: {
-        company_name: { type: "string" },
-        local_phone_number: { type: "string" },
-        international_phone_number: { type: "string" },
-        website_domain: { type: "string" },
-        contact_us_page: { type: "string" },
-        found_all_fields: { type: "boolean" },
-        missing_fields: { type: "array", items: { type: "string" } },
-      },
-      required: [
-        "company_name",
-        "local_phone_number",
-        "international_phone_number",
-        "website_domain",
-        "contact_us_page",
-        "found_all_fields",
-        "missing_fields",
-      ],
-    },
-  },
+type SearchResult = {
+  company_name: string;
+  local_phone_number: string;
+  international_phone_number: string;
+  website_domain: string;
+  contact_us_page: string;
+  found_all_fields: boolean;
+  missing_fields: string[];
 };
+
+// Initialize perplexity
+const perplexityApiKey = Deno.env.get("PERPLEXITY_API_KEY");
+const perplexity = new Perplexity({ apiKey: perplexityApiKey });
 
 serve(async (req) => {
   // Handle CORS preflight
@@ -160,7 +148,7 @@ serve(async (req) => {
       return errorResponse("Authentication failed", "auth", "AUTH_FAILED", {}, 401);
     }
 
-    const userId = user.id;
+    const userId = body.userId;
     console.log(`[ai-search] User: ${userId}, Company: ${companyName}`);
 
     // Check subscription - Free users can't use the search feature
@@ -212,97 +200,118 @@ serve(async (req) => {
       );
     }
 
+    const prompt = getSearchPrompt(companyName);
+    let response;
+
+    console.log(`[ai-search] Calling Perplexity API for: ${companyName}`);
+
     // Perform the search
     try {
-      const perplexityApiKey = Deno.env.get("PERPLEXITY_API_KEY");
-      if (!perplexityApiKey) {
-        return errorResponse(
-          "Server configuration error: Missing Perplexity API key",
-          "ai_response",
-          "CONFIG_ERROR",
-          {},
-          500
-        );
-      }
-
-      const prompt = getSearchPrompt(companyName);
-
-      console.log(`[ai-search] Calling Perplexity API for: ${companyName}`);
-
-      const response = await fetch("https://api.perplexity.ai/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${perplexityApiKey}`,
-          "Content-Type": "application/json",
+      response = await perplexity.chat.completions.create({
+        model: 'sonar',
+        messages: [{ role: 'user', content: prompt }],
+        response_format: {
+          type: 'json_schema',
+          json_schema: {
+            schema: {
+              type: 'object',
+              properties: {
+                company_name: { type: 'string' },
+                local_phone_number: { type: 'string' },
+                international_phone_number: { type: 'string' },
+                website_domain: { type: 'string' },
+                contact_us_page: { type: 'string' },
+                found_all_fields: { type: 'boolean' },
+                missing_fields: { type: 'array', items: { type: 'string' } },
+              },
+              required: [
+                'company_name',
+                'local_phone_number',
+                'international_phone_number',
+                'website_domain',
+                'contact_us_page',
+                'found_all_fields',
+                'missing_fields',
+              ],
+            },
+          },
         },
-        body: JSON.stringify({
-          model: "sonar",
-          messages: [{ role: "user", content: prompt }],
-          response_format: searchResultSchema,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Perplexity API error:", response.status, errorText);
-        return errorResponse(
-          "Error from Perplexity API",
-          "ai_response",
-          "PERPLEXITY_API_ERROR",
-          { status: response.status, error: errorText },
-          502
-        );
-      }
-
-      const completion = await response.json();
-      const messageContent = completion?.choices?.[0]?.message?.content;
-
-      if (!messageContent) {
-        return errorResponse(
-          "No response from Perplexity",
-          "ai_response",
-          "EMPTY_RESPONSE",
-          {},
-          502
-        );
-      }
-
-      // Remove any thinking content from the response
-      const output = messageContent.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
-
-      // Ensure the output is valid JSON
-      let result: Record<string, unknown>;
-      try {
-        result = JSON.parse(output);
-      } catch {
-        console.error("Invalid JSON from Perplexity:", output);
-        return errorResponse(
-          "Invalid JSON response from Perplexity",
-          "ai_response",
-          "INVALID_JSON_RESPONSE",
-          { raw: output.substring(0, 200) },
-          502
-        );
-      }
-
-      console.log(`[ai-search] Search completed for: ${companyName}`);
-
-      return successResponse({
-        data: result,
-        warning: result.found_all_fields
-          ? null
-          : "Some information could not be found, missing fields set to 0",
       });
     } catch (error) {
-      console.error("Error performing search:", error);
+      switch (error.constructor.name) {
+        case "APIConnectionError":
+          return errorResponse(
+            "Failed to connect to Perplexity API",
+            "ai_response",
+            "PERPLEXITY_CONNECTION_ERROR",
+            { error: error.cause },
+            502
+          );
+        case "RateLimitError":
+          return errorResponse(
+            "Rate limit exceeded",
+            "ai_response",
+            "PERPLEXITY_RATE_LIMIT_ERROR",
+            {},
+            502
+          );
+        case "APIStatusError":
+          return errorResponse(
+            "Perplexity API returned an error",
+            "ai_response",
+            "PERPLEXITY_API_ERROR",
+            { error: error.response },
+            502
+          );
+        default:
+          return errorResponse(
+            "An unknown error occurred",
+            "ai_response",
+            "PERPLEXITY_UNKNOWN_ERROR",
+            { error: error.constructor.name, errorDetails: error.message },
+            502
+          );
+      }
+    }
+
+    const messageContent = response.choices?.[0]?.message?.content;
+
+    if (!messageContent) {
       return errorResponse(
-        "Failed to search for company information",
+        "No response from Perplexity",
         "ai_response",
-        "SEARCH_ERROR",
-        { error: error instanceof Error ? error.message : "Unknown error" },
+        "EMPTY_RESPONSE",
+        {},
         502
       );
     }
+
+    // Remove any thinking content from the response
+    const output = messageContent.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+
+    // Ensure the output is valid JSON
+    let result: SearchResult;
+    try {
+      result = JSON.parse(output);
+    } catch {
+      console.error("Invalid JSON from Perplexity:", output);
+      return errorResponse(
+        "Invalid JSON response from Perplexity",
+        "ai_response",
+        "INVALID_JSON_RESPONSE",
+        { raw: output.substring(0, 200) },
+        502
+      );
+    }
+
+    console.log(`[ai-search] Search completed for: ${companyName}`);
+
+    return successResponse({
+      data: result,
+      warning: result.found_all_fields
+        ? null
+        : "Some information could not be found, missing fields set to 0",
+    });
   } catch (error) {
     console.error("Unexpected error:", error);
     return errorResponse(
