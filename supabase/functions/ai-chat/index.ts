@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import OpenAI from "https://esm.sh/openai";
+import OpenAI from "https://esm.sh/openai@6.16";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -166,7 +166,7 @@ serve(async (req) => {
  */
 async function handleCreateConversationId(
   supabase: any,
-  openai: OpenAI,
+  openai: any,
   body: Record<string, unknown>,
 ) {
   const chatId = body.chatId as string;
@@ -179,7 +179,6 @@ async function handleCreateConversationId(
 
   try {
     // Create OpenAI conversation
-    // @ts-ignore - conversations API exists in newer OpenAI SDK
     const conversation = await openai.conversations.create();
     const conversationId = conversation.id;
 
