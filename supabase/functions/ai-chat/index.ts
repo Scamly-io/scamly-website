@@ -69,6 +69,9 @@ const systemPrompt = `
   Your priority: stay relevant, concise, and cautious.
 `;
 
+const openaiApiKey = Deno.env.get("OPENAI_API_KEY");
+const openai = new OpenAI({ apiKey: openaiApiKey });
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -127,22 +130,14 @@ serve(async (req) => {
     const userId = user.id;
     console.log(`[ai-chat] Action: ${action}, User: ${userId}`);
 
-    // Initialize OpenAI client
-    const openaiApiKey = Deno.env.get("OPENAI_API_KEY");
-    if (!openaiApiKey) {
-      return errorResponse("OpenAI API key not configured", "validation", "OPENAI_KEY_MISSING", {}, 500);
-    }
-
-    const openai = new OpenAI({ apiKey: openaiApiKey });
-
     // Route to appropriate handler
     switch (action) {
       case "createConversationId":
-        return await handleCreateConversationId(supabase, openai, body);
+        return await handleCreateConversationId(supabase, body);
       case "deleteConversationId":
-        return await handleDeleteConversationId(supabase, openai, body);
+        return await handleDeleteConversationId(supabase,body);
       case "generateResponse":
-        return await handleGenerateResponse(supabase, openai, body, userId);
+        return await handleGenerateResponse(supabase, body, userId);
       default:
         return errorResponse("Unknown action", "validation", "UNKNOWN_ACTION", {}, 400);
     }
@@ -166,7 +161,6 @@ serve(async (req) => {
  */
 async function handleCreateConversationId(
   supabase: any,
-  openai: any,
   body: Record<string, unknown>,
 ) {
   const chatId = body.chatId as string;
@@ -179,6 +173,7 @@ async function handleCreateConversationId(
 
   try {
     // Create OpenAI conversation
+    console.log("Creating OpenAI conversation");
     const conversation = await openai.conversations.create();
     const conversationId = conversation.id;
 
@@ -222,7 +217,6 @@ async function handleCreateConversationId(
  */
 async function handleDeleteConversationId(
   supabase: any,
-  openai: OpenAI,
   body: Record<string, unknown>,
 ) {
   const chatId = body.chatId as string;
@@ -308,7 +302,6 @@ async function handleDeleteConversationId(
  */
 async function handleGenerateResponse(
   supabase: any,
-  openai: OpenAI,
   body: Record<string, unknown>,
   userId: string
 ) {
