@@ -5,9 +5,11 @@ import { useTheme } from "@/contexts/ThemeContext";
 import phoneMockupLight from "@/assets/3d-phone-mockup.png";
 import phoneMockupDark from "@/assets/3d-phone-mockup-dark.png";
 import { trackSignupStarted } from "@/lib/analytics";
+import { isTestSubdomain } from "@/lib/subdomain";
 
 export function HeroSection() {
   const { theme } = useTheme();
+  const isTest = isTestSubdomain();
   const phoneMockup = theme === "dark" ? phoneMockupDark : phoneMockupLight;
   return (
     <section className="relative min-h-screen flex flex-col items-center overflow-hidden bg-background">
@@ -54,12 +56,14 @@ export function HeroSection() {
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 opacity-0 animate-fade-up"
             style={{ animationDelay: "0.4s" }}
           >
-            <Button variant="gradient" size="xl" asChild className="group" onClick={() => trackSignupStarted("hero")}>
-              <Link to="/auth?mode=signup">
-                Start Free Trial
-                <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Button>
+            {isTest && (
+              <Button variant="gradient" size="xl" asChild className="group" onClick={() => trackSignupStarted("hero")}>
+                <Link to="/auth?mode=signup">
+                  Start Free Trial
+                  <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </Button>
+            )}
             <Button variant="outline" size="xl" asChild className="backdrop-blur-sm">
               <a href="#features">Learn More</a>
             </Button>
