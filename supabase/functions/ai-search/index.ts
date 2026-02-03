@@ -237,8 +237,11 @@ serve(async (req) => {
           },
         },
       });
-    } catch (error) {
-      switch (error.constructor.name) {
+    } catch (err: unknown) {
+      const error = err as Error & { cause?: unknown; response?: unknown };
+      const errorName = error?.constructor?.name || 'Unknown';
+      
+      switch (errorName) {
         case "APIConnectionError":
           return errorResponse(
             "Failed to connect to Perplexity API",
@@ -268,7 +271,7 @@ serve(async (req) => {
             "An unknown error occurred",
             "ai_response",
             "PERPLEXITY_UNKNOWN_ERROR",
-            { error: error.constructor.name, errorDetails: error.message },
+            { error: errorName, errorDetails: error?.message },
             502
           );
       }
@@ -287,7 +290,8 @@ serve(async (req) => {
     }
 
     // Remove any thinking content from the response
-    const output = messageContent.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+    const contentStr = typeof messageContent === 'string' ? messageContent : JSON.stringify(messageContent);
+    const output = contentStr.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
 
     // Ensure the output is valid JSON
     let result: SearchResult;
