@@ -1,18 +1,21 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Bell, ArrowRight, CheckCircle } from 'lucide-react';
+import { Bell, ArrowRight, CheckCircle, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 export function RegisterInterestSection() {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
   const validateEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -26,8 +29,34 @@ export function RegisterInterestSection() {
       return;
     }
 
-    // UI only - backend integration to follow
-    setIsSubmitted(true);
+    setIsLoading(true);
+
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke('register-interest', {
+        body: { email: email.trim() },
+      });
+
+      if (fnError) {
+        throw new Error(fnError.message || 'Failed to register interest');
+      }
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      setIsSubmitted(true);
+    } catch (err) {
+      console.error('Error registering interest:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -75,6 +104,7 @@ export function RegisterInterestSection() {
                       setEmail(e.target.value);
                       if (error) setError('');
                     }}
+                    disabled={isLoading}
                     className={`h-12 text-center ${error ? 'border-destructive' : ''}`}
                   />
                   {error && (
@@ -86,9 +116,19 @@ export function RegisterInterestSection() {
                   variant="gradient" 
                   size="lg"
                   className="w-full"
+                  disabled={isLoading}
                 >
-                  Register Interest
-                  <ArrowRight className="w-4 h-4 ml-2" />
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Registering...
+                    </>
+                  ) : (
+                    <>
+                      Register Interest
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </>
+                  )}
                 </Button>
               </form>
             )}
