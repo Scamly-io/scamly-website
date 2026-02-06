@@ -47,7 +47,14 @@ export function RegisterInterestSection() {
       setIsSubmitted(true);
     } catch (err) {
       console.error('Error registering interest:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+      const genericMessage = 'There was an issue registering your email. Please try again later.';
+      const rawMessage = err instanceof Error ? err.message : '';
+      const useGeneric =
+        /failed to send a request to the edge function/i.test(rawMessage) ||
+        /failed to fetch/i.test(rawMessage) ||
+        /cors/i.test(rawMessage);
+
+      const errorMessage = useGeneric ? genericMessage : (rawMessage || genericMessage);
       toast({
         title: 'Error',
         description: errorMessage,
