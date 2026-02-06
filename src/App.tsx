@@ -14,6 +14,7 @@ import Portal from "./pages/Portal";
 import ResetPassword from "./pages/ResetPassword";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
+import EmailUnsubscribed from "./pages/EmailUnsubscribed";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const TestSubdomainApp = () => (
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/privacy" element={<Privacy />} />
+      <Route path="/email-unsubscribed" element={<EmailUnsubscribed />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </BrowserRouter>
@@ -41,6 +43,7 @@ const MainDomainApp = () => (
       <Route path="/" element={<Index />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/privacy" element={<Privacy />} />
+      <Route path="/email-unsubscribed" element={<EmailUnsubscribed />} />
       {/* All other routes redirect to home */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

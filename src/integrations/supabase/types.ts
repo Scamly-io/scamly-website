@@ -456,7 +456,8 @@ export type Database = {
           created_at: string
           id: string
           input_tokens: number | null
-          output: string | null
+          openai_response_id: string
+          output: string
           output_tokens: number | null
           user_id: string
         }
@@ -464,7 +465,8 @@ export type Database = {
           created_at: string
           id?: string
           input_tokens?: number | null
-          output?: string | null
+          openai_response_id: string
+          output: string
           output_tokens?: number | null
           user_id: string
         }
@@ -472,7 +474,8 @@ export type Database = {
           created_at?: string
           id?: string
           input_tokens?: number | null
-          output?: string | null
+          openai_response_id?: string
+          output?: string
           output_tokens?: number | null
           user_id?: string
         }
