@@ -4,10 +4,23 @@ import { Resend } from "https://esm.sh/resend@2.0.0";
 import { encode as hexEncode } from "https://deno.land/std@0.190.0/encoding/hex.ts";
 import { crypto } from "https://deno.land/std@0.190.0/crypto/mod.ts";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version, baggage, sentry-trace',
+const baseCorsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version, baggage, sentry-trace",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
+
+function getCorsHeaders(req: Request) {
+  // Echo requested headers to prevent future preflight failures when Supabase/Sentry adds new headers.
+  const requestedHeaders = req.headers.get("Access-Control-Request-Headers");
+  if (!requestedHeaders) return baseCorsHeaders;
+
+  return {
+    ...baseCorsHeaders,
+    "Access-Control-Allow-Headers": requestedHeaders,
+  };
+}
 
 interface RegisterInterestRequest {
   email: string;
@@ -25,7 +38,7 @@ async function generateUnsubscribeToken(email: string, secret: string): Promise<
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response("ok", { headers: getCorsHeaders(req) });
   }
 
   try {
@@ -48,19 +61,19 @@ const handler = async (req: Request): Promise<Response> => {
     const { email }: RegisterInterestRequest = await req.json();
 
     if (!email || !email.trim()) {
-      return new Response(
-        JSON.stringify({ error: "Email is required" }),
-        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
+      return new Response(JSON.stringify({ error: "Email is required" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...getCorsHeaders(req) },
+      });
     }
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return new Response(
-        JSON.stringify({ error: "Invalid email format" }),
-        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
+      return new Response(JSON.stringify({ error: "Invalid email format" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...getCorsHeaders(req) },
+      });
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -91,10 +104,10 @@ const handler = async (req: Request): Promise<Response> => {
         }
       } else {
         // User already registered
-        return new Response(
-          JSON.stringify({ success: true, message: "Already registered" }),
-          { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
-        );
+        return new Response(JSON.stringify({ success: true, message: "Already registered" }), {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...getCorsHeaders(req) },
+        });
       }
     } else {
       // Insert new user
@@ -166,17 +179,17 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Successfully registered interest and sent email to:", email);
 
-    return new Response(
-      JSON.stringify({ success: true }),
-      { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
-    );
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { "Content-Type": "application/json", ...getCorsHeaders(req) },
+    });
   } catch (error: unknown) {
     console.error("Error in register-interest function:", error);
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
-    );
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      status: 500,
+      headers: { "Content-Type": "application/json", ...getCorsHeaders(req) },
+    });
   }
 };
 
