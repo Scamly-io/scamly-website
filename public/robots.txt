@@ -16,5 +16,5 @@ Allow: /
 User-agent: *
 Allow: /
 
-# Sitemap (add when available)
-# Sitemap: https://scamly.io/sitemap.xml
+# Sitemap
+Sitemap: https://scamly.io/sitemap.xml

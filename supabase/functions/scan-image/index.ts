@@ -412,7 +412,8 @@ serve(async (req) => {
             content: [
               {
                 type: "input_image",
-                image_url: `data:image/jpeg;base64,${imageB64}`
+                image_url: `data:image/jpeg;base64,${imageB64}`,
+                detail: "auto"
               }
             ]
           }
@@ -432,8 +433,8 @@ serve(async (req) => {
       }
 
       scanResult = JSON.parse(response.output_text) as ScanResult;
-      inputTokens = response.usage.input_tokens;
-      outputTokens = response.usage.output_tokens;
+      inputTokens = response.usage?.input_tokens ?? 0;
+      outputTokens = response.usage?.output_tokens ?? 0;
       openaiResponseId = response.id;
     } catch (error) {
       console.error("AI error:", error);
