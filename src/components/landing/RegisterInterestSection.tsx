@@ -87,7 +87,7 @@ export function RegisterInterestSection() {
             </h2>
             
             <p className="text-muted-foreground mb-8">
-              Get notified when Scamly launches and receive exclusive early access.
+              Get notified when Scamly launches and receive a discount on your first Scamly Premium bill.
             </p>
             
             {isSubmitted ? (
