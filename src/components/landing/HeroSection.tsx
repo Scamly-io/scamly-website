@@ -76,10 +76,6 @@ export function HeroSection() {
           >
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-primary" />
-              <span>No credit card required</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-primary" />
               <span>6 free scans monthly</span>
             </div>
             <div className="flex items-center gap-2">
