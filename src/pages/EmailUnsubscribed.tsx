@@ -1,6 +1,7 @@
 import { useSearchParams, Link } from 'react-router-dom';
 import { CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import logoDark from '@/assets/navbar-logo-dark.png';
 
 type Status = 'success' | 'error';
 type ErrorReason = 'invalid-link' | 'invalid-token' | 'server-error';
@@ -59,7 +60,7 @@ const EmailUnsubscribed = () => {
         {/* Logo */}
         <div className="mb-8">
           <img 
-            src="https://scamly-email-assets.s3.ap-southeast-2.amazonaws.com/navbar-logo-light.png" 
+            src={logoDark} 
             alt="Scamly" 
             className="h-10 mx-auto"
           />
