@@ -140,7 +140,7 @@ const handler = async (req: Request): Promise<Response> => {
         </head>
         <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
-            <img src="https://scamly-email-assets.s3.ap-southeast-2.amazonaws.com/navbar-logo-light.png" alt="Scamly" width="120" height="40" style="height: 40px; width: auto; max-width: 120px; margin-bottom: 20px;" />
+            <img src="https://scamly-email-assets.s3.ap-southeast-2.amazonaws.com/navbar-logo-light.png" alt="Scamly" width="130" style="width: 130px; margin-bottom: 20px;" />
             <h1 style="color: #1a1a1a; margin-bottom: 10px;">Thank You! 🎉</h1>
           </div>
           
