@@ -41,7 +41,6 @@ const MainDomainApp = () => (
   <BrowserRouter>
     <Routes>
       <Route path="/" element={<Index />} />
-      <Route path="/terms" element={<Terms />} />
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/email-unsubscribed" element={<EmailUnsubscribed />} />
       {/* All other routes redirect to home */}
