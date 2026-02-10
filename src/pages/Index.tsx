@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Navbar } from '@/components/Navbar';
+import { useCanonical } from '@/hooks/useCanonical';
 import { MainDomainNavbar } from '@/components/MainDomainNavbar';
 import { Footer } from '@/components/Footer';
 import { MainDomainFooter } from '@/components/MainDomainFooter';
@@ -15,7 +16,7 @@ import { isTestSubdomain } from '@/lib/subdomain';
 
 const Index = () => {
   const isTest = isTestSubdomain();
-
+  useCanonical("/");
   // Track page visit when user lands on home page
   useEffect(() => {
     trackPageVisited('home');
