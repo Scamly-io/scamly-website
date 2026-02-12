@@ -33,5 +33,3 @@ verify_jwt = false
 [functions.register-interest]
 verify_jwt = false
 
-[functions.unsubscribe]
-verify_jwt = false
