@@ -135,8 +135,10 @@ export default function Portal() {
   useEffect(() => {
     if (!loading && !user) {
       navigate("/auth");
+    } else if (!loading && user && profile && profile.onboarding_completed === false) {
+      navigate("/portal/onboarding");
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, profile]);
 
   // Helper to get user-specific localStorage key for trial abuse modal
   const getTrialAbuseModalKey = (userId: string) => `trial_abuse_modal_dismissed_${userId}`;

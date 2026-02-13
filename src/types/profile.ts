@@ -15,6 +15,7 @@ export interface Profile {
   welcome_email_sent: boolean;
   created_at: string;
   referral_source: string | null;
+  onboarding_completed: boolean | null;
 }
 
 export type SubscriptionStatus = Profile['subscription_status'];
