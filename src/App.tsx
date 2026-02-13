@@ -12,6 +12,8 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import CheckEmail from "./pages/CheckEmail";
 import Portal from "./pages/Portal";
+import PortalOnboarding from "./pages/PortalOnboarding";
+import PortalOnboardingComplete from "./pages/PortalOnboardingComplete";
 import ResetPassword from "./pages/ResetPassword";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
@@ -27,6 +29,8 @@ const TestSubdomainApp = () => (
       <Route path="/" element={<Index />} />
       <Route path="/auth" element={<Auth />} />
       <Route path="/check-email" element={<CheckEmail />} />
+      <Route path="/portal/onboarding" element={<PortalOnboarding />} />
+      <Route path="/portal/onboarding-complete" element={<PortalOnboardingComplete />} />
       <Route path="/portal" element={<Portal />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/terms" element={<Terms />} />

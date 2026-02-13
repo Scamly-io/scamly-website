@@ -132,6 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             gender: profileData.gender,
             country: profileData.country,
             referral_source: profileData.referral_source,
+            onboarding_completed: true,
           },
         },
       });
