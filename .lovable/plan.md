@@ -1,61 +1,25 @@
 
-# Email Unsubscribe Redirect Implementation
 
-## Overview
-Change the unsubscribe flow from returning inline HTML to redirecting users to a dedicated `/email-unsubscribed` page. This will ensure proper HTML rendering and provide a consistent user experience.
+## Adjustment to Portal Onboarding Token Handling
 
-## Changes
+### Change
 
-### 1. Create New Unsubscribe Result Page
-Create a new page at `src/pages/EmailUnsubscribed.tsx` that displays:
-- **Success state**: Shows a confirmation message that the user has been unsubscribed
-- **Error state**: Shows an error message based on query parameters
-- Styled consistently with the existing app design (dark background, centered content)
-- Includes the Scamly branding
+When the `/portal/onboarding` page receives a `token` query parameter, use that same token value for **both** `access_token` and `refresh_token` in the `supabase.auth.setSession()` call:
 
-The page will read query parameters to determine what to display:
-- `?status=success` - Shows success message
-- `?status=error&reason=invalid-link` - Shows invalid link error
-- `?status=error&reason=invalid-token` - Shows invalid token error  
-- `?status=error&reason=server-error` - Shows generic server error
-
-### 2. Update App Routing
-Add the `/email-unsubscribed` route to **both** routing configurations in `App.tsx`:
-- `TestSubdomainApp` - Add route for test environment
-- `MainDomainApp` - Add route for main domain (since unsubscribe emails go to main domain users)
-
-### 3. Modify Unsubscribe Edge Function
-Update `supabase/functions/unsubscribe/index.ts` to:
-- Remove the `htmlResponse` function (no longer needed)
-- Replace all HTML responses with HTTP 302 redirects
-- Redirect to the app URL with appropriate query parameters
-- Use the app's base URL (will need to determine the correct domain)
-
-The redirect URLs will be:
-- Success: `https://scamly.io/email-unsubscribed?status=success`
-- Invalid link: `https://scamly.io/email-unsubscribed?status=error&reason=invalid-link`
-- Invalid token: `https://scamly.io/email-unsubscribed?status=error&reason=invalid-token`
-- Server error: `https://scamly.io/email-unsubscribed?status=error&reason=server-error`
-
----
-
-## Technical Details
-
-### New Page Component Structure
-```text
-src/pages/EmailUnsubscribed.tsx
-├── Parse query params (status, reason)
-├── Conditional rendering based on status
-├── Success view with checkmark icon
-├── Error view with appropriate message
-└── Link back to home page
+```typescript
+await supabase.auth.setSession({
+  access_token: token,
+  refresh_token: token,
+});
 ```
 
-### Edge Function Redirect Logic
-```text
-Instead of: return htmlResponse(title, message, success)
-Use: return Response.redirect(redirectUrl, 302)
-```
+This is intentional -- the session won't persist long-term, which is acceptable since mobile app users complete onboarding in a temporary webview that closes afterward.
 
-### Route Configuration
-The page will be accessible at `/email-unsubscribed` on both the main domain and test subdomain since users who register interest via the main domain will receive emails with unsubscribe links.
+### Files Affected
+
+| File | Action |
+|------|--------|
+| `src/pages/PortalOnboarding.tsx` | Update `setSession` call to use `token` for both fields (during creation of this file) |
+
+This is a minor adjustment to the existing approved plan. No other changes needed.
+
