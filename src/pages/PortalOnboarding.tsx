@@ -134,7 +134,8 @@ export default function PortalOnboarding() {
         variant: "destructive",
       });
     } else {
-      navigate("/portal/onboarding-complete");
+      const hasToken = searchParams.get("token");
+      navigate(hasToken ? "/portal/onboarding-complete" : "/portal");
     }
   };
 
