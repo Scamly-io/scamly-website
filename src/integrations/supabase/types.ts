@@ -103,54 +103,6 @@ export type Database = {
           },
         ]
       }
-      interested_users: {
-        Row: {
-          created_at: string
-          email: string
-          id: string
-          unsubscribed: boolean
-          unsubscribed_at: string | null
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          id?: string
-          unsubscribed?: boolean
-          unsubscribed_at?: string | null
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          id?: string
-          unsubscribed?: boolean
-          unsubscribed_at?: string | null
-        }
-        Relationships: []
-      }
-      interested_users_testenvironment: {
-        Row: {
-          created_at: string
-          email: string
-          id: string
-          unsubscribed: boolean
-          unsubscribed_at: string | null
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          id?: string
-          unsubscribed?: boolean
-          unsubscribed_at?: string | null
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          id?: string
-          unsubscribed?: boolean
-          unsubscribed_at?: string | null
-        }
-        Relationships: []
-      }
       messages: {
         Row: {
           chat_id: string
@@ -307,6 +259,7 @@ export type Database = {
           has_consumed_trial: boolean
           has_paid_first_invoice: boolean
           id: string
+          onboarding_completed: boolean | null
           referral_code: string | null
           referral_code_active: boolean
           referral_code_updated_at: string | null
@@ -329,6 +282,7 @@ export type Database = {
           has_consumed_trial?: boolean
           has_paid_first_invoice?: boolean
           id: string
+          onboarding_completed?: boolean | null
           referral_code?: string | null
           referral_code_active?: boolean
           referral_code_updated_at?: string | null
@@ -351,6 +305,7 @@ export type Database = {
           has_consumed_trial?: boolean
           has_paid_first_invoice?: boolean
           id?: string
+          onboarding_completed?: boolean | null
           referral_code?: string | null
           referral_code_active?: boolean
           referral_code_updated_at?: string | null
