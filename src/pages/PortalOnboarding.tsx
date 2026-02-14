@@ -135,7 +135,7 @@ export default function PortalOnboarding() {
       });
     } else {
       const hasToken = searchParams.get("token");
-      navigate(hasToken ? "/portal/onboarding-complete" : "/portal");
+      navigate(hasToken ? "/portal/onboarding-complete?ref=app" : "/portal/onboarding-complete?ref=web");
     }
   };
 
