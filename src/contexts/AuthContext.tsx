@@ -66,8 +66,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!error && data) {
       setProfile(data as Profile);
       
-      // Send welcome email if email is confirmed and welcome email hasn't been sent yet
-      if (userEmailConfirmed && !data.welcome_email_sent) {
+      // Send welcome email if email is confirmed, onboarding is done, and welcome email hasn't been sent yet
+      if (userEmailConfirmed && data.onboarding_completed && !data.welcome_email_sent) {
         sendWelcomeEmail(userId);
       }
     }
