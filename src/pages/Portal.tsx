@@ -133,9 +133,18 @@ export default function Portal() {
   }, [user, profile?.first_name]);
 
   useEffect(() => {
+    console.log("[Portal] Auth Check:", {
+      loading,
+      hasUser: !!user,
+      hasProfile: !!profile,
+      onboardingCompleted: profile?.onboarding_completed,
+    });
+
     if (!loading && !user) {
+      console.log("[Portal] Navigating to auth");
       navigate("/auth");
     } else if (!loading && user && profile && profile.onboarding_completed === false) {
+      console.log("[Portal] Redirecting to onboarding - cause of flicker.")
       navigate("/portal/onboarding");
     }
   }, [user, loading, navigate, profile]);
