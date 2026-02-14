@@ -168,6 +168,13 @@
   }
 }
 
+@layer base {
+  input[type="date"] {
+    max-width: 100%;
+    min-width: 0;
+  }
+}
+
 @layer components {
   .hero-gradient {
     background: var(--gradient-hero);
