@@ -194,9 +194,21 @@ export default function PortalOnboarding() {
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
                   id="dob"
-                  type="date"
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="dd/mm/yyyy"
                   value={dob}
-                  onChange={(e) => setDob(e.target.value)}
+                  onChange={(e) => {
+                    let val = e.target.value.replace(/[^\d/]/g, "");
+                    const digits = val.replace(/\//g, "");
+                    if (digits.length >= 4) {
+                      val = digits.slice(0, 2) + "/" + digits.slice(2, 4) + "/" + digits.slice(4, 8);
+                    } else if (digits.length >= 2) {
+                      val = digits.slice(0, 2) + "/" + digits.slice(2);
+                    }
+                    setDob(val);
+                  }}
+                  maxLength={10}
                   className="pl-10"
                 />
               </div>
