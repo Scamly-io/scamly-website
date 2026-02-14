@@ -391,7 +391,7 @@ export default function Portal() {
     ? new Date(profile.subscription_current_period_end).toLocaleDateString()
     : null;
 
-  if (loading) {
+  if (loading || (user && !profile)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
