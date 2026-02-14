@@ -55,6 +55,7 @@ export default function PortalOnboarding() {
       const token = searchParams.get("token");
 
       if (token) {
+        // Token present - user has signed up by app
         // Use the token for both access_token and refresh_token
         // Session won't persist long-term — by design for mobile webview
         const { error } = await supabase.auth.setSession({

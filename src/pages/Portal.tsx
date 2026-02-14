@@ -92,7 +92,6 @@ export default function Portal() {
     // Pre-fill referral code if passed from auth page
     if (refCode && !checkoutReferralCode) {
       setCheckoutReferralCode(refCode);
-      // Go to subscription tab to show the referral code input
       setActiveTab("subscription");
     }
 
@@ -107,9 +106,9 @@ export default function Portal() {
         title: "Subscription activated!",
         description: "Welcome to Scamly Premium. Your subscription is now active.",
       });
+
       // Refresh profile to get updated subscription status
       refreshProfile();
-      // Clear the query params
       setSearchParams({});
       setActiveTab("subscription");
     } else if (canceled === "true") {
@@ -135,7 +134,7 @@ export default function Portal() {
   useEffect(() => {
     if (!loading && !user) {
       navigate("/auth");
-    } else if (!loading && user && profile && profile.onboarding_completed === false) {
+    } else if (!loading && profile.onboarding_completed === false) {
       navigate("/portal/onboarding");
     }
   }, [user, loading, navigate, profile]);
