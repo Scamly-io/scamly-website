@@ -11,6 +11,7 @@ import { z } from "zod";
 import { countries } from "@/constants/countries";
 import logoLight from "@/assets/navbar-logo-light.png";
 import logoDark from "@/assets/navbar-logo-dark.png";
+import { useAuth } from "@/contexts/AuthContext";
 
 const genders = ["Male", "Female", "Non-binary", "Prefer not to say"];
 
@@ -38,6 +39,7 @@ export default function PortalOnboarding() {
   const [searchParams] = useSearchParams();
   const { theme, toggleTheme } = useTheme();
   const { toast } = useToast();
+  const { updateProfile } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -114,6 +116,7 @@ export default function PortalOnboarding() {
     if (!userId) return;
 
     setSaving(true);
+
     const { error } = await supabase
       .from("profiles")
       .update({
@@ -125,12 +128,28 @@ export default function PortalOnboarding() {
         onboarding_completed: true,
       })
       .eq("id", userId);
+
+      const { error: updateProfileError } = await updateProfile({
+        first_name: firstName,
+        dob,
+        country,
+        gender,
+        referral_source: referralSource,
+        onboarding_completed: true,
+      });
+
     setSaving(false);
 
     if (error) {
       toast({
         title: "Update failed",
         description: error.message,
+        variant: "destructive",
+      });
+    } else if (updateProfileError) {
+      toast({
+        title: "Update failed",
+        description: updateProfileError.message,
         variant: "destructive",
       });
     } else {
