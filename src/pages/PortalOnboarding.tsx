@@ -28,7 +28,13 @@ const referralSourceOptions = [
 
 const onboardingSchema = z.object({
   firstName: z.string().min(1, "First name is required").max(50, "First name is too long"),
-  dob: z.string().min(1, "Date of birth is required"),
+  dob: z.string().min(1, "Date of birth is required").refine((val) => {
+    const parts = val.split("/");
+    if (parts.length !== 3) return false;
+    const [dd, mm, yyyy] = parts.map(Number);
+    const date = new Date(yyyy, mm - 1, dd);
+    return date.getFullYear() === yyyy && date.getMonth() === mm - 1 && date.getDate() === dd && yyyy >= 1900 && yyyy <= new Date().getFullYear();
+  }, "Please enter a valid date in dd/mm/yyyy format"),
   country: z.string().min(1, "Country is required"),
   gender: z.string().min(1, "Gender is required"),
   referralSource: z.string().min(1, "Please select how you heard about us"),
@@ -117,11 +123,15 @@ export default function PortalOnboarding() {
 
     setSaving(true);
 
+    // Convert dd/mm/yyyy to yyyy-mm-dd for storage
+    const dobParts = dob.split("/");
+    const isoDate = dobParts.length === 3 ? `${dobParts[2]}-${dobParts[1]}-${dobParts[0]}` : dob;
+
     const { error } = await supabase
       .from("profiles")
       .update({
         first_name: firstName,
-        dob,
+        dob: isoDate,
         country,
         gender,
         referral_source: referralSource,
@@ -131,7 +141,7 @@ export default function PortalOnboarding() {
 
       const { error: updateProfileError } = await updateProfile({
         first_name: firstName,
-        dob,
+        dob: isoDate,
         country,
         gender,
         referral_source: referralSource,
