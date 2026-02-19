@@ -111,7 +111,7 @@ const getWelcomeEmailTemplate = (firstName: string): string => `
       
       <!-- CTA Button -->
       <div style="text-align: center; margin-bottom: 32px;">
-        <a href="https://scamly.io/portal" style="display: inline-block; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);">
+        <a href="https://scamly.io/portal" style="display: inline-block; background-color: #6366f1; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);">
           Get Started →
         </a>
       </div>
@@ -285,7 +285,7 @@ const getTrialConfirmationTemplate = (
 
       <!-- CTA Button -->
       <div style="text-align: center; margin-bottom: 32px;">
-        <a href="https://scamly.io/portal" style="display: inline-block; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);">
+        <a href="https://scamly.io/portal" style="display: inline-block; background-color: #6366f1; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);">
           Start Using Scamly Premium →
         </a>
       </div>
@@ -399,7 +399,7 @@ const getPaymentFailedTemplate = (
 
       <!-- CTA Button -->
       <div style="text-align: center; margin-bottom: 32px;">
-        <a href="https://scamly.io/portal" style="display: inline-block; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);">
+        <a href="https://scamly.io/portal" style="display: inline-block; background-color: #6366f1; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);">
           Update Payment Details →
         </a>
       </div>
@@ -579,7 +579,7 @@ const getForcedCancellationTemplate = (firstName: string): string => `
         </p>
         
         <div style="text-align: center;">
-          <a href="https://scamly.io/portal" style="display: inline-block; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);">
+          <a href="https://scamly.io/portal" style="display: inline-block; background-color: #6366f1; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);">
             Visit Account Portal →
           </a>
         </div>
@@ -683,7 +683,7 @@ const handler = async (req: Request): Promise<Response> => {
       logStep("Sending welcome email", { userEmail });
 
       const emailResponse = await resend.emails.send({
-        from: "Scamly <noreply@scamly.io>",
+        from: "Scamly <notifications@scamly.io>",
         to: [userEmail],
         subject: "Welcome to Scamly!",
         html: getWelcomeEmailTemplate(firstName),
@@ -809,7 +809,7 @@ const handler = async (req: Request): Promise<Response> => {
     logStep(`Sending ${type} email`, { userEmail });
 
     const emailResponse = await resend.emails.send({
-      from: "Scamly <noreply@scamly.io>",
+      from: "Scamly <notifications@scamly.io>",
       to: [userEmail],
       subject,
       html: htmlContent,
