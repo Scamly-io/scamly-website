@@ -102,9 +102,9 @@ function getUserBillingPeriod(createdAt: string): { periodStart: Date; nextPerio
 
 // Model system prompt, do not adjust this.
 const systemPrompt = `
-  You are an AI scam detection tool. Your role is to analyze screenshots of text messages, emails, social media posts, advertisements, or other online media to determine if they are scams. Generate an output according to the provided schema.
+  Your task is to analyze screenshots of text messages, emails, social media posts, advertisements, or other online media to determine if they are scams. Generate an output according to the provided schema.
 
-  Your output must reflect careful reasoning and cautious judgment, as users may trust your assessment. You should analyze tone, urgency, language patterns, sender identity, formatting, links, and overall message structure to decide if the content is fraudulent, suspicious, or safe.
+  You should analyze tone, urgency, language patterns, sender identity, formatting, links, and overall message structure to decide if the content is fraudulent, suspicious, or safe.
 
   Rules:
   1. Purpose: Identify potential scams and assess their likelihood and risk level based on scam indicators such as requests for money, urgency, impersonation, links, or poor grammar.
@@ -402,10 +402,14 @@ serve(async (req) => {
       });
       */
 
+      // Calculate time to scan
+      const startTime = Date.now();
+
       // OpenAI response
       const response = await openai.responses.create({
         model: "gpt-5-mini",
         tools: [{ type: "web_search"}],
+        reasoning: { effort: "low" },
         instructions: systemPrompt,
         input: [
           { role: "user",
@@ -427,6 +431,11 @@ serve(async (req) => {
           }
         }
       })
+
+      // Calculate time to scan
+      const endTime = Date.now();
+      const scanTime = endTime - startTime;
+      console.log(`Scan completed in ${scanTime}ms`);
 
       if (!response ||!response.output_text) {
         throw new Error("Empty response from OpenAI");
@@ -463,7 +472,6 @@ serve(async (req) => {
       console.warn("Continuing despite database insert error");
     }
 
-    console.log(`Scan completed successfully for user ${user.id}`);
     return successResponse(scanResult);
 
   } catch (error) {
