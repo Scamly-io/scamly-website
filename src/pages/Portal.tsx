@@ -393,6 +393,11 @@ export default function Portal() {
     }
   };
 
+  // Detect OAuth provider
+  const authProvider = user?.app_metadata?.provider as string | undefined;
+  const isOAuthUser = authProvider === "google" || authProvider === "apple";
+  const oAuthProviderName = authProvider === "google" ? "Google" : authProvider === "apple" ? "Apple" : "";
+
   const isPremium = profile?.subscription_status === "active" || profile?.subscription_status === "trialing";
   const isTrialing = profile?.subscription_status === "trialing";
   const isEligibleForTrial = !profile?.has_consumed_trial;
@@ -516,11 +521,13 @@ export default function Portal() {
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" value={user?.email || ""} disabled className="opacity-60" />
-                    <p className="text-xs text-muted-foreground">Change email in Security settings</p>
-                  </div>
+                  {!isOAuthUser && (
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input id="email" value={user?.email || ""} disabled className="opacity-60" />
+                      <p className="text-xs text-muted-foreground">Change email in Security settings</p>
+                    </div>
+                  )}
 
                   <div className="space-y-2">
                     <Label htmlFor="dob">Date of Birth</Label>
@@ -775,74 +782,111 @@ export default function Portal() {
               <div className="space-y-8">
                 <div>
                   <h2 className="font-display text-xl font-bold mb-1">Security Settings</h2>
-                  <p className="text-sm text-muted-foreground">Update your email address and password.</p>
+                  <p className="text-sm text-muted-foreground">
+                    {isOAuthUser
+                      ? `Your account is managed through ${oAuthProviderName}.`
+                      : "Update your email address and password."}
+                  </p>
                 </div>
 
-                {/* Change Email */}
-                <div className="space-y-4">
-                  <h3 className="font-semibold">Change Email</h3>
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <div className="flex-1 space-y-2">
-                      <Label htmlFor="newEmail">New Email Address</Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                        <Input
-                          id="newEmail"
-                          type="email"
-                          placeholder="new@example.com"
-                          value={newEmail}
-                          onChange={(e) => setNewEmail(e.target.value)}
-                          className="pl-10"
-                        />
+                {isOAuthUser ? (
+                  <div className="p-5 rounded-xl bg-muted/50 border border-border">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Lock className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold mb-1">Signed in with {oAuthProviderName}</h3>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Your account was created using {oAuthProviderName} Sign In. Your email address and password are managed by {oAuthProviderName}. To update your security settings, please visit your {oAuthProviderName} account settings.
+                        </p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            window.open(
+                              authProvider === "google"
+                                ? "https://myaccount.google.com/security"
+                                : "https://appleid.apple.com/account/manage",
+                              "_blank"
+                            );
+                          }}
+                        >
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          Manage {oAuthProviderName} Security
+                        </Button>
                       </div>
                     </div>
-                    <div className="sm:self-end">
-                      <Button onClick={handleUpdateEmail} disabled={saving || !newEmail}>
+                  </div>
+                ) : (
+                  <>
+                    {/* Change Email */}
+                    <div className="space-y-4">
+                      <h3 className="font-semibold">Change Email</h3>
+                      <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="flex-1 space-y-2">
+                          <Label htmlFor="newEmail">New Email Address</Label>
+                          <div className="relative">
+                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                            <Input
+                              id="newEmail"
+                              type="email"
+                              placeholder="new@example.com"
+                              value={newEmail}
+                              onChange={(e) => setNewEmail(e.target.value)}
+                              className="pl-10"
+                            />
+                          </div>
+                        </div>
+                        <div className="sm:self-end">
+                          <Button onClick={handleUpdateEmail} disabled={saving || !newEmail}>
+                            {saving && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                            Update Email
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Change Password */}
+                    <div className="space-y-4 pt-4 border-t border-border">
+                      <h3 className="font-semibold">Change Password</h3>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="newPassword">New Password</Label>
+                          <div className="relative">
+                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                            <Input
+                              id="newPassword"
+                              type="password"
+                              placeholder="Min 8 characters"
+                              value={newPassword}
+                              onChange={(e) => setNewPassword(e.target.value)}
+                              className="pl-10"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="confirmPassword">Confirm Password</Label>
+                          <div className="relative">
+                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                            <Input
+                              id="confirmPassword"
+                              type="password"
+                              placeholder="Confirm password"
+                              value={confirmPassword}
+                              onChange={(e) => setConfirmPassword(e.target.value)}
+                              className="pl-10"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <Button onClick={handleUpdatePassword} disabled={saving || !newPassword || !confirmPassword}>
                         {saving && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                        Update Email
+                        Update Password
                       </Button>
                     </div>
-                  </div>
-                </div>
-
-                {/* Change Password */}
-                <div className="space-y-4 pt-4 border-t border-border">
-                  <h3 className="font-semibold">Change Password</h3>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="newPassword">New Password</Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                        <Input
-                          id="newPassword"
-                          type="password"
-                          placeholder="Min 8 characters"
-                          value={newPassword}
-                          onChange={(e) => setNewPassword(e.target.value)}
-                          className="pl-10"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="confirmPassword">Confirm Password</Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                        <Input
-                          id="confirmPassword"
-                          type="password"
-                          placeholder="Confirm password"
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          className="pl-10"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <Button onClick={handleUpdatePassword} disabled={saving || !newPassword || !confirmPassword}>
-                    {saving && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                    Update Password
-                  </Button>
-                </div>
+                  </>
+                )}
               </div>
             )}
           </div>
