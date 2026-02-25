@@ -52,6 +52,16 @@ const logStep = (step: string, details?: unknown) => {
   console.log(`[${FUNCTION_NAME.toUpperCase()}] ${step}${detailsStr}`);
 };
 
+const logWarn = (message: string, details?: unknown) => {
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : "";
+  console.warn(`[${FUNCTION_NAME.toUpperCase()}] ${message}${detailsStr}`);
+};
+
+const logError = (message: string, details?: unknown) => {
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : "";
+  console.error(`[${FUNCTION_NAME.toUpperCase()}] ${message}${detailsStr}`);
+};
+
 const captureError = (error: Error, context: Record<string, unknown>) => {
   if (!sentryDsn) return;
   Sentry.withScope((scope) => {
@@ -72,8 +82,6 @@ const formatDate = (isoDate: string): string => {
   });
 };
 
-// ===== MAIN HANDLER =====
-
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -89,16 +97,13 @@ const handler = async (req: Request): Promise<Response> => {
     const { type, userId, price, billingPeriod, nextPayment, accessExpiresAt } = requestData;
 
     if (!type || !userId) {
-      logStep("Missing required fields", { type, userId });
       return new Response(JSON.stringify({ error: "type and userId are required" }), {
         status: 400,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
 
-    logStep("Processing email", { type, userId });
-
-    // ===== WELCOME EMAIL SPECIAL HANDLING =====
+    // Welcome email is handled separately
     // Uses atomic claim mechanism to prevent duplicate sends
     if (type === "welcome") {
       const { data: claimedRows, error: claimError } = await supabaseClient
@@ -109,7 +114,6 @@ const handler = async (req: Request): Promise<Response> => {
         .select("first_name");
 
       if (claimError) {
-        logStep("Error claiming welcome email send", { error: claimError });
         return new Response(JSON.stringify({ error: "Failed to claim welcome email send" }), {
           status: 500,
           headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -117,7 +121,6 @@ const handler = async (req: Request): Promise<Response> => {
       }
 
       if (!claimedRows || claimedRows.length === 0) {
-        logStep("Welcome email already sent (or currently processing) for this user");
         return new Response(JSON.stringify({ message: "Welcome email already sent" }), {
           status: 200,
           headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -137,8 +140,12 @@ const handler = async (req: Request): Promise<Response> => {
       } = await supabaseClient.auth.admin.getUserById(userId);
 
       if (userError || !user?.email) {
-        logStep("Error fetching user", { error: userError });
         await releaseClaim();
+        captureError(new Error("Failed to fetch user"), {
+          step: "fetch_user_for_welcome_email",
+          userId,
+          errorMessage: userError?.message,
+        });
         return new Response(JSON.stringify({ error: "Failed to fetch user" }), {
           status: 500,
           headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -147,8 +154,6 @@ const handler = async (req: Request): Promise<Response> => {
 
       const firstName = claimedRows[0]?.first_name || "there";
       const userEmail = user.email;
-
-      logStep("Sending welcome email via Resend template", { userEmail });
 
       const emailResponse = await resend.emails.send({
         to: [userEmail],
@@ -161,23 +166,25 @@ const handler = async (req: Request): Promise<Response> => {
       });
 
       if (emailResponse.error) {
-        logStep("Error sending email", { error: emailResponse.error });
         await releaseClaim();
+        captureError(new Error("Failed to send welcome email"), {
+          step: "send_welcome_email",
+          userId,
+          errorMessage: emailResponse.error.message,
+        });
         return new Response(JSON.stringify({ error: emailResponse.error.message }), {
           status: 500,
           headers: { "Content-Type": "application/json", ...corsHeaders },
         });
       }
 
-      logStep("Welcome email sent successfully", { emailId: emailResponse.data?.id });
       return new Response(JSON.stringify({ success: true, emailId: emailResponse.data?.id }), {
         status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
 
-    // ===== ALL OTHER EMAIL TYPES =====
-    // Get user profile and email
+    // All other emails
     const { data: profile, error: profileError } = await supabaseClient
       .from("profiles")
       .select("first_name, subscription_plan")
@@ -185,7 +192,11 @@ const handler = async (req: Request): Promise<Response> => {
       .single();
 
     if (profileError) {
-      logStep("Error fetching profile", { error: profileError });
+      captureError(new Error("Failed to fetch profile"), {
+        step: "fetch_profile_for_email",
+        userId,
+        errorMessage: profileError?.message,
+      });
       return new Response(JSON.stringify({ error: "Failed to fetch profile" }), {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -198,7 +209,11 @@ const handler = async (req: Request): Promise<Response> => {
     } = await supabaseClient.auth.admin.getUserById(userId);
 
     if (userError || !user?.email) {
-      logStep("Error fetching user", { error: userError });
+      captureError(new Error("Failed to fetch user email"), {
+        step: "fetch_user_email_for_email",
+        userId,
+        errorMessage: userError?.message,
+      });
       return new Response(JSON.stringify({ error: "Failed to fetch user email" }), {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -214,7 +229,13 @@ const handler = async (req: Request): Promise<Response> => {
     switch (type) {
       case "free_trial_created": {
         if (!price || !billingPeriod || !nextPayment) {
-          logStep("Missing required fields for free_trial_created", { price, billingPeriod, nextPayment });
+          captureError(new Error("Missing required fields for free_trial_created"), {
+            step: "free_trail_created",
+            userId,
+            price,
+            billingPeriod,
+            nextPayment,
+          });
           return new Response(JSON.stringify({ error: "Missing required fields for free_trial_created" }), {
             status: 400,
             headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -233,7 +254,13 @@ const handler = async (req: Request): Promise<Response> => {
 
       case "subscription_created": {
         if (!price || !billingPeriod || !nextPayment) {
-          logStep("Missing required fields for subscription_created", { price, billingPeriod, nextPayment });
+          captureError(new Error("Missing required fields for subscription_created"), {
+            step: "subscription_created",
+            userId,
+            price,
+            billingPeriod,
+            nextPayment,
+          });
           return new Response(JSON.stringify({ error: "Missing required fields for subscription_created" }), {
             status: 400,
             headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -272,7 +299,11 @@ const handler = async (req: Request): Promise<Response> => {
       }
 
       default:
-        logStep("Unknown email type", { type });
+        captureError(new Error("Unknown email type"), {
+          step: "unknown_email_type",
+          userId,
+          type,
+        });
         return new Response(JSON.stringify({ error: "Unknown email type" }), {
           status: 400,
           headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -290,21 +321,27 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (emailResponse.error) {
-      logStep("Error sending email", { error: emailResponse.error });
+      captureError(new Error("Failed to send email"), {
+        step: "send_email",
+        userId,
+        errorMessage: emailResponse.error.message,
+      });
       return new Response(JSON.stringify({ error: emailResponse.error.message }), {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
 
-    logStep(`${type} email sent successfully`, { emailId: emailResponse.data?.id });
-
     return new Response(JSON.stringify({ success: true, emailId: emailResponse.data?.id }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (error: any) {
-    logStep("Error in send-customer-email function", { error: error.message });
+    logError("Error in send-customer-email function", { error: error.message });
+    captureError(new Error("Error in send-customer-email function"), {
+      step: "unhandled",
+      errorMessage: error.message,
+    });
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { "Content-Type": "application/json", ...corsHeaders },

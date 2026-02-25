@@ -10,7 +10,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, stripe-signature, baggage, sentry-trace",
 };
 
-// Initialize Sentry
 const sentryDsn = Deno.env.get("SENTRY_DSN");
 if (sentryDsn) {
   Sentry.init({
@@ -27,21 +26,41 @@ if (sentryDsn) {
   });
 }
 
+/**
+ * Log a generic console message
+ * @param step 
+ * @param details 
+ */
 const logStep = (step: string, details?: unknown) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : "";
   console.log(`[${FUNCTION_NAME.toUpperCase()}] ${step}${detailsStr}`);
 };
 
+/**
+ * Log a console warning
+ * @param message 
+ * @param details 
+ */
 const logWarn = (message: string, details?: unknown) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : "";
   console.warn(`[${FUNCTION_NAME.toUpperCase()}] ${message}${detailsStr}`);
 };
 
+/**
+ * Log a console error
+ * @param message 
+ * @param details 
+ */
 const logError = (message: string, details?: unknown) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : "";
   console.error(`[${FUNCTION_NAME.toUpperCase()}] ${message}${detailsStr}`);
 };
 
+/**
+ * Capture an error and send it to Sentry
+ * @param error 
+ * @param context - Error context information (varible depending on what context is required)
+ */
 const captureError = (error: Error, context: Record<string, unknown>) => {
   if (!sentryDsn) return;
   Sentry.withScope((scope) => {
@@ -66,38 +85,30 @@ const formatDate = (isoDate: string): string => {
 const REFERRAL_COUPON_10_PERCENT = "qLrjIGkn";
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    logStep("Webhook received");
-
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
 
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
     if (!webhookSecret) throw new Error("STRIPE_WEBHOOK_SECRET is not set");
 
-    // Initialize Stripe
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-04-30.basil" });
 
-    // Initialize Supabase client with service role key for admin access
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       { auth: { persistSession: false } },
     );
 
-    // Get the signature from headers
     const signature = req.headers.get("stripe-signature");
     if (!signature) throw new Error("No Stripe signature found");
 
-    // Get the raw body
     const body = await req.text();
 
-    // Verify and construct the event
     let event: Stripe.Event;
     try {
       event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
@@ -112,6 +123,8 @@ serve(async (req) => {
 
     switch (event.type) {
       /**
+       * EVENT: checkout.session.completed
+       * 
        * This event is triggered when a checkout session is completed.
        *
        * Functions (in order of execution):
@@ -135,18 +148,17 @@ serve(async (req) => {
           });
         }
 
-        // Get the user ID from metadata or client_reference_id
         const userId = session.metadata?.user_id || session.client_reference_id;
         if (!userId) {
           logError("No user ID found in session", { session });
-          captureError(new Error("No user ID found in session"), { "session": session });
+          captureError(new Error("No user ID found in session"), { step: "checkout-session-completed", session });
           break;
         }
 
-        // Check if this was a trial checkout
+        // Used to detemine if the checkout is for a free trial.
         const isTrial = session.metadata?.is_trial === "true";
 
-        // Check for referral info in session metadata
+        // Referral information used to apply the referrer discount.
         const referrerUserId = session.metadata?.referrer_user_id;
         const referralCodeUsed = session.metadata?.referral_code_used;
 
@@ -163,20 +175,29 @@ serve(async (req) => {
           captureError(error, { "step": "error-updating-customer-metadata" });
         }
 
-        // Get the subscription details
         if (session.subscription) {
           const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
 
-          // =============================================
-          // TRIAL ABUSE DETECTION
-          // Only check if this is a trial subscription
-          // =============================================
+          /**
+           * TRIAL ABUSE DETECTION
+           * Only check if this is a trial subscription
+           * Trial abuse markers are checked in order of most likely to least likely to occur.
+           * This prevents multiple redundant calls to the database.
+           * 
+           * Order:
+           * 1. Check if the payment method has been used before (payment_fingerprints)
+           * 2. Check if the user has already consumed a trial (has_consumed_trial)
+           * 3. If no abuse is detected, store the payment fingerprint for future checks
+           * 
+           * Handles errors in a "fail-off" manner. If an error occurs, the trial is denied and the user is reset to free.
+           * 
+           * If abuse is detected, cancel the subscription and reset the user to free.
+           */
           let trialAbuseDetected = false;
           let abuseReason = "";
 
           if (isTrial && subscription.status === "trialing") {
 
-            // Get the payment method used for this subscription
             const paymentMethodId = subscription.default_payment_method as string;
 
             if (paymentMethodId) {
@@ -186,7 +207,6 @@ serve(async (req) => {
                 let fingerprint: string | null = null;
                 let fingerprintType: "card" | "link" | null = null;
 
-                // Extract fingerprint based on payment method type
                 if (paymentMethod.type === "card" && paymentMethod.card?.fingerprint) {
                   fingerprint = paymentMethod.card.fingerprint;
                   fingerprintType = "card";
@@ -197,7 +217,7 @@ serve(async (req) => {
                 }
 
                 if (fingerprint && fingerprintType) {
-                  // Check if this fingerprint has been used before (by any user)
+
                   const { data: existingFingerprint } = await supabaseAdmin
                     .from("payment_fingerprints")
                     .select("id, user_id, first_used_at")
@@ -205,11 +225,10 @@ serve(async (req) => {
                     .maybeSingle();
 
                   if (existingFingerprint) {
-                    // Fingerprint exists - this is trial abuse!
                     trialAbuseDetected = true;
                     abuseReason = `Payment method was previously used for a trial by user ${existingFingerprint.user_id} on ${existingFingerprint.first_used_at}`;
                   } else {
-                    // Also check if user has already consumed a trial
+                    // If there is no existing fingerprint, check if the user has already consumed a trial.
                     const { data: userProfile } = await supabaseAdmin
                       .from("profiles")
                       .select("has_consumed_trial")
@@ -259,18 +278,17 @@ serve(async (req) => {
               abuseReason = "No payment method found on subscription - trial denied for safety";
             }
 
-            // =============================================
-            // HANDLE TRIAL ABUSE
-            // Cancel subscription immediately and reset user to free
-            // =============================================
+            /**
+             * HANDLE TRIAL ABUSE
+             * If trial abuse is detected, cancel the subscription immediately and reset the user to free.
+             * This is to prevent abuse of the free trial.
+             */
             if (trialAbuseDetected) {
               try {
-                // Cancel the subscription immediately
                 await stripe.subscriptions.cancel(subscription.id, {
                   prorate: true,
                 });
 
-                // Update user profile to free and mark trial as consumed
                 await supabaseAdmin
                   .from("profiles")
                   .update({
@@ -279,12 +297,12 @@ serve(async (req) => {
                     subscription_id: null,
                     subscription_current_period_end: null,
                     access_expires_at: null,
-                    has_consumed_trial: true, // Mark so they can still subscribe (without trial)
+                    has_consumed_trial: true,
                     referral_code_active: false,
                   })
                   .eq("id", userId);
 
-                // Track trial abuse event in PostHog (server-side, guaranteed single fire)
+                // Analytics
                 const posthogApiKey = Deno.env.get("POSTHOG_API_KEY");
                 if (posthogApiKey) {
                   try {
@@ -308,7 +326,6 @@ serve(async (req) => {
                   }
                 }
 
-                // We're done - don't continue with normal checkout processing
                 await insertProcessedEvent(supabaseAdmin, event.id, event.type);
                 return new Response(
                   JSON.stringify({
@@ -329,21 +346,20 @@ serve(async (req) => {
             }
           }
 
-          // =============================================
-          // NORMAL CHECKOUT PROCESSING (no abuse detected)
-          // =============================================
+          /**
+           * NORMAL CHECKOUT PROCESSING (no abuse detected)
+           * If no abuse is detected, process the checkout as normal.
+           */
           const priceId = subscription.items.data[0]?.price.id;
 
-          // Determine the plan based on price ID
           let subscriptionPlan = "premium-monthly";
           if (priceId === "price_1RaBqI3J81eQle64GF6WYMfm") {
             subscriptionPlan = "premium-yearly";
           }
 
-          // Check if this is a trial subscription
+          // TODO: Can this be removed? - Inferred from the isTrial variable.
           const isTrialing = subscription.status === "trialing";
 
-          // Safely parse the current period end date
           let currentPeriodEndDate: string | null = null;
           const periodEnd = subscription.items.data?.[0]?.current_period_end;
 
@@ -370,7 +386,6 @@ serve(async (req) => {
             attempts++;
           }
 
-          // Update profile records
           const { data: existingProfile } = await supabaseAdmin
             .from("profiles")
             .select("referral_code")
@@ -381,7 +396,7 @@ serve(async (req) => {
           // This prevents trial users from referring others
           // IMPORTANT: Mark has_consumed_trial = true if this was a trial checkout
           // Do NOT set has_consumed_trial to false for non-trial checkouts (it may already be true from abuse detection)
-          const updateData: Record<string, unknown> = {
+          const profileUpdateData: Record<string, unknown> = {
             stripe_customer_id: session.customer as string,
             subscription_id: subscription.id,
             subscription_status: subscription.status, // Will be "trialing" for trials
@@ -391,18 +406,16 @@ serve(async (req) => {
             referral_code_active: !isTrialing, // Inactive during trial
           };
 
-          // Only set has_consumed_trial to true if this was a trial
-          // Never set it to false - it should only be marked true, never unmarked
           if (isTrialing) {
-            updateData.has_consumed_trial = true;
+            profileUpdateData.has_consumed_trial = true;
           }
 
           if (!existingProfile?.referral_code) {
-            updateData.referral_code = referralCode;
-            updateData.referral_code_updated_at = new Date().toISOString();
+            profileUpdateData.referral_code = referralCode;
+            profileUpdateData.referral_code_updated_at = new Date().toISOString();
           }
 
-          const { error: updateError } = await supabaseAdmin.from("profiles").update(updateData).eq("id", userId);
+          const { error: updateError } = await supabaseAdmin.from("profiles").update(profileUpdateData).eq("id", userId);
 
           if (updateError) {
             captureError(updateError, { "step": "error-updating-profile" });
@@ -426,7 +439,7 @@ serve(async (req) => {
             );
 
             if (referralError) {
-              captureError(referralError, { "step": "error-creating-referral-record" });
+              captureError(referralError, { step: "error-creating-referral-record" });
             }
           }
 
@@ -490,11 +503,9 @@ serve(async (req) => {
       }
 
       /**
-       * This event is triggered when a checkout session is expired.
-       *
-       * Functions (in order of execution):
-       * 1. Get the user by stripe_customer_id
-       * 2. Update the users profile to show the user was not referred
+       * EVENT: checkout.session.expired
+       * 
+       * This event is triggered when a checkout session is expired (user closes the page without completing the checkout).
        */
       case "checkout.session.expired": {
         const session = event.data.object as Stripe.Checkout.Session;
@@ -507,7 +518,6 @@ serve(async (req) => {
           });
         }
 
-        // Find the user by stripe_customer_id
         const { data: profiles, error: findError } = await supabaseAdmin
           .from("profiles")
           .select("id, has_paid_first_invoice")
@@ -522,6 +532,8 @@ serve(async (req) => {
         const userId = profiles[0].id;
 
         // Update the profile to show the user was not referred
+        // This is done in case the user WAS referred but did not complete the checkout.
+        // Allows a user to use a referral code again.
         if (!profiles[0].has_paid_first_invoice) {
           const { error: updateError } = await supabaseAdmin
             .from("profiles")
@@ -539,14 +551,16 @@ serve(async (req) => {
       }
 
       /**
+       * EVENT: customer.subscription.updated
+       * 
        * This event is triggered when a subscription is updated (e.g. cancelled, trial ends, downgraded, etc.).
        *
-       * Functions (in order of execution):
-       * 1. Get the subscription information from the webhook data
-       * 2. Update the users profile with the subscription info
-       *
-       * IMPORTANT: This handles trial-to-active transitions when trial ends successfully.
-       * When status changes from "trialing" to "active", we activate the referral code.
+       * Handles the following subscription status changes:
+       * - cancelled
+       * - downgraded
+       * - trial to active transition
+       * 
+       * When status changes from "trialing" to "active", activate the referral code.
        */
       case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription;
@@ -560,13 +574,11 @@ serve(async (req) => {
         }
 
         // Check if this is a new manual cancellation (cancel_at_period_end just became true)
-        // We need to check the previous_attributes to see if this is a new cancellation
         const previousAttributes = event.data.previous_attributes as Partial<Stripe.Subscription> | undefined;
         const wasNotCancellingBefore = previousAttributes?.cancel_at_period_end === false;
         const isNowCancelling = subscription.cancel_at_period_end === true;
         const isManualCancellation = wasNotCancellingBefore && isNowCancelling;
 
-        // Find the user by stripe_customer_id
         const { data: profiles, error: findError } = await supabaseAdmin
           .from("profiles")
           .select("id, referral_code, subscription_status")
@@ -579,16 +591,13 @@ serve(async (req) => {
         }
 
         const userId = profiles[0].id;
-        const previousStatus = profiles[0].subscription_status;
         const priceId = subscription.items.data[0]?.price.id;
 
-        // Determine the plan
         let subscriptionPlan = "premium-monthly";
         if (priceId === "price_1RaBqI3J81eQle64GF6WYMfm") {
           subscriptionPlan = "premium-yearly";
         }
 
-        // Safely parse dates
         let currentPeriodEndDate: string | null = null;
         const periodEnd = subscription.items.data?.[0]?.current_period_end;
 
@@ -596,11 +605,9 @@ serve(async (req) => {
           currentPeriodEndDate = new Date(periodEnd * 1000).toISOString();
         }
 
-        // Determine referral code active status and access expiry
         let accessExpiresAt: string | null = null;
         let referralCodeActive: boolean;
 
-        // Check if this is a trialing subscription
         const isTrialing = subscription.status === "trialing";
 
         // Check if subscription is being cancelled
@@ -608,7 +615,6 @@ serve(async (req) => {
           subscription.cancel_at_period_end || subscription.status === "canceled" || subscription.cancel_at;
 
         if (isCancelling) {
-          // Subscription is being cancelled
           if (subscription.cancel_at) {
             accessExpiresAt = new Date(subscription.cancel_at * 1000).toISOString();
           } else {
@@ -616,18 +622,17 @@ serve(async (req) => {
           }
           referralCodeActive = false;
         } else if (isTrialing) {
-          // Still trialing - keep referral code inactive
+          // Keep referral code inactive
           referralCodeActive = false;
         } else if (subscription.status === "active" && profiles[0].referral_code) {
-          // Subscription is active (not trialing, not cancelled)
-          // This handles trial-to-active transition
+          // Trial to active transition
           referralCodeActive = true;
         } else {
           // Default: inactive
           referralCodeActive = false;
         }
 
-        // Update the profile
+        // Update the profile with the new subscription information
         const { error: updateError } = await supabaseAdmin
           .from("profiles")
           .update({
@@ -643,7 +648,7 @@ serve(async (req) => {
           captureError(updateError, { "step": "error-updating-profile-subscription-updated" });
         }
 
-        // Send manual cancellation email if this is a new manual cancellation
+        // Send manual cancellation email if this is a new manual cancellation (user initiated it)
         if (isManualCancellation) {
           try {
             const emailResponse = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-customer-email`, {
@@ -670,11 +675,9 @@ serve(async (req) => {
       }
 
       /**
+       * EVENT: customer.subscription.deleted
+       * 
        * This event is triggered when a subscription is deleted (e.g. cancelled and not reactivated).
-       *
-       * Functions (in order of execution):
-       * 1. Get the subscription information from the webhook data
-       * 2. Update the users profile to show the user is no longer a premium user
        */
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
@@ -708,7 +711,7 @@ serve(async (req) => {
         const wasForcedCancellation = previousStatus === "past_due";
 
         // Reset the profile to free plan, deactivate referral code
-        // Note: has_consumed_trial stays true - they used their trial
+        // Note: has_consumed_trial stays true
         const { error: updateError } = await supabaseAdmin
           .from("profiles")
           .update({
@@ -752,18 +755,15 @@ serve(async (req) => {
       }
 
       /**
+       * EVENT: invoice.payment_succeeded
+       * 
        * This event is triggered when a payment is successful.
        *
-       * Functions (in order of execution):
-       * 1. Get the subscription information from the webhook data
-       * 2. Update the users profile with the subscription info
-       * 3. Convert the inactive referral intent to an active referral
-       * 4. Grant the 10% discount to the referring user (simple model: one referral = one 10% discount)
-       *
-       * IMPORTANT: Trial invoices have amount_paid = 0. We must:
-       * - NOT update has_paid_first_invoice for $0 trial invoices
-       * - NOT convert referrals for $0 trial invoices
-       * - Referral conversion only happens when a REAL payment is made
+       * IMPORTANT: Trial invoices have amount_paid = 0. DO NOT:
+       * - Update has_paid_first_invoice for $0 trial invoices
+       * - Convert referrals for $0 trial invoices
+       * 
+       * Referral conversion only happens when a REAL payment is made
        */
       case "invoice.payment_succeeded": {
         const invoice = event.data.object as Stripe.Invoice;
@@ -786,7 +786,6 @@ serve(async (req) => {
           const subscription = await stripe.subscriptions.retrieve(invoiceSubscriptionItem as string);
           const isTrialing = subscription.status === "trialing";
 
-          // Find the user by stripe_customer_id
           const { data: profiles } = await supabaseAdmin
             .from("profiles")
             .select("id, referred_user, has_paid_first_invoice")
@@ -801,7 +800,6 @@ serve(async (req) => {
               subscriptionPlan = "premium-yearly";
             }
 
-            // Safely parse the current period end date
             let currentPeriodEndDate: string | null = null;
             const periodEnd = subscription.items.data?.[0]?.current_period_end;
 
@@ -809,13 +807,13 @@ serve(async (req) => {
               currentPeriodEndDate = new Date(periodEnd * 1000).toISOString();
             }
 
-            // =============================================
-            // TRIAL INVOICE HANDLING
-            // For $0 trial invoices, we:
-            // - Update subscription status to "trialing"
-            // - Do NOT update has_paid_first_invoice
-            // - Do NOT activate referral code (trial users can't refer)
-            // =============================================
+            /**
+            * TRIAL INVOICE HANDLING
+            * For $0 trial invoices:
+            * - Update subscription status to "trialing"
+            * - Do NOT update has_paid_first_invoice
+            * - Do NOT activate referral code (trial users can't refer)
+            */
             if (amountPaid === 0 && isTrialing) {
               const { error: updateError } = await supabaseAdmin
                 .from("profiles")
@@ -833,13 +831,13 @@ serve(async (req) => {
                 captureError(updateError, { "step": "error-updating-profile-invoice-payment-succeeded-trial" });
               }
             } else {
-              // =============================================
-              // REAL PAYMENT (non-$0 invoice)
-              // - Update to active status
-              // - Mark has_paid_first_invoice = true
-              // - Activate referral code
-              // - Process referral conversion if applicable
-              // =============================================
+              /**
+               * REAL PAYMENT (non-$0 invoice)
+               * - Update to active status
+               * - Mark has_paid_first_invoice = true
+               * - Activate referral code
+               * - Process referral conversion if applicable
+               */
 
               const { error: updateError } = await supabaseAdmin
                 .from("profiles")
@@ -848,7 +846,7 @@ serve(async (req) => {
                   subscription_plan: subscriptionPlan,
                   subscription_current_period_end: currentPeriodEndDate,
                   access_expires_at: null,
-                  referral_code_active: true, // Now they can refer others
+                  referral_code_active: true,
                   has_paid_first_invoice: true,
                 })
                 .eq("id", userId);
@@ -857,14 +855,13 @@ serve(async (req) => {
                 captureError(updateError, { "step": "error-updating-profile-invoice-payment-succeeded-real" });
               }
 
-              // =============================================
-              // REFERRAL CONVERSION LOGIC (SIMPLIFIED MODEL)
-              // One referral = flat 10% discount for referrer
-              // Only on FIRST successful PAID invoice (not trial $0 invoices)
-              // billing_reason can be "subscription_create" (first after trial ends)
-              // or "subscription_cycle" (renewal)
-              // We check has_paid_first_invoice to determine if this is truly the first payment
-              // =============================================
+              /**
+               * REFERRAL CONVERSION LOGIC 
+               * One referral = flat 10% discount for referrer
+               * Only on FIRST successful PAID invoice (not trial $0 invoices)
+               * billing_reason can be "subscription_create" (first after trial ends) or "subscription_cycle" (renewal)
+               * We check has_paid_first_invoice to determine if this is truly the first payment
+               */
               if (!profiles[0].has_paid_first_invoice) {
                 // Find unconverted referral for this user
                 const { data: referral } = await supabaseAdmin
@@ -875,8 +872,8 @@ serve(async (req) => {
                   .maybeSingle();
 
                 if (referral) {
-                  // Check if referrer can receive a reward
-                  // Simple model: if subscription has no discount, they can receive one
+
+                  // Check if a referrer can receive the referral reward
                   const canReceiveReward = await checkReferrerCanReceiveReward(
                     stripe,
                     supabaseAdmin,
@@ -897,9 +894,7 @@ serve(async (req) => {
                     captureError(convertError, { "step": "error-marking-referral-as-converted" });
                   } else {
 
-                    // Only apply discount if referrer hasn't already received one this period
                     if (canReceiveReward) {
-                      // Create referral reward record (10% flat discount)
                       const { error: rewardError } = await supabaseAdmin.from("referral_rewards").insert({
                         user_id: referral.referrer_user_id,
                         percent: 10,
@@ -910,10 +905,9 @@ serve(async (req) => {
 
                       if (rewardError) {
                         // Could be duplicate, which is fine (idempotency)
-                        captureError(rewardError, { "step": "error-creating-referral-reward" });
+                        captureError(rewardError, { step: "error-creating-referral-reward" });
                       }
 
-                      // Apply 10% coupon to referrer's subscription
                       await applyReferrerDiscount(
                         stripe,
                         supabaseAdmin,
@@ -952,13 +946,11 @@ serve(async (req) => {
       }
 
       /**
-       * This event is triggered when a payment fails.
+       * EVENT: invoice.payment_failed
+       * 
+       * This event is triggered when a payment fails. Sets users to past_due status.
        *
-       * Functions (in order of execution):
-       * 1. Get the subscription information from the webhook data
-       * 2. Update the users profile to show the user is past due
-       *
-       * A separate lambda function is scheduled on a cron job to revoke access to expired users.
+       * A separate function is scheduled on a cron job to revoke access to expired users.
        */
       case "invoice.payment_failed": {
         const invoice = event.data.object as Stripe.Invoice;
@@ -972,7 +964,7 @@ serve(async (req) => {
         }
 
         if (invoice.subscription) {
-          // Find the user by stripe_customer_id
+
           const { data: profiles } = await supabaseAdmin
             .from("profiles")
             .select("id, subscription_status")
@@ -990,8 +982,6 @@ serve(async (req) => {
               })
               .eq("id", userId);
 
-            // Payment failed emails are now handled directly by Stripe
-            logStep("Payment failed - email notification handled by Stripe", { userId, previousStatus });
           }
         }
         await insertProcessedEvent(supabaseAdmin, event.id, event.type);
@@ -1034,8 +1024,8 @@ function generateReferralCode(): string {
 }
 
 /**
- * Checks if the referrer can receive a reward
- * Simple model: if the referrer's subscription has no discount attached, they can receive a reward.
+ * Checks if the referrer can receive a reward.
+ * If the referrer's subscription has no discount attached, they can receive a reward.
  * Stripe automatically removes one-time use coupons when a billing cycle renews.
  */
 async function checkReferrerCanReceiveReward(
@@ -1044,7 +1034,7 @@ async function checkReferrerCanReceiveReward(
   referrerUserId: string,
 ): Promise<boolean> {
   try {
-    // Get referrer's subscription ID from database
+
     const { data: referrerProfile } = await supabaseAdmin
       .from("profiles")
       .select("subscription_id")
@@ -1053,7 +1043,7 @@ async function checkReferrerCanReceiveReward(
 
     if (!referrerProfile?.subscription_id) {
       // Referrer has no active subscription
-      return false; // Cannot receive reward without active subscription
+      return false;
     }
 
     const subscription = await stripe.subscriptions.retrieve(referrerProfile.subscription_id);
@@ -1064,8 +1054,8 @@ async function checkReferrerCanReceiveReward(
 
     return canReceive;
   } catch (error) {
-    captureError(error, { "step": "error-in-checkReferrerCanReceiveReward" });
-    return true; // Allow on error to not block the flow
+    captureError(error, { step: "error-in-checkReferrerCanReceiveReward" });
+    return false;
   }
 }
 
@@ -1079,7 +1069,7 @@ async function applyReferrerDiscount(
   couponId: string,
 ): Promise<void> {
   try {
-    // Get referrer's subscription ID
+
     const { data: referrerProfile } = await supabaseAdmin
       .from("profiles")
       .select("subscription_id")
@@ -1091,7 +1081,6 @@ async function applyReferrerDiscount(
       return;
     }
 
-    // Retrieve subscription to get existing discounts
     const subscription = await stripe.subscriptions.retrieve(referrerProfile.subscription_id, {
       expand: ["discounts"],
     });
