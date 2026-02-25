@@ -52,6 +52,16 @@ const captureError = (error: Error, context: Record<string, unknown>) => {
   });
 };
 
+const formatDate = (isoDate: string): string => {
+  const date = new Date(isoDate);
+  return date.toLocaleDateString("en-AU", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
+
 // Stripe coupon ID for referrals - flat 10% for both referrer and referred
 const REFERRAL_COUPON_10_PERCENT = "qLrjIGkn";
 
@@ -420,13 +430,15 @@ serve(async (req) => {
             }
           }
 
-          // Send trial confirmation email if this is a trial subscription
-          // This is required by Visa's 2020 free trial subscription requirements
-          if (isTrialing) {
-            try {
-              const trialEndDate = currentPeriodEndDate;
-              const firstBillingDate = currentPeriodEndDate; // Same as trial end date
+          // Send appropriate email based on whether this is a trial or paid subscription
+          try {
+            const isYearly = subscriptionPlan === "premium-yearly";
+            const emailPrice = isYearly ? "99" : "10";
+            const emailBillingPeriod = isYearly ? "year" : "month";
+            const emailNextPayment = currentPeriodEndDate ? formatDate(new Date(currentPeriodEndDate).toISOString()) : "N/A";
 
+            if (isTrialing) {
+              // Send free trial created email
               const emailResponse = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-customer-email`, {
                 method: "POST",
                 headers: {
@@ -434,22 +446,43 @@ serve(async (req) => {
                   Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
                 },
                 body: JSON.stringify({
-                  type: "trial_confirmation",
+                  type: "free_trial_created",
                   userId,
-                  plan: subscriptionPlan === "premium-yearly" ? "yearly" : "monthly",
-                  trialEndDate,
-                  firstBillingDate,
+                  price: emailPrice,
+                  billingPeriod: emailBillingPeriod,
+                  nextPayment: emailNextPayment,
                 }),
               });
 
               const emailResult = await emailResponse.json();
               if (!emailResponse.ok && !emailResult.success) {
-                throw new Error(emailResult.error ?? "Failed to send trial confirmation email");
+                throw new Error(emailResult.error ?? "Failed to send free trial created email");
               }
-            } catch (emailError) {
-              captureError(emailError, { "step": "error-sending-trial-confirmation-email" });
-              // Don't fail the webhook if email fails - subscription is already created
+            } else {
+              // Send subscription created email (direct paid subscription, no trial)
+              const emailResponse = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-customer-email`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+                },
+                body: JSON.stringify({
+                  type: "subscription_created",
+                  userId,
+                  price: emailPrice,
+                  billingPeriod: emailBillingPeriod,
+                  nextPayment: emailNextPayment,
+                }),
+              });
+
+              const emailResult = await emailResponse.json();
+              if (!emailResponse.ok && !emailResult.success) {
+                throw new Error(emailResult.error ?? "Failed to send subscription created email");
+              }
             }
+          } catch (emailError) {
+            captureError(emailError, { "step": "error-sending-checkout-email" });
+            // Don't fail the webhook if email fails - subscription is already created
           }
         }
         await insertProcessedEvent(supabaseAdmin, event.id, event.type);
@@ -957,27 +990,8 @@ serve(async (req) => {
               })
               .eq("id", userId);
 
-            // Send payment failed email if transitioning to past_due for the first time
-            if (previousStatus !== "past_due") {
-              try {
-                const emailResponse = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-customer-email`, {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
-                  },
-                  body: JSON.stringify({ type: "payment_failed", userId }),
-                });
-
-                const emailResult = await emailResponse.json();
-                if (!emailResponse.ok && !emailResult.success) {
-                  throw new Error(emailResult.error ?? "Failed to send payment failed email");
-                }
-              } catch (emailError) {
-                captureError(emailError, { "step": "error-sending-payment-failed-email" });
-                // Don't fail the webhook if email fails
-              }
-            }
+            // Payment failed emails are now handled directly by Stripe
+            logStep("Payment failed - email notification handled by Stripe", { userId, previousStatus });
           }
         }
         await insertProcessedEvent(supabaseAdmin, event.id, event.type);
