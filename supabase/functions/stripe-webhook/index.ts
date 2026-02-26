@@ -61,7 +61,7 @@ const logError = (message: string, details?: unknown) => {
  * @param error 
  * @param context - Error context information (varible depending on what context is required)
  */
-const captureError = (error: Error, context: Record<string, unknown>) => {
+const captureError = (error: unknown, context: Record<string, unknown>) => {
   if (!sentryDsn) return;
   Sentry.withScope((scope) => {
     scope.setTag("function", FUNCTION_NAME);
