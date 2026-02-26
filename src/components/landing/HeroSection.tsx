@@ -10,7 +10,7 @@ import { isTestSubdomain } from "@/lib/subdomain";
 export function HeroSection() {
   const { theme } = useTheme();
   const isTest = isTestSubdomain();
-  const phoneMockup = theme === "dark" ? phoneMockupDark : phoneMockupLight;
+  const phoneMockup = theme === "dark" ? phoneMockupLight : phoneMockupDark;
   return (
     <section className="relative min-h-screen flex flex-col items-center overflow-hidden bg-background">
       {/* Subtle gradient background */}
