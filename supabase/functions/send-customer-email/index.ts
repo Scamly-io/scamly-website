@@ -1,11 +1,32 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "https://esm.sh/resend@2.0.0";
+
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import * as Sentry from "https://deno.land/x/sentry@8.55.0/index.mjs";
 
 const FUNCTION_NAME = "send-customer-email";
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+
+const sendTemplateEmail = async (to: string, templateId: string, variables: Record<string, string>) => {
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${RESEND_API_KEY}`,
+    },
+    body: JSON.stringify({
+      to: [to],
+      template_id: templateId,
+      template_data: variables,
+    }),
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    return { data: null, error: { message: data?.message || "Failed to send email" } };
+  }
+  return { data, error: null };
+};
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -155,14 +176,8 @@ const handler = async (req: Request): Promise<Response> => {
       const firstName = claimedRows[0]?.first_name || "there";
       const userEmail = user.email;
 
-      const emailResponse = await resend.emails.send({
-        to: [userEmail],
-        template: {
-          id: "welcome-email",
-          variables: {
-            NAME: firstName,
-          },
-        },
+      const emailResponse = await sendTemplateEmail(userEmail, "welcome-email", {
+        NAME: firstName,
       });
 
       if (emailResponse.error) {
@@ -312,13 +327,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     logStep(`Sending ${type} email via Resend template`, { userEmail, templateId });
 
-    const emailResponse = await resend.emails.send({
-      to: [userEmail],
-      template: {
-        id: templateId,
-        variables,
-      },
-    });
+    const emailResponse = await sendTemplateEmail(userEmail, templateId, variables);
 
     if (emailResponse.error) {
       captureError(new Error("Failed to send email"), {
