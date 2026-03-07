@@ -7,7 +7,8 @@ const FUNCTION_NAME = "stripe-webhook";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, stripe-signature, baggage, sentry-trace",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, stripe-signature, baggage, sentry-trace",
 };
 
 const sentryDsn = Deno.env.get("SENTRY_DSN");
@@ -28,8 +29,8 @@ if (sentryDsn) {
 
 /**
  * Log a generic console message
- * @param step 
- * @param details 
+ * @param step
+ * @param details
  */
 const logStep = (step: string, details?: unknown) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : "";
@@ -38,8 +39,8 @@ const logStep = (step: string, details?: unknown) => {
 
 /**
  * Log a console warning
- * @param message 
- * @param details 
+ * @param message
+ * @param details
  */
 const logWarn = (message: string, details?: unknown) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : "";
@@ -48,8 +49,8 @@ const logWarn = (message: string, details?: unknown) => {
 
 /**
  * Log a console error
- * @param message 
- * @param details 
+ * @param message
+ * @param details
  */
 const logError = (message: string, details?: unknown) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : "";
@@ -58,7 +59,7 @@ const logError = (message: string, details?: unknown) => {
 
 /**
  * Capture an error and send it to Sentry
- * @param error 
+ * @param error
  * @param context - Error context information (varible depending on what context is required)
  */
 const captureError = (error: unknown, context: Record<string, unknown>) => {
@@ -124,7 +125,7 @@ serve(async (req) => {
     switch (event.type) {
       /**
        * EVENT: checkout.session.completed
-       * 
+       *
        * This event is triggered when a checkout session is completed.
        *
        * Functions (in order of execution):
@@ -172,7 +173,7 @@ serve(async (req) => {
           });
         } catch (error) {
           logError("Error updating customer metadata", { error: error });
-          captureError(error, { "step": "error-updating-customer-metadata" });
+          captureError(error, { step: "error-updating-customer-metadata" });
         }
 
         if (session.subscription) {
@@ -183,21 +184,20 @@ serve(async (req) => {
            * Only check if this is a trial subscription
            * Trial abuse markers are checked in order of most likely to least likely to occur.
            * This prevents multiple redundant calls to the database.
-           * 
+           *
            * Order:
            * 1. Check if the payment method has been used before (payment_fingerprints)
            * 2. Check if the user has already consumed a trial (has_consumed_trial)
            * 3. If no abuse is detected, store the payment fingerprint for future checks
-           * 
+           *
            * Handles errors in a "fail-off" manner. If an error occurs, the trial is denied and the user is reset to free.
-           * 
+           *
            * If abuse is detected, cancel the subscription and reset the user to free.
            */
           let trialAbuseDetected = false;
           let abuseReason = "";
 
           if (isTrial && subscription.status === "trialing") {
-
             const paymentMethodId = subscription.default_payment_method as string;
 
             if (paymentMethodId) {
@@ -217,7 +217,6 @@ serve(async (req) => {
                 }
 
                 if (fingerprint && fingerprintType) {
-
                   const { data: existingFingerprint } = await supabaseAdmin
                     .from("payment_fingerprints")
                     .select("id, user_id, first_used_at")
@@ -261,13 +260,15 @@ serve(async (req) => {
                   // This handles edge cases where payment method data is incomplete
                   trialAbuseDetected = true;
                   abuseReason = "Could not extract payment fingerprint - trial denied for safety";
-                  captureError(new Error("Trial Denied - No fingerprint available"), { "payment method type": paymentMethod.type });
+                  captureError(new Error("Trial Denied - No fingerprint available"), {
+                    "payment method type": paymentMethod.type,
+                  });
                 }
               } catch (pmError) {
                 // Payment method retrieval failed - deny trial to be safe
                 trialAbuseDetected = true;
                 abuseReason = "Failed to retrieve payment method - trial denied for safety";
-                captureError(pmError, { "step": "trial-denied-payment-method-retrieval-failed" });
+                captureError(pmError, { step: "trial-denied-payment-method-retrieval-failed" });
               }
             } else {
               // No default payment method on subscription - this shouldn't happen for trials
@@ -322,7 +323,7 @@ serve(async (req) => {
                     });
                   } catch (posthogError) {
                     logWarn("Failed to send PostHog event", { error: posthogError });
-                    captureError(posthogError, { "step": "failed-to-send-posthog-event" });
+                    captureError(posthogError, { step: "failed-to-send-posthog-event" });
                   }
                 }
 
@@ -340,7 +341,7 @@ serve(async (req) => {
                 );
               } catch (cancelError) {
                 logError("Error cancelling abusive trial subscription", { error: cancelError });
-                captureError(cancelError, { "step": "error-cancelling-abusive-trial-subscription" });
+                captureError(cancelError, { step: "error-cancelling-abusive-trial-subscription" });
                 // Continue anyway - better to have the profile updated than leave in bad state
               }
             }
@@ -415,16 +416,18 @@ serve(async (req) => {
             profileUpdateData.referral_code_updated_at = new Date().toISOString();
           }
 
-          const { error: updateError } = await supabaseAdmin.from("profiles").update(profileUpdateData).eq("id", userId);
+          const { error: updateError } = await supabaseAdmin
+            .from("profiles")
+            .update(profileUpdateData)
+            .eq("id", userId);
 
           if (updateError) {
-            captureError(updateError, { "step": "error-updating-profile" });
+            captureError(updateError, { step: "error-updating-profile" });
           }
 
           // Create referral record if this was a referred subscription
           // Note: We do NOT mark as converted yet - that happens on first PAID invoice (not trial $0 invoice)
           if (referrerUserId && referralCodeUsed) {
-
             const { error: referralError } = await supabaseAdmin.from("referrals").upsert(
               {
                 referrer_user_id: referrerUserId,
@@ -448,7 +451,9 @@ serve(async (req) => {
             const isYearly = subscriptionPlan === "premium-yearly";
             const emailPrice = isYearly ? "99" : "10";
             const emailBillingPeriod = isYearly ? "year" : "month";
-            const emailNextPayment = currentPeriodEndDate ? formatDate(new Date(currentPeriodEndDate).toISOString()) : "N/A";
+            const emailNextPayment = currentPeriodEndDate
+              ? formatDate(new Date(currentPeriodEndDate).toISOString())
+              : "N/A";
 
             if (isTrialing) {
               // Send free trial created email
@@ -494,7 +499,7 @@ serve(async (req) => {
               }
             }
           } catch (emailError) {
-            captureError(emailError, { "step": "error-sending-checkout-email" });
+            captureError(emailError, { step: "error-sending-checkout-email" });
             // Don't fail the webhook if email fails - subscription is already created
           }
         }
@@ -504,7 +509,7 @@ serve(async (req) => {
 
       /**
        * EVENT: checkout.session.expired
-       * 
+       *
        * This event is triggered when a checkout session is expired (user closes the page without completing the checkout).
        */
       case "checkout.session.expired": {
@@ -525,7 +530,7 @@ serve(async (req) => {
           .limit(1);
 
         if (findError || !profiles?.length) {
-          captureError(findError, { "step": "error-finding-user-for-expired-session" });
+          captureError(findError, { step: "error-finding-user-for-expired-session" });
           break;
         }
 
@@ -543,7 +548,7 @@ serve(async (req) => {
             .eq("id", userId);
 
           if (updateError) {
-            captureError(updateError, { "step": "error-updating-profile-not-referred" });
+            captureError(updateError, { step: "error-updating-profile-not-referred" });
           }
         }
         await insertProcessedEvent(supabaseAdmin, event.id, event.type);
@@ -552,14 +557,14 @@ serve(async (req) => {
 
       /**
        * EVENT: customer.subscription.updated
-       * 
+       *
        * This event is triggered when a subscription is updated (e.g. cancelled, trial ends, downgraded, etc.).
        *
        * Handles the following subscription status changes:
        * - cancelled
        * - downgraded
        * - trial to active transition
-       * 
+       *
        * When status changes from "trialing" to "active", activate the referral code.
        */
       case "customer.subscription.updated": {
@@ -586,7 +591,7 @@ serve(async (req) => {
           .limit(1);
 
         if (findError || !profiles?.length) {
-          captureError(findError, { "step": "error-finding-user-for-subscription" });
+          captureError(findError, { step: "error-finding-user-for-subscription" });
           break;
         }
 
@@ -636,7 +641,7 @@ serve(async (req) => {
         const { error: updateError } = await supabaseAdmin
           .from("profiles")
           .update({
-            subscription_status: subscription.cancel_at_period_end ? "cancelled" : subscription.status,
+            subscription_status: subscription.status,
             subscription_plan: subscriptionPlan,
             subscription_current_period_end: currentPeriodEndDate,
             access_expires_at: accessExpiresAt,
@@ -645,7 +650,7 @@ serve(async (req) => {
           .eq("id", userId);
 
         if (updateError) {
-          captureError(updateError, { "step": "error-updating-profile-subscription-updated" });
+          captureError(updateError, { step: "error-updating-profile-subscription-updated" });
         }
 
         // Send manual cancellation email if this is a new manual cancellation (user initiated it)
@@ -665,7 +670,7 @@ serve(async (req) => {
               throw new Error(emailResult.error ?? "Failed to send manual cancellation email");
             }
           } catch (emailError) {
-            captureError(emailError, { "step": "error-sending-manual-cancellation-email" });
+            captureError(emailError, { step: "error-sending-manual-cancellation-email" });
             // Don't fail the webhook if email fails
           }
         }
@@ -676,7 +681,7 @@ serve(async (req) => {
 
       /**
        * EVENT: customer.subscription.deleted
-       * 
+       *
        * This event is triggered when a subscription is deleted (e.g. cancelled and not reactivated).
        */
       case "customer.subscription.deleted": {
@@ -725,7 +730,7 @@ serve(async (req) => {
           .eq("id", userId);
 
         if (updateError) {
-          captureError(updateError, { "step": "error-updating-profile-subscription-deleted" });
+          captureError(updateError, { step: "error-updating-profile-subscription-deleted" });
         }
 
         // Send forced cancellation email if this was due to failed payments
@@ -745,7 +750,7 @@ serve(async (req) => {
               throw new Error(emailResult.error ?? "Failed to send forced cancellation email");
             }
           } catch (emailError) {
-            captureError(emailError, { "step": "error-sending-forced-cancellation-email" });
+            captureError(emailError, { step: "error-sending-forced-cancellation-email" });
             // Don't fail the webhook if email fails
           }
         }
@@ -756,13 +761,13 @@ serve(async (req) => {
 
       /**
        * EVENT: invoice.payment_succeeded
-       * 
+       *
        * This event is triggered when a payment is successful.
        *
        * IMPORTANT: Trial invoices have amount_paid = 0. DO NOT:
        * - Update has_paid_first_invoice for $0 trial invoices
        * - Convert referrals for $0 trial invoices
-       * 
+       *
        * Referral conversion only happens when a REAL payment is made
        */
       case "invoice.payment_succeeded": {
@@ -808,12 +813,12 @@ serve(async (req) => {
             }
 
             /**
-            * TRIAL INVOICE HANDLING
-            * For $0 trial invoices:
-            * - Update subscription status to "trialing"
-            * - Do NOT update has_paid_first_invoice
-            * - Do NOT activate referral code (trial users can't refer)
-            */
+             * TRIAL INVOICE HANDLING
+             * For $0 trial invoices:
+             * - Update subscription status to "trialing"
+             * - Do NOT update has_paid_first_invoice
+             * - Do NOT activate referral code (trial users can't refer)
+             */
             if (amountPaid === 0 && isTrialing) {
               const { error: updateError } = await supabaseAdmin
                 .from("profiles")
@@ -828,7 +833,7 @@ serve(async (req) => {
                 .eq("id", userId);
 
               if (updateError) {
-                captureError(updateError, { "step": "error-updating-profile-invoice-payment-succeeded-trial" });
+                captureError(updateError, { step: "error-updating-profile-invoice-payment-succeeded-trial" });
               }
             } else {
               /**
@@ -852,11 +857,11 @@ serve(async (req) => {
                 .eq("id", userId);
 
               if (updateError) {
-                captureError(updateError, { "step": "error-updating-profile-invoice-payment-succeeded-real" });
+                captureError(updateError, { step: "error-updating-profile-invoice-payment-succeeded-real" });
               }
 
               /**
-               * REFERRAL CONVERSION LOGIC 
+               * REFERRAL CONVERSION LOGIC
                * One referral = flat 10% discount for referrer
                * Only on FIRST successful PAID invoice (not trial $0 invoices)
                * billing_reason can be "subscription_create" (first after trial ends) or "subscription_cycle" (renewal)
@@ -872,7 +877,6 @@ serve(async (req) => {
                   .maybeSingle();
 
                 if (referral) {
-
                   // Check if a referrer can receive the referral reward
                   const canReceiveReward = await checkReferrerCanReceiveReward(
                     stripe,
@@ -891,9 +895,8 @@ serve(async (req) => {
                     .eq("converted", false); // Only update if not already converted
 
                   if (convertError) {
-                    captureError(convertError, { "step": "error-marking-referral-as-converted" });
+                    captureError(convertError, { step: "error-marking-referral-as-converted" });
                   } else {
-
                     if (canReceiveReward) {
                       const { error: rewardError } = await supabaseAdmin.from("referral_rewards").insert({
                         user_id: referral.referrer_user_id,
@@ -947,7 +950,7 @@ serve(async (req) => {
 
       /**
        * EVENT: invoice.payment_failed
-       * 
+       *
        * This event is triggered when a payment fails. Sets users to past_due status.
        *
        * A separate function is scheduled on a cron job to revoke access to expired users.
@@ -964,7 +967,6 @@ serve(async (req) => {
         }
 
         if (invoice.subscription) {
-
           const { data: profiles } = await supabaseAdmin
             .from("profiles")
             .select("id, subscription_status")
@@ -981,7 +983,6 @@ serve(async (req) => {
                 subscription_status: "past_due",
               })
               .eq("id", userId);
-
           }
         }
         await insertProcessedEvent(supabaseAdmin, event.id, event.type);
@@ -999,7 +1000,7 @@ serve(async (req) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logError("ERROR in stripe-webhook", { message: errorMessage });
-    captureError(error, { "step": "error-in-stripe-webhook" });
+    captureError(error, { step: "error-in-stripe-webhook" });
     return new Response(JSON.stringify({ error: errorMessage }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
@@ -1034,7 +1035,6 @@ async function checkReferrerCanReceiveReward(
   referrerUserId: string,
 ): Promise<boolean> {
   try {
-
     const { data: referrerProfile } = await supabaseAdmin
       .from("profiles")
       .select("subscription_id")
@@ -1069,7 +1069,6 @@ async function applyReferrerDiscount(
   couponId: string,
 ): Promise<void> {
   try {
-
     const { data: referrerProfile } = await supabaseAdmin
       .from("profiles")
       .select("subscription_id")
@@ -1112,7 +1111,7 @@ async function applyReferrerDiscount(
       .eq("applied", false)
       .eq("stripe_coupon_id", couponId);
   } catch (error) {
-    captureError(error, { "step": "error-applying-referrer-discount", referrerUserId, couponId });
+    captureError(error, { step: "error-applying-referrer-discount", referrerUserId, couponId });
   }
 }
 
@@ -1132,6 +1131,6 @@ async function insertProcessedEvent(supabaseAdmin: any, eventId: string, eventTy
     .insert({ id: eventId, event_type: eventType });
 
   if (insertError) {
-    captureError(insertError, { "step": "error-inserting-processed-event" });
+    captureError(insertError, { step: "error-inserting-processed-event" });
   }
 }
