@@ -400,9 +400,13 @@ export default function Portal() {
 
   const isPremium = profile?.subscription_status === "active" || profile?.subscription_status === "trialing";
   const isTrialing = profile?.subscription_status === "trialing";
+  const isCancelling = !!profile?.access_expires_at && profile?.subscription_status !== "free";
   const isEligibleForTrial = !profile?.has_consumed_trial;
   const subscriptionEndDate = profile?.subscription_current_period_end
     ? new Date(profile.subscription_current_period_end).toLocaleDateString()
+    : null;
+  const accessExpiryDate = profile?.access_expires_at
+    ? new Date(profile.access_expires_at).toLocaleDateString()
     : null;
 
   if (loading || (user && !profile)) {
@@ -461,7 +465,7 @@ export default function Portal() {
           </div>
 
           {/* Subscription Status Banner */}
-          {!isPremium && (
+          {!isPremium && !isCancelling && (
             <div className="mb-8 p-6 rounded-2xl gradient-bg relative overflow-hidden">
               <div className="absolute inset-0 bg-hero-pattern opacity-10" />
               <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -594,6 +598,10 @@ export default function Portal() {
                       <span className="px-2 py-0.5 rounded-full gradient-bg text-xs font-semibold text-primary-foreground">
                         {isTrialing ? "Free Trial" : "Premium"}
                       </span>
+                    ) : isCancelling ? (
+                      <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-xs font-semibold text-amber-600 dark:text-amber-400">
+                        Cancelling
+                      </span>
                     ) : (
                       <span className="px-2 py-0.5 rounded-full bg-muted text-xs font-semibold text-muted-foreground">
                         Free
@@ -607,21 +615,30 @@ export default function Portal() {
                         : profile?.subscription_plan === "premium-yearly"
                           ? "$99/year"
                           : "$10/month"
-                      : "$0/month"}
+                      : isCancelling
+                        ? profile?.subscription_plan === "premium-yearly"
+                          ? "$99/year"
+                          : "$10/month"
+                        : "$0/month"}
                   </p>
                   {isPremium && subscriptionEndDate && (
                     <p className="text-sm text-muted-foreground mt-1">
                       {isTrialing
                         ? `Trial ends on ${subscriptionEndDate}`
-                        : profile?.subscription_status === "cancelled"
-                          ? `Access until ${subscriptionEndDate}`
-                          : `Renews on ${subscriptionEndDate}`}
+                        : `Renews on ${subscriptionEndDate}`}
                     </p>
+                  )}
+                  {isCancelling && !isPremium && accessExpiryDate && (
+                    <div className="mt-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                      <p className="text-sm text-amber-700 dark:text-amber-300">
+                        Your subscription has been cancelled. You will retain premium access until <span className="font-semibold">{accessExpiryDate}</span>.
+                      </p>
+                    </div>
                   )}
                 </div>
 
                 {/* Referral Code Input for non-premium users */}
-                {!isPremium && (
+                {!isPremium && !isCancelling && (
                   <div className="mb-6">
                     <ReferralCodeInput
                       initialValue={checkoutReferralCode || ""}
@@ -632,7 +649,7 @@ export default function Portal() {
                 )}
 
                 {/* Free Trial Banner for non-premium users who are eligible */}
-                {!isPremium && isEligibleForTrial && (
+                {!isPremium && !isCancelling && isEligibleForTrial && (
                   <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/30 mb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
@@ -682,7 +699,7 @@ export default function Portal() {
                 </Dialog>
 
                 {/* Plan Options */}
-                {!isPremium && (
+                {!isPremium && !isCancelling && (
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="p-6 rounded-xl border border-border hover:border-primary transition-colors">
                       <h3 className="font-display font-bold text-lg mb-2">Monthly</h3>
@@ -746,19 +763,21 @@ export default function Portal() {
                 )}
 
                 {/* Manage Subscription */}
-                {isPremium && (
+                {(isPremium || isCancelling) && (
                   <div className="flex flex-col sm:flex-row gap-4">
                     <Button variant="outline" onClick={handleManageSubscription}>
                       <ExternalLink className="w-4 h-4 mr-2" />
                       Manage Billing
                     </Button>
-                    <Button
-                      variant="ghost"
-                      className="text-destructive hover:text-destructive"
-                      onClick={handleManageSubscription}
-                    >
-                      Cancel Subscription
-                    </Button>
+                    {isPremium && !isCancelling && (
+                      <Button
+                        variant="ghost"
+                        className="text-destructive hover:text-destructive"
+                        onClick={handleManageSubscription}
+                      >
+                        Cancel Subscription
+                      </Button>
+                    )}
                   </div>
                 )}
               </div>
