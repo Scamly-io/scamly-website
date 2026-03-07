@@ -257,8 +257,10 @@ export type Database = {
           first_name: string | null
           gender: string | null
           has_consumed_trial: boolean
+          has_done_review: boolean | null
           has_paid_first_invoice: boolean
           id: string
+          last_review_prompt: string | null
           onboarding_completed: boolean | null
           referral_code: string | null
           referral_code_active: boolean
@@ -280,8 +282,10 @@ export type Database = {
           first_name?: string | null
           gender?: string | null
           has_consumed_trial?: boolean
+          has_done_review?: boolean | null
           has_paid_first_invoice?: boolean
           id: string
+          last_review_prompt?: string | null
           onboarding_completed?: boolean | null
           referral_code?: string | null
           referral_code_active?: boolean
@@ -303,8 +307,10 @@ export type Database = {
           first_name?: string | null
           gender?: string | null
           has_consumed_trial?: boolean
+          has_done_review?: boolean | null
           has_paid_first_invoice?: boolean
           id?: string
+          last_review_prompt?: string | null
           onboarding_completed?: boolean | null
           referral_code?: string | null
           referral_code_active?: boolean
