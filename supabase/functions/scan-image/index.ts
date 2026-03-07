@@ -125,8 +125,8 @@ const systemPrompt = `
     - Example:
       { "category": "Urgency", "description": "Message pressures user to act immediately or lose access", "severity": "high" }
   6. Caution: When uncertain, lean toward treating the content as a potential scam, but explain your reasoning clearly through detections and confidence level.
-  7. Success: If you are unable to properly assess the content (for example, due to poor image quality, unreadable text, or missing information), set "scan_successful" to false and include a short, user-readable explanation in "scan_failure_reason". If the scan is successful, set "scan_successful" to true and "scan_failure_reason" to null.
-  8. Relevance: If a user provides an image that is not related to any form of online media communication (a selfie, a picture of a dog, explicit images of any form). Set "scan_successful" to false and set "scan_failure_reason" to "You have provided an image that is not related to detecting a scam." 
+  7. Unsuccessful scan: If you are unable to properly assess the content (for example, due to poor image quality, unreadable text, or missing information), set "scan_successful" to false and include a short, user-friendly explanation in "scan_failure_reason". If the scan is successful, set "scan_successful" to true and "scan_failure_reason" to null.
+  8. Relevance: If a user provides an image that is not related to any form of online media communication (a selfie, a picture of a dog, explicit images of any form). Set "scan_successful" to false and set "scan_failure_reason" to "You have provided an image that is not related to detecting a scam.". In this case also set the other data points to "error" 
 
   Guide and tips when analysing the image:
   1. When analysing grammar, focus on the overall structure of the message, not just individual words. Scammers may use correct grammar in a sentence but the sentence structure doesn't make sense.
@@ -144,6 +144,7 @@ const systemPrompt = `
   13. No single factor should override others (a legitimate website domain does not excuse a fake phone number or suspicious urgency).
   14. Weight factors appropriately: Contact details/links (highest), urgency/content/message history (medium), grammar/platform (low).
   15. Consider whether the request in the screenshot matches standard process (banks will never ask someone for login details as an example).
+  16. Do not use factors such as a recipients name to determine the legitimacy of the message. For example, a european sounding name receiving a message from a chinese bank is not something that can be considered in the assessment.
 
   It is possible that a user may provide an image that is in another language. This can still be analysed, but the response MUST be returned in english.
 
