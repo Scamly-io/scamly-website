@@ -10,7 +10,7 @@ const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const resend = new Resend(RESEND_API_KEY);
 
 const sendTemplateEmail = async (to: string, templateId: string, variables: Record<string, string>) => {
-  const response = await resend.emails.send({
+  const { data, error } = await resend.emails.send({
     from: "Scamly <notifications@scamly.io>",
     to: [to],
     template: {
@@ -19,9 +19,8 @@ const sendTemplateEmail = async (to: string, templateId: string, variables: Reco
     },
   });
 
-  const data = await response.json();
-  if (!response.ok) {
-    return { data: null, error: { message: data?.message || "Failed to send email" } };
+  if (error) {
+    return { data: null, error: { message: error.message || "Failed to send email" } };
   }
   return { data, error: null };
 };
