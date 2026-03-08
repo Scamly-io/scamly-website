@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Check, Sparkles } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
-import phoneMockupLight from "@/assets/3d-phone-mockup.png";
-import phoneMockupDark from "@/assets/3d-phone-mockup-dark.png";
+import phoneMockupLight from "../../assets/3d-phone-mockup.png";
+import phoneMockupDark from "../../assets/3d-phone-mockup-dark.png";
 import { trackSignupStarted } from "@/lib/analytics";
 import { isTestSubdomain } from "@/lib/subdomain";
 
@@ -102,6 +102,7 @@ export function HeroSection() {
             src={phoneMockup}
             alt="Scamly app showing fraud detection features on mobile phones"
             className="relative max-w-[600px] md:max-w-[750px] w-full h-auto drop-shadow-2xl"
+            fetchPriority="high"
           />
         </div>
       </div>

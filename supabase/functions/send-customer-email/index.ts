@@ -7,18 +7,16 @@ const FUNCTION_NAME = "send-customer-email";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
+const resend = new Resend(RESEND_API_KEY);
+
 const sendTemplateEmail = async (to: string, templateId: string, variables: Record<string, string>) => {
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${RESEND_API_KEY}`,
+  const response = await resend.emails.send({
+    from: "Scamly <notifications@scamly.io>",
+    to: [to],
+    template: {
+      id: templateId,
+      variables,
     },
-    body: JSON.stringify({
-      to: [to],
-      template_id: templateId,
-      template_data: variables,
-    }),
   });
 
   const data = await response.json();
