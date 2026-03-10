@@ -708,7 +708,7 @@ export default function Portal() {
                     <div className="p-6 rounded-xl border border-border hover:border-primary transition-colors">
                       <h3 className="font-display font-bold text-lg mb-2">Monthly</h3>
                       <p className="text-3xl font-bold mb-1">
-                        $10<span className="text-lg font-normal text-muted-foreground">/mo</span>
+                        {monthlyPrice}<span className="text-lg font-normal text-muted-foreground">/mo</span>
                       </p>
                       <p className="text-sm text-muted-foreground mb-2">
                         {isEligibleForTrial ? "Billed monthly after trial" : "Billed monthly"}
