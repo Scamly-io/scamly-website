@@ -27,7 +27,7 @@ export function ReferralCodeInput({
     valid: boolean;
     error?: string;
   } | null>(null);
-  const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
+  const [debounceTimer, setDebounceTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
 
   // Validate code with debounce
   useEffect(() => {
