@@ -14,6 +14,10 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 // import { GoogleGenAI } from "https://esm.sh/@google/genai";
 import OpenAI from "https://esm.sh/openai";
+import { Redis } from "https://esm.sh/@upstash/redis";
+import { Ratelimit } from "https://esm.sh/@upstash/ratelimit@latest";
+
+const FUNCTION_NAME = "scan-image";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -39,7 +43,7 @@ const FREE_TIER_SCAN_LIMIT = 6;
 // Error response helper
 function errorResponse(
   message: string,
-  stage: "upload" | "processing" | "quota_exceeded" | "validation" | "auth",
+  stage: "upload" | "processing" | "quota_exceeded" | "validation" | "auth" | "rate_limit",
   code: string,
   details: Record<string, unknown> = {},
   status: number = 500
@@ -100,7 +104,38 @@ function getUserBillingPeriod(createdAt: string): { periodStart: Date; nextPerio
   return { periodStart, nextPeriodStart };
 }
 
+/**
+ * Log a generic console message
+ * @param step
+ * @param details
+ */
+const logStep = (step: string, details?: unknown) => {
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : "";
+  console.log(`[${FUNCTION_NAME.toUpperCase()}] ${step}${detailsStr}`);
+};
+
+/**
+ * Log a console warning
+ * @param message
+ * @param details
+ */
+const logWarn = (message: string, details?: unknown) => {
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : "";
+  console.warn(`[${FUNCTION_NAME.toUpperCase()}] ${message}${detailsStr}`);
+};
+
+/**
+ * Log a console error
+ * @param message
+ * @param details
+ */
+const logError = (message: string, details?: unknown) => {
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : "";
+  console.error(`[${FUNCTION_NAME.toUpperCase()}] ${message}${detailsStr}`);
+};
+
 // Model system prompt, do not adjust this.
+/*
 const systemPrompt = `
   Your task is to analyze screenshots of text messages, emails, social media posts, advertisements, or other online media to determine if they are scams. Generate an output according to the provided schema.
 
@@ -216,10 +251,10 @@ const JSONSchema = {
   ],
   "additionalProperties": false
 };
+*/
 
 // NEW SYSTEM PROMPT, WILL IMPLEMENT ON RELEASE
-/**
- * const systemPrompt = `
+const systemPrompt = `
   Your task is to analyze screenshots of text messages, emails, social media posts, advertisements, or other online media to determine if they are scams. Generate an output according to the provided schema.
 
   You should analyze tone, urgency, language patterns, sender identity, formatting, links, and overall message structure to decide if the content is fraudulent, suspicious, or safe.
@@ -244,7 +279,7 @@ const JSONSchema = {
       { "description": "Suspicious contact number", "details": "The phone number (+123 456 7890) appears to be from a different country to the content, and is not a legitimate contact number for the company.", "severity": "high" }
   6. Caution: When uncertain, lean toward treating the content as a potential scam, but explain your reasoning clearly through detections and confidence level.
   7. Success: If you are unable to properly assess the content (for example, due to poor image quality, unreadable text, or missing information), set "scan_successful" to false and include a short, user-readable explanation in "scan_failure_reason". If the scan is successful, set "scan_successful" to true and "scan_failure_reason" to null.
-  8. Relevance: If a user provides an image that is not related to any form of online media communication (a selfie, a picture of a dog, explicit images of any form). Set "scan_successful" to false and set "scan_failure_reason" to "You have provided an image that is not related to detecting a scam." 
+  8. Relevance: If a user provides an image that is not related to any form of online media communication (a selfie, a picture of a dog, explicit images of any form). Set "scan_successful" to false and set "scan_failure_reason" to "You have provided an image that is not related to detecting a scam." In this case also set the other data points to "error" 
 
   Guide and tips when analysing the image:
   1. When analysing grammar, focus on the overall structure of the message, not just individual words. Scammers may use correct grammar in a sentence but the sentence structure doesn't make sense.
@@ -262,6 +297,7 @@ const JSONSchema = {
   13. No single factor should override others (a legitimate website domain does not excuse a fake phone number or suspicious urgency).
   14. Weight factors appropriately: Contact details/links (highest), urgency/content/message history (medium), grammar/platform (low).
   15. Consider whether the request in the screenshot matches standard process (banks will never ask someone for login details as an example).
+  16. Do not use factors such as a recipients name to determine the legitimacy of the message. For example, a european sounding name receiving a message from a chinese bank is not something that can be considered in the assessment.
 
   It is possible that a user may provide an image that is in another language. This can still be analysed, but the response MUST be returned in english.
 
@@ -333,7 +369,6 @@ const JSONSchema = {
   ],
   "additionalProperties": false
 };
- */
 
 serve(async (req) => {
   // Handle CORS preflight
@@ -344,17 +379,17 @@ serve(async (req) => {
   try {
     // Get required environment variables
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
     const openaiApiKey = Deno.env.get("OPENAI_API_KEY");
     // const googleApiKey = Deno.env.get("GOOGLE_GENAI_API_KEY");
     
-    if (!supabaseUrl || !supabaseServiceKey) {
-      console.error("Missing Supabase configuration");
+    if (!supabaseUrl || !supabaseAnonKey) {
+      logError("Missing Supabase configuration");
       return errorResponse(
         "Server configuration error",
         "processing",
         "MISSING_SUPABASE_CONFIG",
-        { missing: ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"].filter(k => !Deno.env.get(k)) },
+        {},
         500
       );
     }
@@ -373,7 +408,7 @@ serve(async (req) => {
     */
 
     if (!openaiApiKey) {
-      console.error("Missing OpenAI API key");
+      logError("Missing OpenAI API key");
       return errorResponse(
         "Server configuration error",
         "processing",
@@ -389,28 +424,50 @@ serve(async (req) => {
       return errorResponse(
         "Authentication required",
         "auth",
-        "NO_AUTH_HEADER",
+        "AUTH_REQUIRED",
         {},
         401
       );
     }
 
-    // Create Supabase clients
-    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
-    const supabaseAuth = createClient(supabaseUrl, supabaseServiceKey, {
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
     });
 
-    // Get user from token
-    const { data: { user }, error: userError } = await supabaseAuth.auth.getUser();
-    if (userError || !user) {
-      console.error("Auth error:", userError);
+
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
       return errorResponse(
-        "Invalid or expired authentication token",
+        "Authentication failed",
         "auth",
-        "INVALID_TOKEN",
-        { error: userError?.message },
+        "AUTH_FAILED",
+        {},
         401
+      );
+    }
+
+    const redis = new Redis({
+      url: Deno.env.get("REDIS_URL")!,
+      token: Deno.env.get("REDIS_TOKEN")!,
+    })
+
+    const rateLimit = new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(5, '60 s'),
+      analytics: true,
+    })
+
+    const identifier = `${user.id}-(scan-image)`;
+    const { success } = await rateLimit.limit(identifier);
+    if (!success) {
+      logWarn("Rate limit exceeded", { identifier });
+      return errorResponse(
+        "Rate limit exceeded",
+        "rate_limit",
+        "RATE_LIMIT_EXCEEDED",
+        { identifier },
+        429
       );
     }
 
@@ -431,7 +488,7 @@ serve(async (req) => {
     console.log(`Processing scan for user ${user.id}`);
 
     // Get user profile
-    const { data: profile, error: profileError } = await supabaseAdmin
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", user.id)
@@ -454,7 +511,7 @@ serve(async (req) => {
     if (!isPremium) {
       const billingPeriod = getUserBillingPeriod(profile.created_at);
       
-      const { count: scanCount, error: countError } = await supabaseAdmin
+      const { count: scanCount, error: countError } = await supabase
         .from("scans")
         .select("*", { count: "exact", head: true })
         .eq("user_id", user.id)
@@ -576,7 +633,7 @@ serve(async (req) => {
     }
 
     // Store scan result in database
-    const { error: insertError } = await supabaseAdmin.from("scans").insert({
+    const { error: insertError } = await supabase.from("scans").insert({
       user_id: user.id,
       output: JSON.stringify(scanResult),
       created_at: new Date().toISOString(),
