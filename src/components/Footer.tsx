@@ -87,7 +87,7 @@ export function Footer() {
 
         <div className="border-t border-border mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            © {currentYear} Scamly. All rights reserved.
+            © {currentYear} Scamly Pty Ltd. All rights reserved. ABN 55 695 941 532
           </p>
           <p className="text-sm text-muted-foreground">
             Made with purpose. Designed to protect.
