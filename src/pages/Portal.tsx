@@ -42,7 +42,7 @@ import {
   resetUser,
 } from "@/lib/analytics";
 
-const genders = ["Male", "Female", "Non-binary", "Prefer not to say"];
+const genders = ["Male", "Female", "Prefer not to say"];
 
 type Tab = "profile" | "subscription" | "referrals" | "security";
 

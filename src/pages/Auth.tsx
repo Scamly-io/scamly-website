@@ -42,7 +42,7 @@ const signUpSchema = z.object({
   referralSource: z.string().min(1, "Please select how you heard about us"),
 });
 
-const genders = ["Male", "Female", "Non-binary", "Prefer not to say"];
+const genders = ["Male", "Female", "Prefer not to say"];
 
 export default function Auth() {
   const [searchParams] = useSearchParams();
