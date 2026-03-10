@@ -13,7 +13,7 @@ import logoLight from "@/assets/navbar-logo-light.png";
 import logoDark from "@/assets/navbar-logo-dark.png";
 import { useAuth } from "@/contexts/AuthContext";
 
-const genders = ["Male", "Female", "Non-binary", "Prefer not to say"];
+const genders = ["Male", "Female", "Prefer not to say"];
 
 const referralSourceOptions = [
   "Facebook",
