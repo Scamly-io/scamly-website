@@ -617,12 +617,12 @@ export default function Portal() {
                       ? isTrialing
                         ? "Free for 14 days"
                         : profile?.subscription_plan === "premium-yearly"
-                          ? "$99/year"
-                          : "$10/month"
+                          ? `${yearlyPrice}/year`
+                          : `${monthlyPrice}/month`
                       : isCancelling
                         ? profile?.subscription_plan === "premium-yearly"
-                          ? "$99/year"
-                          : "$10/month"
+                          ? `${yearlyPrice}/year`
+                          : `${monthlyPrice}/month`
                         : "$0/month"}
                   </p>
                   {isPremium && subscriptionEndDate && (
