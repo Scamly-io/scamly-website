@@ -1,6 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import Perplexity from "https://esm.sh/@perplexity-ai/perplexity_ai"
+import { Redis } from "https://esm.sh/@upstash/redis";
+import { Ratelimit } from "https://esm.sh/@upstash/ratelimit@latest";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -150,6 +152,31 @@ serve(async (req) => {
 
     const userId = body.userId;
     console.log(`[ai-search] User: ${userId}, Company: ${companyName}`);
+
+    // Rate limiting
+    const redis = new Redis({
+      url: Deno.env.get("REDIS_URL")!,
+      token: Deno.env.get("REDIS_TOKEN")!,
+    });
+
+    const rateLimit = new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(10, '60 s'),
+      analytics: true,
+    });
+
+    const identifier = `${userId}-(ai-search)`;
+    const { success: rateLimitSuccess } = await rateLimit.limit(identifier);
+    if (!rateLimitSuccess) {
+      console.warn(`[ai-search] Rate limit exceeded for ${identifier}`);
+      return errorResponse(
+        "Rate limit exceeded",
+        "validation",
+        "RATE_LIMIT_EXCEEDED",
+        { identifier },
+        429
+      );
+    }
 
     // Check subscription - Free users can't use the search feature
     try {
