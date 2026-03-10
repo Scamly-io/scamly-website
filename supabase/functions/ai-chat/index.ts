@@ -132,6 +132,33 @@ serve(async (req) => {
     const userId = user.id;
     console.log(`[ai-chat] Action: ${action}, User: ${userId}`);
 
+    // Rate limiting (only for generateResponse action)
+    if (action === "generateResponse") {
+      const redis = new Redis({
+        url: Deno.env.get("REDIS_URL")!,
+        token: Deno.env.get("REDIS_TOKEN")!,
+      });
+
+      const rateLimit = new Ratelimit({
+        redis,
+        limiter: Ratelimit.slidingWindow(15, '60 s'),
+        analytics: true,
+      });
+
+      const identifier = `${userId}-(ai-chat)`;
+      const { success: rateLimitSuccess } = await rateLimit.limit(identifier);
+      if (!rateLimitSuccess) {
+        console.warn(`[ai-chat] Rate limit exceeded for ${identifier}`);
+        return errorResponse(
+          "Rate limit exceeded",
+          "validation",
+          "RATE_LIMIT_EXCEEDED",
+          { identifier },
+          429
+        );
+      }
+    }
+
     // Route to appropriate handler
     switch (action) {
       case "createConversationId":
