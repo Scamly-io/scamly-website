@@ -44,8 +44,14 @@ const captureError = (error: Error, context: Record<string, unknown>) => {
 
 // Price IDs from Stripe
 const PRICES = {
-  monthly: "price_1RZoVe3J81eQle64BxY5Ls2s", // $10/month
-  yearly: "price_1RaBqI3J81eQle64GF6WYMfm", // $99/year
+  USD: {
+    monthly: "price_1RZoVe3J81eQle64BxY5Ls2s", // $10/month USD
+    yearly: "price_1RaBqI3J81eQle64GF6WYMfm", // $99/year USD
+  },
+  AUD: {
+    monthly: "price_1T9NpvKkB3LcP5T3Kt105jT3", // $15/month AUD
+    yearly: "price_1T9Nr4KkB3LcP5T3CXmOpHw3", // $139/year AUD
+  },
 };
 
 // Stripe coupon IDs for referrals
@@ -103,16 +109,19 @@ serve(async (req) => {
     }
     logStep("User authenticated", { userId: user.id });
 
-    // Parse request body for plan selection and optional referral code
-    const { plan, referralCode } = await req.json();
+    // Parse request body for plan selection, optional referral code, and country
+    const { plan, referralCode, country } = await req.json();
     if (!plan || !["monthly", "yearly"].includes(plan)) {
       // Validation error - don't send to Sentry
       throw new Error("Invalid plan. Must be 'monthly' or 'yearly'");
     }
-    logStep("Plan selected", { plan, hasReferralCode: !!referralCode });
 
-    const priceId = PRICES[plan as keyof typeof PRICES];
-    logStep("Price ID determined", { priceId });
+    // Determine currency based on user's country
+    const currency = country === "Australia" ? "AUD" : "USD";
+    logStep("Plan selected", { plan, currency, country, hasReferralCode: !!referralCode });
+
+    const priceId = PRICES[currency][plan as keyof typeof PRICES["USD"]];
+    logStep("Price ID determined", { priceId, currency });
 
     // Initialize Stripe
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-04-30.basil" });

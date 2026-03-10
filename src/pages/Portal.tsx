@@ -306,10 +306,10 @@ export default function Portal() {
     });
 
     try {
-      console.log("[Portal] Starting checkout for plan:", plan);
+      console.log("[Portal] Starting checkout for plan:", plan, "country:", country);
       
       const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { plan, referralCode: checkoutReferralCode },
+        body: { plan, referralCode: checkoutReferralCode, country },
       });
 
       console.log("[Portal] Checkout response:", { data, error });
@@ -402,6 +402,10 @@ export default function Portal() {
   const isTrialing = profile?.subscription_status === "trialing";
   const isCancelling = !!profile?.access_expires_at && profile?.subscription_status !== "free";
   const isEligibleForTrial = !profile?.has_consumed_trial;
+  const isAustralian = profile?.country === "Australia";
+  const monthlyPrice = isAustralian ? "A$15" : "$10";
+  const yearlyPrice = isAustralian ? "A$139" : "$99";
+  const yearlySavings = isAustralian ? "A$41" : "$21";
   const subscriptionEndDate = profile?.subscription_current_period_end
     ? new Date(profile.subscription_current_period_end).toLocaleDateString()
     : null;
@@ -613,12 +617,12 @@ export default function Portal() {
                       ? isTrialing
                         ? "Free for 14 days"
                         : profile?.subscription_plan === "premium-yearly"
-                          ? "$99/year"
-                          : "$10/month"
+                          ? `${yearlyPrice}/year`
+                          : `${monthlyPrice}/month`
                       : isCancelling
                         ? profile?.subscription_plan === "premium-yearly"
-                          ? "$99/year"
-                          : "$10/month"
+                          ? `${yearlyPrice}/year`
+                          : `${monthlyPrice}/month`
                         : "$0/month"}
                   </p>
                   {isPremium && subscriptionEndDate && (
@@ -704,7 +708,7 @@ export default function Portal() {
                     <div className="p-6 rounded-xl border border-border hover:border-primary transition-colors">
                       <h3 className="font-display font-bold text-lg mb-2">Monthly</h3>
                       <p className="text-3xl font-bold mb-1">
-                        $10<span className="text-lg font-normal text-muted-foreground">/mo</span>
+                        {monthlyPrice}<span className="text-lg font-normal text-muted-foreground">/mo</span>
                       </p>
                       <p className="text-sm text-muted-foreground mb-2">
                         {isEligibleForTrial ? "Billed monthly after trial" : "Billed monthly"}
@@ -731,12 +735,12 @@ export default function Portal() {
                     <div className="p-6 rounded-xl border-2 border-primary relative">
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                         <span className="px-3 py-1 rounded-full gradient-bg text-xs font-semibold text-primary-foreground">
-                          {isEligibleForTrial ? "Save $21 + Free Trial" : "Save $21"}
+                          {isEligibleForTrial ? `Save ${yearlySavings} + Free Trial` : `Save ${yearlySavings}`}
                         </span>
                       </div>
                       <h3 className="font-display font-bold text-lg mb-2">Yearly</h3>
                       <p className="text-3xl font-bold mb-1">
-                        $99<span className="text-lg font-normal text-muted-foreground">/yr</span>
+                        {yearlyPrice}<span className="text-lg font-normal text-muted-foreground">/yr</span>
                       </p>
                       <p className="text-sm text-muted-foreground mb-2">
                         {isEligibleForTrial ? "Billed annually after trial" : "Billed annually"}
