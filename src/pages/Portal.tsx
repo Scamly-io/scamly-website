@@ -402,6 +402,10 @@ export default function Portal() {
   const isTrialing = profile?.subscription_status === "trialing";
   const isCancelling = !!profile?.access_expires_at && profile?.subscription_status !== "free";
   const isEligibleForTrial = !profile?.has_consumed_trial;
+  const isAustralian = profile?.country === "Australia";
+  const monthlyPrice = isAustralian ? "A$15" : "$10";
+  const yearlyPrice = isAustralian ? "A$139" : "$99";
+  const yearlySavings = isAustralian ? "A$41" : "$21";
   const subscriptionEndDate = profile?.subscription_current_period_end
     ? new Date(profile.subscription_current_period_end).toLocaleDateString()
     : null;
