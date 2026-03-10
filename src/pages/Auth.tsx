@@ -686,6 +686,16 @@ export default function Auth() {
               )}
             </form>
 
+            {/* Disclaimer for signup */}
+            {mode === "signup" && (
+              <p className="text-center text-xs text-muted-foreground mt-4">
+                By creating an account, you agree to our{" "}
+                <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>{" "}
+                and{" "}
+                <Link to="/terms" className="text-primary hover:underline">Terms & Conditions</Link>.
+              </p>
+            )}
+
             {/* Toggle Mode */}
             {mode !== "forgot" && (
               <p className="text-center text-sm text-muted-foreground mt-6">
