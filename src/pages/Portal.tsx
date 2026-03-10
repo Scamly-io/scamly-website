@@ -306,10 +306,10 @@ export default function Portal() {
     });
 
     try {
-      console.log("[Portal] Starting checkout for plan:", plan);
+      console.log("[Portal] Starting checkout for plan:", plan, "country:", country);
       
       const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { plan, referralCode: checkoutReferralCode },
+        body: { plan, referralCode: checkoutReferralCode, country },
       });
 
       console.log("[Portal] Checkout response:", { data, error });
