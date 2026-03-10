@@ -1,6 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import Perplexity from "https://esm.sh/@perplexity-ai/perplexity_ai"
+import { Redis } from "https://esm.sh/@upstash/redis";
+import { Ratelimit } from "https://esm.sh/@upstash/ratelimit@latest";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
