@@ -735,12 +735,12 @@ export default function Portal() {
                     <div className="p-6 rounded-xl border-2 border-primary relative">
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                         <span className="px-3 py-1 rounded-full gradient-bg text-xs font-semibold text-primary-foreground">
-                          {isEligibleForTrial ? "Save $21 + Free Trial" : "Save $21"}
+                          {isEligibleForTrial ? `Save ${yearlySavings} + Free Trial` : `Save ${yearlySavings}`}
                         </span>
                       </div>
                       <h3 className="font-display font-bold text-lg mb-2">Yearly</h3>
                       <p className="text-3xl font-bold mb-1">
-                        $99<span className="text-lg font-normal text-muted-foreground">/yr</span>
+                        {yearlyPrice}<span className="text-lg font-normal text-muted-foreground">/yr</span>
                       </p>
                       <p className="text-sm text-muted-foreground mb-2">
                         {isEligibleForTrial ? "Billed annually after trial" : "Billed annually"}
