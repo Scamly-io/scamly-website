@@ -494,8 +494,8 @@ export default function Terms() {
                 The Services offered by SCAMLY PTY LTD are available to users worldwide. Notwithstanding the global
                 availability of the Services, in the event of any dispute arising out of or in relation to the
                 Application or these Terms, you agree that the exclusive venue for resolving any such dispute shall be
-                in the courts of New South Wales Australia, Australia, and you irrevocably submit to the jurisdiction of
-                those courts.
+                in the courts of New South Wales, Australia, and you irrevocably submit to the jurisdiction of those
+                courts.
               </p>
             </div>
           </section>
