@@ -383,7 +383,7 @@ export default function Terms() {
               </p>
               <p>(b) If you want to terminate the Terms, you may do so by:</p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>(i) providing SCAMLY PTY LTD with notice of your intention to terminate; and</li>
+                <li>(i) providing SCAMLY PTY LTD with 7 days notice of your intention to terminate; and</li>
                 <li>
                   (ii) closing your accounts for all of the services which you use, where SCAMLY PTY LTD has made this
                   option available to you.
@@ -391,6 +391,22 @@ export default function Terms() {
               </ul>
               <p>
                 Your notice should be sent, in writing, to SCAMLY PTY LTD via the 'Contact Us' link on our homepage.
+              </p>
+              <p>(c) SCAMLY PTY LTD may at any time, terminate the Terms with you if:</p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>(i) you have breached any provision of the Terms or intend to breach any provision;</li>
+                <li>(ii) SCAMLY PTY LTD is required to do so by law;</li>
+                <li>
+                  (iii) the provision of the services to you by SCAMLY PTY LTD is, in the opinion of SCAMLY PTY LTD, no
+                  longer commercially viable.
+                </li>
+              </ul>
+              <p>
+                (d) Subject to local applicable laws, SCAMLY PTY LTD reserves the right to discontinue or cancel your
+                membership at any time and may suspend of deny, in its sole discretion, your access to all or any
+                portion of the Application or the Services without notice if you breach any provision of the Terms or
+                any applicable law or if your conduct impacts SCAMLY PTY LTD's name or reputation or violates the rights
+                of those of another party.
               </p>
             </div>
           </section>
@@ -414,8 +430,9 @@ export default function Terms() {
                 </li>
                 <li>(c) any breach of the Terms.</li>
                 <li>
-                  (d) any claims arising from Scamly's breach of confidentiality obligations, unauthorized disclosure of
-                  user data, or infringement of applicable privacy laws including the Privacy Act 1988 (Cth).
+                  (d) any claims arising from SCAMLY PTY LTD's breach of confidentiality obligations, unauthorized
+                  disclosure of user data, or infringement of applicable privacy laws including the Privacy Act 1988
+                  (Cth).
                 </li>
               </ul>
             </div>
@@ -477,8 +494,8 @@ export default function Terms() {
                 The Services offered by SCAMLY PTY LTD are available to users worldwide. Notwithstanding the global
                 availability of the Services, in the event of any dispute arising out of or in relation to the
                 Application or these Terms, you agree that the exclusive venue for resolving any such dispute shall be
-                in the courts of Western Australia, Australia, and you irrevocably submit to the jurisdiction of those
-                courts.
+                in the courts of New South Wales Australia, Australia, and you irrevocably submit to the jurisdiction of
+                those courts.
               </p>
             </div>
           </section>
@@ -490,7 +507,9 @@ export default function Terms() {
                 The Terms are governed by the laws of New South Wales, Australia. Any dispute, controversy, proceeding
                 or claim of whatever nature arising out of or in any way relating to the Terms and the rights created
                 hereby shall be governed, interpreted and construed by, under and pursuant to the laws of New South
-                Wales, Australia, without reference to conflict of law principles.
+                Wales, Australia, without reference to conflict of law principles, notwithstanding mandatory rules. The
+                validity of this governing law clause is not contested. The Terms shall be binding to the benefit of the
+                parties hereto and their successors and assigns.
               </p>
             </div>
           </section>
