@@ -210,7 +210,15 @@ export default function Privacy() {
                 <li>(iii) to correct your personal information if it is inaccurate or incomplete;</li>
                 <li>(iv) to delete your personal information (also known as "the right to be forgotten");</li>
                 <li>(v) to restrict processing of your personal information;</li>
+                <li>(vi) to retain and reuse your personal information for your own purposes;</li>
+                <li>(vii) to object to your personal information being used; and</li>
+                <li>(viii) to object against automated decision making and profiling.</li>
               </ul>
+              <p>
+                (c) Please contact us at any time to exercise your rights under the GDPR at the contact details in this
+                Privacy Policy.
+              </p>
+              <p>(d) We may ask you to verify your identity before acting on any of your requests.</p>
             </div>
           </section>
 
