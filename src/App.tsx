@@ -17,6 +17,7 @@ import PortalOnboardingComplete from "./pages/PortalOnboardingComplete";
 import ResetPassword from "./pages/ResetPassword";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
+import Contact from "./pages/Contact";
 
 import NotFound from "./pages/NotFound";
 
@@ -35,6 +36,7 @@ const TestSubdomainApp = () => (
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/privacy" element={<Privacy />} />
+      <Route path="/contact" element={<Contact />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </BrowserRouter>
@@ -46,6 +48,7 @@ const MainDomainApp = () => (
     <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/privacy" element={<Privacy />} />
+      <Route path="/contact" element={<Contact />} />
       
       {/* All other routes redirect to home */}
       <Route path="*" element={<Navigate to="/" replace />} />

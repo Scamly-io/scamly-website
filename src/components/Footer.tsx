@@ -15,7 +15,7 @@ export function Footer() {
       { label: 'Download App', href: '#' },
     ],
     support: [
-      { label: 'Contact', href: '#' },
+      { label: 'Contact', href: '/contact' },
       { label: 'Privacy Policy', href: '/privacy' },
       { label: 'Terms of Service', href: '/terms' },
     ],

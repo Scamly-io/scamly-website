@@ -14,6 +14,7 @@ export function MainDomainFooter() {
       { label: 'Pricing', href: '/#pricing' },
     ],
     support: [
+      { label: 'Contact', href: '/contact' },
       { label: 'Privacy Policy', href: '/privacy' },
     ],
   };
