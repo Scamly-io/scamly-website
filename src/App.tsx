@@ -47,6 +47,7 @@ const MainDomainApp = () => (
     <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/privacy" element={<Privacy />} />
+      <Route path="/contact" element={<Contact />} />
       
       {/* All other routes redirect to home */}
       <Route path="*" element={<Navigate to="/" replace />} />
