@@ -85,6 +85,74 @@ const formatDate = (isoDate: string): string => {
 // Stripe coupon ID for referrals - flat 10% for both referrer and referred
 const REFERRAL_COUPON_10_PERCENT = "qLrjIGkn";
 
+// Meta Conversions API configuration
+const META_PIXEL_ID = "1582049792855534";
+const META_API_VERSION = "v25.0";
+
+/**
+ * Send a Purchase event to Meta Conversions API
+ * Fires on every successful real payment (not $0 trial invoices)
+ */
+const sendMetaConversionEvent = async (
+  email: string,
+  value: number,
+  currency: string,
+) => {
+  const metaToken = Deno.env.get("META_CONVERSIONS_API_TOKEN");
+  if (!metaToken) {
+    logWarn("META_CONVERSIONS_API_TOKEN not set, skipping Meta CAPI event");
+    return;
+  }
+
+  try {
+    // SHA-256 hash the email (lowercase, trimmed)
+    const encoder = new TextEncoder();
+    const data = encoder.encode(email.toLowerCase().trim());
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    const hashedEmail = Array.from(new Uint8Array(hashBuffer))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+
+    const eventTime = Math.floor(Date.now() / 1000);
+
+    const payload = {
+      data: [
+        {
+          event_name: "Purchase",
+          event_time: eventTime,
+          action_source: "website",
+          user_data: {
+            em: hashedEmail,
+          },
+          custom_data: {
+            value,
+            currency: currency.toUpperCase(),
+          },
+        },
+      ],
+    };
+
+    const url = `https://graph.facebook.com/${META_API_VERSION}/${META_PIXEL_ID}/events?access_token=${metaToken}`;
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      throw new Error(`Meta CAPI responded with ${response.status}: ${errorBody}`);
+    }
+
+    logStep("Meta CAPI Purchase event sent", { value, currency, eventTime });
+  } catch (error) {
+    logWarn("Failed to send Meta CAPI event", { error });
+    captureError(error, { step: "meta-capi-purchase-event-failed", value, currency });
+    // Don't throw - Meta tracking failure should not break the webhook
+  }
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
