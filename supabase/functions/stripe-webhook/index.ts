@@ -928,6 +928,17 @@ serve(async (req) => {
                 captureError(updateError, { step: "error-updating-profile-invoice-payment-succeeded-real" });
               }
 
+              // Send Meta Conversions API Purchase event for real payments
+              // amount_paid is in cents, convert to dollar amount
+              const customerEmail = invoice.customer_email ?? "";
+              const paymentValue = amountPaid / 100;
+              const paymentCurrency = (invoice.currency ?? "usd").toUpperCase();
+              if (customerEmail) {
+                await sendMetaConversionEvent(customerEmail, paymentValue, paymentCurrency);
+              } else {
+                logWarn("No customer email on invoice, skipping Meta CAPI event", { invoiceId: invoice.id });
+              }
+
               /**
                * REFERRAL CONVERSION LOGIC
                * One referral = flat 10% discount for referrer
