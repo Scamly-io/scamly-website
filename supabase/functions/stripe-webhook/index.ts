@@ -145,7 +145,6 @@ const sendMetaConversionEvent = async (
       throw new Error(`Meta CAPI responded with ${response.status}: ${errorBody}`);
     }
 
-    logStep("Meta CAPI Purchase event sent", { value, currency, eventTime });
   } catch (error) {
     logWarn("Failed to send Meta CAPI event", { error });
     captureError(error, { step: "meta-capi-purchase-event-failed", value, currency });
