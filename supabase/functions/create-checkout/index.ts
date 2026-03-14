@@ -223,6 +223,7 @@ serve(async (req) => {
     // Build checkout session params
     // ONLY include trial if user is eligible (has_consumed_trial = false)
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
+      allow_promotion_codes: true,
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
       client_reference_id: user.id,
