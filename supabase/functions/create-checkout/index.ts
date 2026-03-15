@@ -45,8 +45,8 @@ const captureError = (error: Error, context: Record<string, unknown>) => {
 // Price IDs from Stripe
 const PRICES = {
   USD: {
-    monthly: "price_1RZoVe3J81eQle64BxY5Ls2s", // $10/month USD
-    yearly: "price_1RaBqI3J81eQle64GF6WYMfm", // $99/year USD
+    monthly: "price_1T9NcoKkB3LcP5T3NkhhnH6N", // $10/month USD
+    yearly: "price_1T9NcpKkB3LcP5T3v3gtDZoH", // $99/year USD
   },
   AUD: {
     monthly: "price_1T9NpvKkB3LcP5T3Kt105jT3", // $15/month AUD
