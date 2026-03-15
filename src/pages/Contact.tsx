@@ -1,5 +1,6 @@
 import { Helmet } from 'react-helmet-async';
-import { Mail, MapPin } from 'lucide-react';
+import { Mail, MapPin, UserX } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { MainDomainNavbar } from '@/components/MainDomainNavbar';
 import { MainDomainFooter } from '@/components/MainDomainFooter';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -20,10 +21,6 @@ const faqs = [
   {
     question: "How do I cancel my Scamly Premium subscription or update my billing information?",
     answer: "You can manage your subscription by logging into the Scamly account portal and selecting the subscription tab and selecting either the Manage Billing or Cancel Subscription buttons.",
-  },
-  {
-    question: "How do I close my Scamly Account?",
-    answer: "If you want to completely close your account, you can email us at support@scamly.io.",
   },
   {
     question: "How do I get a refund?",
@@ -68,6 +65,31 @@ export default function Contact() {
                   81-83 Campbell Street<br />
                   Surry Hills, 2010<br />
                   NSW, Australia
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Account Deletion */}
+          <div className="mb-16 rounded-xl border border-border bg-card p-6">
+            <div className="flex items-start gap-4">
+              <UserX className="w-6 h-6 text-primary mt-0.5 shrink-0" />
+              <div className="space-y-3">
+                <h2 className="text-xl font-display font-semibold">Account Deletion</h2>
+                <p className="text-sm text-muted-foreground">
+                  You have the right to request your Scamly account be deleted and all personal information removed from our systems, in accordance with our{' '}
+                  <Link to="/privacy" className="text-primary underline hover:text-primary/80 transition-colors">Privacy Policy</Link>.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  To request account deletion, send an email to{' '}
+                  <a href="mailto:support@scamly.io" className="text-primary underline hover:text-primary/80 transition-colors">support@scamly.io</a>{' '}
+                  requesting the deletion of your account.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  We may ask you to verify your ownership of your Scamly account before processing any deletion requests.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Please note that information Scamly Pty Ltd is required to retain to meet legal obligations will not be deleted from the Scamly system.
                 </p>
               </div>
             </div>
