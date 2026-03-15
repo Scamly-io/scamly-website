@@ -234,7 +234,7 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: `${origin}/portal?success=true`,
+      success_url: `${origin}/portal?success=true&p=${priceId.replace(/^price_/, "")}`, // Remove "price_" prefix
       cancel_url: `${origin}/portal?canceled=true`,
       subscription_data: {
         // Only include trial for eligible users
