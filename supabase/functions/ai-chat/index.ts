@@ -71,7 +71,7 @@ const systemPrompt = `
   Your priority: stay relevant, concise, and cautious.
 `;
 
-const openaiApiKey = Deno.env.get("OPENAI_API_KEY");
+const openaiApiKey = Deno.env.get("OPENAI_CHAT_API_KEY");
 const openai = new OpenAI({ apiKey: openaiApiKey });
 
 serve(async (req) => {

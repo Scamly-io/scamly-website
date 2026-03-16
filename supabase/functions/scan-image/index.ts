@@ -380,7 +380,7 @@ serve(async (req) => {
     // Get required environment variables
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
-    const openaiApiKey = Deno.env.get("OPENAI_API_KEY");
+    const openaiApiKey = Deno.env.get("OPENAI_SCAN_API_KEY");
     // const googleApiKey = Deno.env.get("GOOGLE_GENAI_API_KEY");
     
     if (!supabaseUrl || !supabaseAnonKey) {
