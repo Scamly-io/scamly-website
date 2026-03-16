@@ -47,7 +47,7 @@ export function PasswordGate({ children }: PasswordGateProps) {
 
     try {
       const inputHash = await hashPassword(password);
-      const correctHash = await hashPassword("assured4BEVERAGE-pile");
+      const correctHash = await hashPassword("4vTzQjC*yNq-*rq2ePqZ7HM*Wp!bFk");
       
       if (inputHash === correctHash) {
         const sessionToken = await generateSessionToken();
