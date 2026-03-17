@@ -270,7 +270,7 @@ export default function PortalOnboarding() {
 
             {/* Gender */}
             <div className="space-y-2">
-              <Label htmlFor="gender">Gender <span className="text-destructive">*</span></Label>
+              <Label htmlFor="gender">Gender <span className="text-muted-foreground font-normal">(optional)</span></Label>
               <select
                 id="gender"
                 value={gender}
