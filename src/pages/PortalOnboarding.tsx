@@ -12,6 +12,7 @@ import { countries } from "@/constants/countries";
 import logoLight from "@/assets/navbar-logo-light.png";
 import logoDark from "@/assets/navbar-logo-dark.png";
 import { useAuth } from "@/contexts/AuthContext";
+import { CountryWhyCollected } from "@/components/CountryWhyCollected";
 
 const genders = ["Male", "Female", "Prefer not to say"];
 
@@ -250,7 +251,10 @@ export default function PortalOnboarding() {
 
             {/* Country */}
             <div className="space-y-2">
-              <Label htmlFor="country">Country <span className="text-destructive">*</span></Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="country">Country <span className="text-destructive">*</span></Label>
+                <CountryWhyCollected />
+              </div>
               <div className="relative">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <select

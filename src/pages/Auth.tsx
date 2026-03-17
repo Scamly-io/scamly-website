@@ -14,6 +14,7 @@ import { Mail, Lock, User, Calendar, MapPin, Sun, Moon, ArrowLeft, Eye, EyeOff, 
 import { z } from "zod";
 import { countries } from "@/constants/countries";
 import { trackSignupCompleted } from "@/lib/analytics";
+import { CountryWhyCollected } from "@/components/CountryWhyCollected";
 
 const referralSourceOptions = [
   "Facebook",
@@ -530,7 +531,10 @@ export default function Auth() {
 
                   {/* Country */}
                   <div className="space-y-2">
-                    <Label htmlFor="country">Country <span className="text-destructive">*</span></Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="country">Country <span className="text-destructive">*</span></Label>
+                      <CountryWhyCollected />
+                    </div>
                     <div className="relative">
                       <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                       <select
