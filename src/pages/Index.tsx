@@ -15,28 +15,21 @@ import { trackPageVisited } from '@/lib/analytics';
 import { isTestSubdomain } from '@/lib/subdomain';
 
 const Index = () => {
-  const isTest = isTestSubdomain();
-  // Track page visit when user lands on home page
   useEffect(() => {
     trackPageVisited('home');
   }, []);
 
   return (
     <div className="min-h-screen bg-background">
-      {!isTest && (
-        <Helmet>
-          <link rel="canonical" href="https://scamly.io" />
-        </Helmet>
-      )}
-      {isTest ? <Navbar /> : <MainDomainNavbar />}
+      <Navbar />
       <main>
         <HeroSection />
         <FeatureShowcaseSection />
-        {isTest ? <PricingSection /> : <MainPricingSection />}
+        <PricingSection />
         <AboutSection />
-        {isTest ? <CTASection /> : <RegisterInterestSection />}
+        <CTASection />
       </main>
-      {isTest ? <Footer /> : <MainDomainFooter />}
+      <Footer />
     </div>
   );
 };

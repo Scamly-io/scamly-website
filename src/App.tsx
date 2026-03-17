@@ -59,8 +59,6 @@ const MainDomainApp = () => (
 );
 
 const AppContent = () => {
-  const isTest = isTestSubdomain();
-  
   return (
     <HelmetProvider>
     <QueryClientProvider client={queryClient}>
@@ -69,13 +67,9 @@ const AppContent = () => {
           <TooltipProvider>
             <Toaster />
             <Sonner />
-            {isTest ? (
-              <PasswordGate>
-                <TestSubdomainApp />
-              </PasswordGate>
-            ) : (
-              <MainDomainApp />
-            )}
+            <PasswordGate>
+              <TestSubdomainApp />
+            </PasswordGate>
           </TooltipProvider>
         </AuthProvider>
       </ThemeProvider>
