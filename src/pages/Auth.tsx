@@ -552,7 +552,7 @@ export default function Auth() {
 
                   {/* Gender */}
                   <div className="space-y-2">
-                    <Label htmlFor="gender">Gender</Label>
+                    <Label htmlFor="gender">Gender <span className="text-destructive">*</span></Label>
                     <select
                       id="gender"
                       value={gender}
