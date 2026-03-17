@@ -127,10 +127,7 @@ serve(async (req) => {
           await resend.emails.send({
             from: "Scamly <notifications@scamly.io>",
             to: [userEmail],
-            template: {
-              id: "account-deleted",
-              variables: { NAME: firstName },
-            },
+            template: { id: "account-deleted" },
           });
           logStep("Account-deleted email sent");
         } else {
