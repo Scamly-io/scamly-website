@@ -76,7 +76,7 @@ serve(async (req) => {
     // Get profile and user email BEFORE deletion
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("profiles")
-      .select("stripe_customer_id, subscription_id, subscription_status, first_name")
+      .select("stripe_customer_id, subscription_id, subscription_status")
       .eq("id", userId)
       .single();
 
@@ -86,9 +86,8 @@ serve(async (req) => {
     }
 
     // Fetch user email before we delete the account
-    const { data: { user: authUser }, error: userError } = await supabaseAdmin.auth.admin.getUserById(userId);
+    const { data: { user: authUser } } = await supabaseAdmin.auth.admin.getUserById(userId);
     const userEmail = authUser?.email;
-    const firstName = profile.first_name || "there";
 
     logStep("Profile fetched", {
       hasStripeCustomer: !!profile.stripe_customer_id,
