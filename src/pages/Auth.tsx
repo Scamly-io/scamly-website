@@ -195,7 +195,7 @@ export default function Auth() {
       first_name: firstName,
       ...(isoDate ? { dob: isoDate } : {}),
       country,
-      gender,
+      ...(gender ? { gender } : {}),
       referral_source: referralSource,
     });
     setLoading(false);
