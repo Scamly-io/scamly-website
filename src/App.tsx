@@ -38,6 +38,7 @@ const TestSubdomainApp = () => (
       <Route path="/terms" element={<Terms />} />
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/contact" element={<Contact />} />
+      <Route path="/account-deleted" element={<AccountDeleted />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </BrowserRouter>
