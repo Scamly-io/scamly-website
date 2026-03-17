@@ -287,7 +287,7 @@ export default function PortalOnboarding() {
 
             {/* Referral Source */}
             <div className="space-y-2">
-              <Label htmlFor="referralSource">How did you hear about us?</Label>
+              <Label htmlFor="referralSource">How did you hear about us? <span className="text-destructive">*</span></Label>
               <select
                 id="referralSource"
                 value={referralSource}
