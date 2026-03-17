@@ -137,7 +137,7 @@ export default function PortalOnboarding() {
         first_name: firstName,
         ...(isoDate ? { dob: isoDate } : {}),
         country,
-        gender,
+        ...(gender ? { gender } : {}),
         referral_source: referralSource,
         onboarding_completed: true,
       })
