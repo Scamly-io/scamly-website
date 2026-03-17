@@ -185,12 +185,15 @@ export default function Auth() {
 
     setLoading(true);
     // Convert dd/mm/yyyy to yyyy-mm-dd for storage
-    const dobParts = dob.split("/");
-    const isoDate = dobParts.length === 3 ? `${dobParts[2]}-${dobParts[1]}-${dobParts[0]}` : dob;
+    let isoDate: string | null = null;
+    if (dob && dob.trim() !== "") {
+      const dobParts = dob.split("/");
+      isoDate = dobParts.length === 3 ? `${dobParts[2]}-${dobParts[1]}-${dobParts[0]}` : dob;
+    }
 
     const { error } = await signUp(email, password, {
       first_name: firstName,
-      dob: isoDate,
+      ...(isoDate ? { dob: isoDate } : {}),
       country,
       gender,
       referral_source: referralSource,
