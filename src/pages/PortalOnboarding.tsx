@@ -145,7 +145,7 @@ export default function PortalOnboarding() {
 
       const { error: updateProfileError } = await updateProfile({
         first_name: firstName,
-        dob: isoDate,
+        ...(isoDate ? { dob: isoDate } : {}),
         country,
         gender,
         referral_source: referralSource,
