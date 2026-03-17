@@ -73,10 +73,10 @@ serve(async (req) => {
       });
     }
 
-    // Get profile to check for Stripe subscription
+    // Get profile and user email BEFORE deletion
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("profiles")
-      .select("stripe_customer_id, subscription_id, subscription_status")
+      .select("stripe_customer_id, subscription_id, subscription_status, first_name")
       .eq("id", userId)
       .single();
 
@@ -85,10 +85,16 @@ serve(async (req) => {
       throw new Error("Failed to fetch profile");
     }
 
+    // Fetch user email before we delete the account
+    const { data: { user: authUser }, error: userError } = await supabaseAdmin.auth.admin.getUserById(userId);
+    const userEmail = authUser?.email;
+    const firstName = profile.first_name || "there";
+
     logStep("Profile fetched", {
       hasStripeCustomer: !!profile.stripe_customer_id,
       subscriptionStatus: profile.subscription_status,
       hasSubscriptionId: !!profile.subscription_id,
+      hasEmail: !!userEmail,
     });
 
     // Cancel Stripe subscription immediately if active
@@ -106,9 +112,35 @@ serve(async (req) => {
         });
         logStep("Stripe subscription cancelled");
       } catch (stripeErr) {
-        // Log but don't block deletion if subscription is already cancelled/invalid
         logStep("Stripe cancellation error (proceeding with deletion)", {
           error: stripeErr instanceof Error ? stripeErr.message : String(stripeErr),
+        });
+      }
+    }
+
+    // Send account-deleted email BEFORE deleting the user
+    if (userEmail) {
+      try {
+        const resendApiKey = Deno.env.get("RESEND_API_KEY");
+        if (resendApiKey) {
+          const resend = new Resend(resendApiKey);
+          logStep("Sending account-deleted email", { userEmail });
+          await resend.emails.send({
+            from: "Scamly <notifications@scamly.io>",
+            to: [userEmail],
+            template: {
+              id: "account-deleted",
+              variables: { NAME: firstName },
+            },
+          });
+          logStep("Account-deleted email sent");
+        } else {
+          logStep("RESEND_API_KEY not set, skipping account-deleted email");
+        }
+      } catch (emailErr) {
+        // Log but don't block deletion if email fails
+        logStep("Account-deleted email error (proceeding with deletion)", {
+          error: emailErr instanceof Error ? emailErr.message : String(emailErr),
         });
       }
     }
