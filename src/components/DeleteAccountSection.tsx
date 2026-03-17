@@ -49,11 +49,7 @@ export function DeleteAccountSection() {
 
       resetUser();
       await signOut();
-      navigate("/");
-      toast({
-        title: "Account deleted",
-        description: "Your account and all associated data have been permanently deleted.",
-      });
+      navigate("/account-deleted");
     } catch (err) {
       console.error("[DeleteAccount] Error:", err);
       toast({
