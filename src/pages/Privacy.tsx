@@ -20,7 +20,7 @@ export default function Privacy() {
         <h1 className="font-display text-4xl font-bold mb-8">Privacy Policy</h1>
 
         <div className="prose prose-lg dark:prose-invert max-w-none space-y-8">
-          <p className="text-muted-foreground">Effective from: 10 March 2026</p>
+          <p className="text-muted-foreground">Effective from: 17 March 2026</p>
 
           <p className="text-muted-foreground text-sm">Scamly Pty Ltd — 81-83 Campbell Street, Sydney NSW 2010</p>
 
