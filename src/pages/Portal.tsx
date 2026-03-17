@@ -584,6 +584,8 @@ export default function Portal() {
                     Save Changes
                   </Button>
                 </div>
+
+                <DeleteAccountSection />
               </div>
             )}
 
