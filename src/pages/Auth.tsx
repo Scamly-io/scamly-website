@@ -14,6 +14,7 @@ import { Mail, Lock, User, Calendar, MapPin, Sun, Moon, ArrowLeft, Eye, EyeOff, 
 import { z } from "zod";
 import { countries } from "@/constants/countries";
 import { trackSignupCompleted } from "@/lib/analytics";
+import { CountryWhyCollected } from "@/components/CountryWhyCollected";
 
 const referralSourceOptions = [
   "Facebook",

@@ -12,6 +12,7 @@ import { countries } from "@/constants/countries";
 import logoLight from "@/assets/navbar-logo-light.png";
 import logoDark from "@/assets/navbar-logo-dark.png";
 import { useAuth } from "@/contexts/AuthContext";
+import { CountryWhyCollected } from "@/components/CountryWhyCollected";
 
 const genders = ["Male", "Female", "Prefer not to say"];
 
