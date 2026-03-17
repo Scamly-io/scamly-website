@@ -81,12 +81,12 @@ export default function Contact() {
                   <Link to="/privacy" className="text-primary underline hover:text-primary/80 transition-colors">Privacy Policy</Link>.
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  To request account deletion, send an email to{' '}
-                  <a href="mailto:support@scamly.io" className="text-primary underline hover:text-primary/80 transition-colors">support@scamly.io</a>{' '}
-                  requesting the deletion of your account.
+                  You can delete your account directly through the Scamly app by navigating to the <strong className="text-foreground">Profile</strong> tab in your account portal and selecting <strong className="text-foreground">Delete Account</strong>. This will immediately and permanently delete your account, cancel any active subscriptions, and remove your personal data.
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  We may ask you to verify your ownership of your Scamly account before processing any deletion requests.
+                  If you have been locked out of your account and would like to delete it, you can email{' '}
+                  <a href="mailto:support@scamly.io" className="text-primary underline hover:text-primary/80 transition-colors">support@scamly.io</a>{' '}
+                  to request deletion. Please note that additional verification checks will be required in order to process the deletion.
                 </p>
                 <p className="text-sm text-muted-foreground">
                   Please note that information Scamly Pty Ltd is required to retain to meet legal obligations will not be deleted from the Scamly system.
