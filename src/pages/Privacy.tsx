@@ -67,7 +67,15 @@ export default function Privacy() {
                 feedback, when you provide information about your personal or business affairs, change your email
                 preference, respond to surveys and/or promotions, or communicate with our customer support.
               </p>
-              <p>(d) Additionally, we may also collect any other information you provide while interacting with us.</p>
+              <p>
+                (d) Additionally, we may also collect any other information you provide while interacting with us. Where
+                you interact with our AI-powered features, including the AI scan tool, AI chat tool, or contact search
+                tool, data submitted through these features — including photographs, conversation content, and company
+                search queries — may be transmitted to and processed by third-party AI service providers, including
+                OpenAI and Perplexity, for the purpose of delivering those services. By using these features, you
+                consent to your data being processed by these third-party providers in accordance with their respective
+                privacy policies.
+              </p>
             </div>
           </section>
 
