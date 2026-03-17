@@ -37,7 +37,7 @@ const onboardingSchema = z.object({
     return date.getFullYear() === yyyy && date.getMonth() === mm - 1 && date.getDate() === dd && yyyy >= 1900 && yyyy <= new Date().getFullYear();
   }, "Please enter a valid date in dd/mm/yyyy format"),
   country: z.string().min(1, "Country is required"),
-  gender: z.string().min(1, "Gender is required"),
+  gender: z.string().optional(),
   referralSource: z.string().min(1, "Please select how you heard about us"),
 });
 
@@ -107,7 +107,7 @@ export default function PortalOnboarding() {
 
   const handleSubmit = async () => {
     try {
-      onboardingSchema.parse({ firstName, dob: dob || undefined, country, gender, referralSource });
+      onboardingSchema.parse({ firstName, dob: dob || undefined, country, gender: gender || undefined, referralSource });
       setErrors({});
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -137,7 +137,7 @@ export default function PortalOnboarding() {
         first_name: firstName,
         ...(isoDate ? { dob: isoDate } : {}),
         country,
-        gender,
+        ...(gender ? { gender } : {}),
         referral_source: referralSource,
         onboarding_completed: true,
       })
@@ -147,7 +147,7 @@ export default function PortalOnboarding() {
         first_name: firstName,
         ...(isoDate ? { dob: isoDate } : {}),
         country,
-        gender,
+        ...(gender ? { gender } : {}),
         referral_source: referralSource,
         onboarding_completed: true,
       });
@@ -270,7 +270,7 @@ export default function PortalOnboarding() {
 
             {/* Gender */}
             <div className="space-y-2">
-              <Label htmlFor="gender">Gender <span className="text-destructive">*</span></Label>
+              <Label htmlFor="gender">Gender <span className="text-muted-foreground font-normal">(optional)</span></Label>
               <select
                 id="gender"
                 value={gender}

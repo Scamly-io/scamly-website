@@ -45,7 +45,7 @@ const signUpSchema = z.object({
     return date.getFullYear() === yyyy && date.getMonth() === mm - 1 && date.getDate() === dd && yyyy >= 1900 && yyyy <= new Date().getFullYear();
   }, "Please enter a valid date in dd/mm/yyyy format"),
   country: z.string().min(1, "Country is required"),
-  gender: z.string().min(1, "Gender is required"),
+  gender: z.string().optional(),
   referralSource: z.string().min(1, "Please select how you heard about us"),
 });
 
@@ -131,9 +131,9 @@ export default function Auth() {
           return date.getFullYear() === yyyy && date.getMonth() === mm - 1 && date.getDate() === dd && yyyy >= 1900 && yyyy <= new Date().getFullYear();
         }, "Please enter a valid date in dd/mm/yyyy format"),
         country: z.string().min(1, "Country is required"),
-        gender: z.string().min(1, "Gender is required"),
+        gender: z.string().optional(),
         referralSource: z.string().min(1, "Please select how you heard about us"),
-      }).parse({ firstName, dob: dob || undefined, country, gender, referralSource });
+      }).parse({ firstName, dob: dob || undefined, country, gender: gender || undefined, referralSource });
       setErrors({});
       return true;
     } catch (err) {
@@ -195,7 +195,7 @@ export default function Auth() {
       first_name: firstName,
       ...(isoDate ? { dob: isoDate } : {}),
       country,
-      gender,
+      ...(gender ? { gender } : {}),
       referral_source: referralSource,
     });
     setLoading(false);
@@ -552,7 +552,7 @@ export default function Auth() {
 
                   {/* Gender */}
                   <div className="space-y-2">
-                    <Label htmlFor="gender">Gender <span className="text-destructive">*</span></Label>
+                    <Label htmlFor="gender">Gender <span className="text-muted-foreground font-normal">(optional)</span></Label>
                     <select
                       id="gender"
                       value={gender}
