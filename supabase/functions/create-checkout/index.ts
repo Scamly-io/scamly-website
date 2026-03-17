@@ -218,7 +218,7 @@ serve(async (req) => {
     }
 
     // Get the origin for redirect URLs
-    const origin = req.headers.get("origin") || "https://test.scamly.io";
+    const origin = req.headers.get("origin") || "https://scamly.io";
 
     // Build checkout session params
     // ONLY include trial if user is eligible (has_consumed_trial = false)
