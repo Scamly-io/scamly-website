@@ -107,7 +107,7 @@ serve(async (req) => {
     logStep("Found Stripe customer", { customerId });
 
     // Get the origin for the return URL
-    const origin = req.headers.get("origin") || "https://rdrumcjwntyfnjhownbd.lovable.app";
+    const origin = req.headers.get("origin") || "https://scamly.io";
 
     // Create a billing portal session
     const portalSession = await stripe.billingPortal.sessions.create({
