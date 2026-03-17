@@ -133,7 +133,7 @@ export default function Auth() {
         country: z.string().min(1, "Country is required"),
         gender: z.string().optional(),
         referralSource: z.string().min(1, "Please select how you heard about us"),
-      }).parse({ firstName, dob: dob || undefined, country, gender, referralSource });
+      }).parse({ firstName, dob: dob || undefined, country, gender: gender || undefined, referralSource });
       setErrors({});
       return true;
     } catch (err) {
