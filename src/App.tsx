@@ -18,6 +18,7 @@ import ResetPassword from "./pages/ResetPassword";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Contact from "./pages/Contact";
+import AccountDeleted from "./pages/AccountDeleted";
 
 import NotFound from "./pages/NotFound";
 
