@@ -501,7 +501,7 @@ export default function Auth() {
 
                   {/* Date of Birth */}
                   <div className="space-y-2">
-                    <Label htmlFor="dob">Date of Birth</Label>
+                    <Label htmlFor="dob">Date of Birth <span className="text-muted-foreground font-normal">(optional)</span></Label>
                     <div className="relative">
                       <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                       <Input
