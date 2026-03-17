@@ -107,7 +107,7 @@ export default function PortalOnboarding() {
 
   const handleSubmit = async () => {
     try {
-      onboardingSchema.parse({ firstName, dob, country, gender, referralSource });
+      onboardingSchema.parse({ firstName, dob: dob || undefined, country, gender, referralSource });
       setErrors({});
     } catch (err) {
       if (err instanceof z.ZodError) {
