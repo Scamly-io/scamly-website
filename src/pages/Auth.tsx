@@ -36,7 +36,14 @@ const signUpSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   firstName: z.string().min(1, "First name is required").max(50, "First name is too long"),
-  dob: z.string().min(1, "Date of birth is required"),
+  dob: z.string().optional().refine((val) => {
+    if (!val || val.trim() === "") return true;
+    const parts = val.split("/");
+    if (parts.length !== 3) return false;
+    const [dd, mm, yyyy] = parts.map(Number);
+    const date = new Date(yyyy, mm - 1, dd);
+    return date.getFullYear() === yyyy && date.getMonth() === mm - 1 && date.getDate() === dd && yyyy >= 1900 && yyyy <= new Date().getFullYear();
+  }, "Please enter a valid date in dd/mm/yyyy format"),
   country: z.string().min(1, "Country is required"),
   gender: z.string().min(1, "Gender is required"),
   referralSource: z.string().min(1, "Please select how you heard about us"),
