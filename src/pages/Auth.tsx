@@ -131,7 +131,7 @@ export default function Auth() {
           return date.getFullYear() === yyyy && date.getMonth() === mm - 1 && date.getDate() === dd && yyyy >= 1900 && yyyy <= new Date().getFullYear();
         }, "Please enter a valid date in dd/mm/yyyy format"),
         country: z.string().min(1, "Country is required"),
-        gender: z.string().min(1, "Gender is required"),
+        gender: z.string().optional(),
         referralSource: z.string().min(1, "Please select how you heard about us"),
       }).parse({ firstName, dob: dob || undefined, country, gender, referralSource });
       setErrors({});
