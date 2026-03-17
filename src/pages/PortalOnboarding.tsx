@@ -28,7 +28,8 @@ const referralSourceOptions = [
 
 const onboardingSchema = z.object({
   firstName: z.string().min(1, "First name is required").max(50, "First name is too long"),
-  dob: z.string().min(1, "Date of birth is required").refine((val) => {
+  dob: z.string().optional().refine((val) => {
+    if (!val || val.trim() === "") return true;
     const parts = val.split("/");
     if (parts.length !== 3) return false;
     const [dd, mm, yyyy] = parts.map(Number);
