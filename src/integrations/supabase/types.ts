@@ -253,6 +253,7 @@ export type Database = {
           access_expires_at: string | null
           country: string | null
           created_at: string
+          data_sharing_consent: boolean
           dob: string | null
           first_name: string | null
           gender: string | null
@@ -277,6 +278,7 @@ export type Database = {
           access_expires_at?: string | null
           country?: string | null
           created_at?: string
+          data_sharing_consent?: boolean
           dob?: string | null
           first_name?: string | null
           gender?: string | null
@@ -301,6 +303,7 @@ export type Database = {
           access_expires_at?: string | null
           country?: string | null
           created_at?: string
+          data_sharing_consent?: boolean
           dob?: string | null
           first_name?: string | null
           gender?: string | null
