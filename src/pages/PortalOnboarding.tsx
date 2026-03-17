@@ -28,7 +28,8 @@ const referralSourceOptions = [
 
 const onboardingSchema = z.object({
   firstName: z.string().min(1, "First name is required").max(50, "First name is too long"),
-  dob: z.string().min(1, "Date of birth is required").refine((val) => {
+  dob: z.string().optional().refine((val) => {
+    if (!val || val.trim() === "") return true;
     const parts = val.split("/");
     if (parts.length !== 3) return false;
     const [dd, mm, yyyy] = parts.map(Number);
@@ -106,7 +107,7 @@ export default function PortalOnboarding() {
 
   const handleSubmit = async () => {
     try {
-      onboardingSchema.parse({ firstName, dob, country, gender, referralSource });
+      onboardingSchema.parse({ firstName, dob: dob || undefined, country, gender, referralSource });
       setErrors({});
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -124,14 +125,17 @@ export default function PortalOnboarding() {
     setSaving(true);
 
     // Convert dd/mm/yyyy to yyyy-mm-dd for storage
-    const dobParts = dob.split("/");
-    const isoDate = dobParts.length === 3 ? `${dobParts[2]}-${dobParts[1]}-${dobParts[0]}` : dob;
+    let isoDate: string | null = null;
+    if (dob && dob.trim() !== "") {
+      const dobParts = dob.split("/");
+      isoDate = dobParts.length === 3 ? `${dobParts[2]}-${dobParts[1]}-${dobParts[0]}` : dob;
+    }
 
     const { error } = await supabase
       .from("profiles")
       .update({
         first_name: firstName,
-        dob: isoDate,
+        ...(isoDate ? { dob: isoDate } : {}),
         country,
         gender,
         referral_source: referralSource,
@@ -141,7 +145,7 @@ export default function PortalOnboarding() {
 
       const { error: updateProfileError } = await updateProfile({
         first_name: firstName,
-        dob: isoDate,
+        ...(isoDate ? { dob: isoDate } : {}),
         country,
         gender,
         referral_source: referralSource,
@@ -201,7 +205,7 @@ export default function PortalOnboarding() {
           <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
             {/* First Name */}
             <div className="space-y-2">
-              <Label htmlFor="firstName">First Name</Label>
+              <Label htmlFor="firstName">First Name <span className="text-destructive">*</span></Label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
@@ -218,7 +222,7 @@ export default function PortalOnboarding() {
 
             {/* Date of Birth */}
             <div className="space-y-2">
-              <Label htmlFor="dob">Date of Birth</Label>
+              <Label htmlFor="dob">Date of Birth <span className="text-muted-foreground font-normal">(optional)</span></Label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
@@ -246,7 +250,7 @@ export default function PortalOnboarding() {
 
             {/* Country */}
             <div className="space-y-2">
-              <Label htmlFor="country">Country</Label>
+              <Label htmlFor="country">Country <span className="text-destructive">*</span></Label>
               <div className="relative">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <select
@@ -266,7 +270,7 @@ export default function PortalOnboarding() {
 
             {/* Gender */}
             <div className="space-y-2">
-              <Label htmlFor="gender">Gender</Label>
+              <Label htmlFor="gender">Gender <span className="text-destructive">*</span></Label>
               <select
                 id="gender"
                 value={gender}
@@ -283,7 +287,7 @@ export default function PortalOnboarding() {
 
             {/* Referral Source */}
             <div className="space-y-2">
-              <Label htmlFor="referralSource">How did you hear about us?</Label>
+              <Label htmlFor="referralSource">How did you hear about us? <span className="text-destructive">*</span></Label>
               <select
                 id="referralSource"
                 value={referralSource}

@@ -36,7 +36,14 @@ const signUpSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   firstName: z.string().min(1, "First name is required").max(50, "First name is too long"),
-  dob: z.string().min(1, "Date of birth is required"),
+  dob: z.string().optional().refine((val) => {
+    if (!val || val.trim() === "") return true;
+    const parts = val.split("/");
+    if (parts.length !== 3) return false;
+    const [dd, mm, yyyy] = parts.map(Number);
+    const date = new Date(yyyy, mm - 1, dd);
+    return date.getFullYear() === yyyy && date.getMonth() === mm - 1 && date.getDate() === dd && yyyy >= 1900 && yyyy <= new Date().getFullYear();
+  }, "Please enter a valid date in dd/mm/yyyy format"),
   country: z.string().min(1, "Country is required"),
   gender: z.string().min(1, "Gender is required"),
   referralSource: z.string().min(1, "Please select how you heard about us"),
@@ -115,7 +122,8 @@ export default function Auth() {
     try {
       z.object({
         firstName: z.string().min(1, "First name is required").max(50, "First name is too long"),
-        dob: z.string().min(1, "Date of birth is required").refine((val) => {
+        dob: z.string().optional().refine((val) => {
+          if (!val || val.trim() === "") return true;
           const parts = val.split("/");
           if (parts.length !== 3) return false;
           const [dd, mm, yyyy] = parts.map(Number);
@@ -125,7 +133,7 @@ export default function Auth() {
         country: z.string().min(1, "Country is required"),
         gender: z.string().min(1, "Gender is required"),
         referralSource: z.string().min(1, "Please select how you heard about us"),
-      }).parse({ firstName, dob, country, gender, referralSource });
+      }).parse({ firstName, dob: dob || undefined, country, gender, referralSource });
       setErrors({});
       return true;
     } catch (err) {
@@ -177,12 +185,15 @@ export default function Auth() {
 
     setLoading(true);
     // Convert dd/mm/yyyy to yyyy-mm-dd for storage
-    const dobParts = dob.split("/");
-    const isoDate = dobParts.length === 3 ? `${dobParts[2]}-${dobParts[1]}-${dobParts[0]}` : dob;
+    let isoDate: string | null = null;
+    if (dob && dob.trim() !== "") {
+      const dobParts = dob.split("/");
+      isoDate = dobParts.length === 3 ? `${dobParts[2]}-${dobParts[1]}-${dobParts[0]}` : dob;
+    }
 
     const { error } = await signUp(email, password, {
       first_name: firstName,
-      dob: isoDate,
+      ...(isoDate ? { dob: isoDate } : {}),
       country,
       gender,
       referral_source: referralSource,
@@ -473,7 +484,7 @@ export default function Auth() {
                 <>
                   {/* First Name */}
                   <div className="space-y-2">
-                    <Label htmlFor="firstName">First Name</Label>
+                    <Label htmlFor="firstName">First Name <span className="text-destructive">*</span></Label>
                     <div className="relative">
                       <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                       <Input
@@ -490,7 +501,7 @@ export default function Auth() {
 
                   {/* Date of Birth */}
                   <div className="space-y-2">
-                    <Label htmlFor="dob">Date of Birth</Label>
+                    <Label htmlFor="dob">Date of Birth <span className="text-muted-foreground font-normal">(optional)</span></Label>
                     <div className="relative">
                       <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                       <Input
@@ -519,7 +530,7 @@ export default function Auth() {
 
                   {/* Country */}
                   <div className="space-y-2">
-                    <Label htmlFor="country">Country</Label>
+                    <Label htmlFor="country">Country <span className="text-destructive">*</span></Label>
                     <div className="relative">
                       <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                       <select
@@ -541,7 +552,7 @@ export default function Auth() {
 
                   {/* Gender */}
                   <div className="space-y-2">
-                    <Label htmlFor="gender">Gender</Label>
+                    <Label htmlFor="gender">Gender <span className="text-destructive">*</span></Label>
                     <select
                       id="gender"
                       value={gender}
@@ -560,7 +571,7 @@ export default function Auth() {
 
                   {/* How did you hear about us */}
                   <div className="space-y-2">
-                    <Label htmlFor="referralSource">How did you hear about us?</Label>
+                    <Label htmlFor="referralSource">How did you hear about us? <span className="text-destructive">*</span></Label>
                     <select
                       id="referralSource"
                       value={referralSource}
