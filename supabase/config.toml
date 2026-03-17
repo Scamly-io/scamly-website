@@ -33,3 +33,6 @@ verify_jwt = false
 [functions.register-interest]
 verify_jwt = false
 
+[functions.delete-account]
+verify_jwt = false
+

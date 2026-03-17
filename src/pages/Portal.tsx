@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import { z } from "zod";
 import { countries } from "@/constants/countries";
+import { DeleteAccountSection } from "@/components/DeleteAccountSection";
 import {
   trackCheckoutStarted,
   trackCheckoutCompleted,
@@ -583,6 +584,8 @@ export default function Portal() {
                     Save Changes
                   </Button>
                 </div>
+
+                <DeleteAccountSection />
               </div>
             )}
 
