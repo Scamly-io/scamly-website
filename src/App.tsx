@@ -6,8 +6,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { PasswordGate } from "@/components/PasswordGate";
-import { isTestSubdomain } from "@/lib/subdomain";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import CheckEmail from "./pages/CheckEmail";
