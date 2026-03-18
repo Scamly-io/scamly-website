@@ -469,27 +469,7 @@ export default function Portal() {
             <p className="text-muted-foreground">Manage your account settings and subscription.</p>
           </div>
 
-          {/* Subscription Status Banner */}
-          {!isPremium && !isCancelling && (
-            <div className="mb-8 p-6 rounded-2xl gradient-bg relative overflow-hidden">
-              <div className="absolute inset-0 bg-hero-pattern opacity-10" />
-              <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-primary-foreground/20 flex items-center justify-center">
-                    <Crown className="w-6 h-6 text-primary-foreground" />
-                  </div>
-                  <div>
-                    <h3 className="font-display font-bold text-primary-foreground text-lg">Upgrade to Premium</h3>
-                    <p className="text-primary-foreground/80 text-sm">Get unlimited scans, AI chat, and more.</p>
-                  </div>
-                </div>
-                <Button variant="secondary" onClick={() => setActiveTab("subscription")}>
-                  View Plans
-                  <ArrowUpRight className="w-4 h-4 ml-1" />
-                </Button>
-              </div>
-            </div>
-          )}
+          {/* Subscription Status Banner - hidden: subscriptions now managed via mobile app */}
 
           {/* Tabs */}
           <div className="grid grid-cols-2 md:flex gap-1 p-1 rounded-xl bg-muted mb-8">
@@ -644,149 +624,20 @@ export default function Portal() {
                   )}
                 </div>
 
-                {/* Referral Code Input for non-premium users */}
-                {!isPremium && !isCancelling && (
-                  <div className="mb-6">
-                    <ReferralCodeInput
-                      initialValue={checkoutReferralCode || ""}
-                      onValidCode={(code) => setCheckoutReferralCode(code)}
-                      onClear={() => setCheckoutReferralCode(null)}
-                    />
-                  </div>
-                )}
-
-                {/* Free Trial Banner for non-premium users who are eligible */}
-                {!isPremium && !isCancelling && isEligibleForTrial && (
-                  <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/30 mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
-                        <Gift className="w-5 h-5 text-green-600 dark:text-green-400" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-green-700 dark:text-green-300">14-Day Free Trial Included</p>
-                        <p className="text-sm text-green-600 dark:text-green-400">
-                          Try Premium free for 14 days. Your card won't be charged until the trial ends.
-                        </p>
-                      </div>
+                {/* Mobile App Notice */}
+                <div className="p-4 rounded-xl bg-primary/10 border border-primary/20">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                      <CreditCard className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-foreground">Subscriptions managed via the app</p>
+                      <p className="text-sm text-muted-foreground">
+                        To subscribe, upgrade, or manage billing, please use the Scamly mobile app.
+                      </p>
                     </div>
                   </div>
-                )}
-
-                {/* Trial Abuse Modal - shown when user has consumed trial and visits subscription tab */}
-                <Dialog
-                  open={showTrialAbuseModal}
-                  onOpenChange={(open) => {
-                    if (!open) handleDismissTrialAbuseModal();
-                  }}
-                >
-                  <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                      <div className="mx-auto w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center mb-4">
-                        <AlertTriangle className="w-8 h-8 text-amber-500" />
-                      </div>
-                      <DialogTitle className="text-center text-xl">Free Trial Not Available</DialogTitle>
-                      <DialogDescription className="text-center space-y-3 pt-2">
-                        <p>
-                          We detected that your payment details or email address have been previously used for a free
-                          trial.
-                        </p>
-                        <p>As a result, your account was not upgraded to Scamly Premium with the free trial.</p>
-                        <p className="font-medium text-foreground">
-                          You can still subscribe to Scamly Premium — your card will simply be charged immediately upon
-                          checkout instead of after a trial period.
-                        </p>
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="flex justify-center pt-4">
-                      <Button variant="gradient" onClick={handleDismissTrialAbuseModal}>
-                        Got it, show me the plans
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-
-                {/* Plan Options */}
-                {!isPremium && !isCancelling && (
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="p-6 rounded-xl border border-border hover:border-primary transition-colors">
-                      <h3 className="font-display font-bold text-lg mb-2">Monthly</h3>
-                      <p className="text-3xl font-bold mb-1">
-                        {monthlyPrice}<span className="text-lg font-normal text-muted-foreground">/mo</span>
-                      </p>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        {isEligibleForTrial ? "Billed monthly after trial" : "Billed monthly"}
-                      </p>
-                      {isEligibleForTrial && (
-                        <p className="text-sm text-green-600 dark:text-green-400 mb-4">+ 14-day free trial</p>
-                      )}
-                      {checkoutReferralCode && (
-                        <p className="text-sm text-green-600 mb-2">-10% referral discount applied!</p>
-                      )}
-                      <ul className="space-y-2 mb-6">
-                        {["Unlimited scans", "AI Chat", "Contact Search", "Full Library"].map((feature) => (
-                          <li key={feature} className="flex items-center gap-2 text-sm">
-                            <Check className="w-4 h-4 text-green-500" />
-                            {feature}
-                          </li>
-                        ))}
-                      </ul>
-                      <Button variant="outline" className="w-full" onClick={() => handleUpgrade("monthly")}>
-                        {isEligibleForTrial ? "Start Free Trial" : "Subscribe Now"}
-                      </Button>
-                    </div>
-
-                    <div className="p-6 rounded-xl border-2 border-primary relative">
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                        <span className="px-3 py-1 rounded-full gradient-bg text-xs font-semibold text-primary-foreground">
-                          {isEligibleForTrial ? `Save ${yearlySavings} + Free Trial` : `Save ${yearlySavings}`}
-                        </span>
-                      </div>
-                      <h3 className="font-display font-bold text-lg mb-2">Yearly</h3>
-                      <p className="text-3xl font-bold mb-1">
-                        {yearlyPrice}<span className="text-lg font-normal text-muted-foreground">/yr</span>
-                      </p>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        {isEligibleForTrial ? "Billed annually after trial" : "Billed annually"}
-                      </p>
-                      {isEligibleForTrial && (
-                        <p className="text-sm text-green-600 dark:text-green-400 mb-4">+ 14-day free trial</p>
-                      )}
-                      {checkoutReferralCode && (
-                        <p className="text-sm text-green-600 mb-2">-10% referral discount applied!</p>
-                      )}
-                      <ul className="space-y-2 mb-6">
-                        {["Unlimited scans", "AI Chat", "Contact Search", "Full Library"].map((feature) => (
-                          <li key={feature} className="flex items-center gap-2 text-sm">
-                            <Check className="w-4 h-4 text-green-500" />
-                            {feature}
-                          </li>
-                        ))}
-                      </ul>
-                      <Button variant="gradient" className="w-full" onClick={() => handleUpgrade("yearly")}>
-                        {isEligibleForTrial ? "Start Free Trial" : "Subscribe Now"}
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Manage Subscription */}
-                {(isPremium || isCancelling) && (
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <Button variant="outline" onClick={handleManageSubscription}>
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      Manage Billing
-                    </Button>
-                    {isPremium && !isCancelling && (
-                      <Button
-                        variant="ghost"
-                        className="text-destructive hover:text-destructive"
-                        onClick={handleManageSubscription}
-                      >
-                        Cancel Subscription
-                      </Button>
-                    )}
-                  </div>
-                )}
+                </div>
               </div>
             )}
 
