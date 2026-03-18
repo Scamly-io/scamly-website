@@ -124,11 +124,11 @@ export function Navbar() {
                   </Button>
                 ) : (
                   <>
-                    <Button variant="outline" asChild className="w-full">
-                      <Link to="/auth">Sign In</Link>
+                    <Button variant="outline" disabled className="w-full opacity-50 cursor-not-allowed">
+                      Sign In
                     </Button>
-                    <Button variant="gradient" asChild className="w-full" onClick={() => trackSignupStarted('navbar_mobile')}>
-                      <Link to="/auth?mode=signup">Get Started</Link>
+                    <Button variant="gradient" disabled className="w-full opacity-50 cursor-not-allowed">
+                      Get Started
                     </Button>
                   </>
                 )}

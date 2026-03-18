@@ -56,14 +56,10 @@ export function HeroSection() {
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 opacity-0 animate-fade-up"
             style={{ animationDelay: "0.4s" }}
           >
-            {isTest && (
-              <Button variant="gradient" size="xl" asChild className="group" onClick={() => trackSignupStarted("hero")}>
-                <Link to="/auth?mode=signup">
-                  Start Free Trial
-                  <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </Button>
-            )}
+            <Button variant="gradient" size="xl" disabled className="group opacity-50 cursor-not-allowed">
+              Start Free Trial
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
             <Button variant="outline" size="xl" asChild className="backdrop-blur-sm">
               <a href="#features">Learn More</a>
             </Button>

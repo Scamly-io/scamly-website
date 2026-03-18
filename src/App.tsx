@@ -65,9 +65,7 @@ const AppContent = () => {
           <TooltipProvider>
             <Toaster />
             <Sonner />
-            <PasswordGate>
-              <TestSubdomainApp />
-            </PasswordGate>
+            <TestSubdomainApp />
           </TooltipProvider>
         </AuthProvider>
       </ThemeProvider>
