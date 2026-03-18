@@ -37,7 +37,7 @@ const plans = [
       { text: "Contact Search Tool", included: true },
       { text: "First access to new features", included: true },
     ],
-    cta: "Start 14-Day Free Trial",
+    cta: "Start 7-Day Free Trial",
     variant: "gradient" as const,
     popular: true,
   },
