@@ -108,8 +108,8 @@ export function PricingSection() {
               {/* Popular Badge */}
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <span className="px-4 py-1.5 rounded-full gradient-bg text-sm font-semibold text-primary-foreground shadow-lg">
-                    14-Day Free Trial
+                   <span className="px-4 py-1.5 rounded-full gradient-bg text-sm font-semibold text-primary-foreground shadow-lg">
+                     7-Day Free Trial
                   </span>
                 </div>
               )}
