@@ -69,11 +69,11 @@ export function Navbar() {
               </Button>
             ) : (
               <>
-                <Button variant="ghost" asChild>
-                  <Link to="/auth">Sign In</Link>
+                <Button variant="ghost" disabled className="opacity-50 cursor-not-allowed">
+                  Sign In
                 </Button>
-                <Button variant="gradient" asChild onClick={() => trackSignupStarted('navbar')}>
-                  <Link to="/auth?mode=signup">Get Started</Link>
+                <Button variant="gradient" disabled className="opacity-50 cursor-not-allowed">
+                  Get Started
                 </Button>
               </>
             )}
