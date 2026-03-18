@@ -27,7 +27,7 @@ const TestSubdomainApp = () => (
   <BrowserRouter>
     <Routes>
       <Route path="/" element={<Index />} />
-      <Route path="/auth" element={<Auth />} />
+      <Route path="/auth" element={<Navigate to="/" replace />} />
       <Route path="/check-email" element={<CheckEmail />} />
       <Route path="/portal/onboarding" element={<PortalOnboarding />} />
       <Route path="/portal/onboarding-complete" element={<PortalOnboardingComplete />} />
