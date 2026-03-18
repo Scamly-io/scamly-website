@@ -24,9 +24,9 @@ const plans = [
   },
   {
     name: "Premium",
-    price: "$10",
+    price: "$9.99",
     period: "per month",
-    yearlyPrice: "$99/year",
+    yearlyPrice: "$99.99/year",
     yearlySavings: "Save $21",
     description: "Unlimited protection for peace of mind",
     features: [
