@@ -469,27 +469,7 @@ export default function Portal() {
             <p className="text-muted-foreground">Manage your account settings and subscription.</p>
           </div>
 
-          {/* Subscription Status Banner */}
-          {!isPremium && !isCancelling && (
-            <div className="mb-8 p-6 rounded-2xl gradient-bg relative overflow-hidden">
-              <div className="absolute inset-0 bg-hero-pattern opacity-10" />
-              <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-primary-foreground/20 flex items-center justify-center">
-                    <Crown className="w-6 h-6 text-primary-foreground" />
-                  </div>
-                  <div>
-                    <h3 className="font-display font-bold text-primary-foreground text-lg">Upgrade to Premium</h3>
-                    <p className="text-primary-foreground/80 text-sm">Get unlimited scans, AI chat, and more.</p>
-                  </div>
-                </div>
-                <Button variant="secondary" onClick={() => setActiveTab("subscription")}>
-                  View Plans
-                  <ArrowUpRight className="w-4 h-4 ml-1" />
-                </Button>
-              </div>
-            </div>
-          )}
+          {/* Subscription Status Banner - hidden: subscriptions now managed via mobile app */}
 
           {/* Tabs */}
           <div className="grid grid-cols-2 md:flex gap-1 p-1 rounded-xl bg-muted mb-8">
