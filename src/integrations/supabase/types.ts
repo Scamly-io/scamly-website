@@ -230,6 +230,24 @@ export type Database = {
           },
         ]
       }
+      processed_revenuecat_events: {
+        Row: {
+          event_type: string
+          id: string
+          processed_at: string
+        }
+        Insert: {
+          event_type: string
+          id: string
+          processed_at?: string
+        }
+        Update: {
+          event_type?: string
+          id?: string
+          processed_at?: string
+        }
+        Relationships: []
+      }
       processed_stripe_events: {
         Row: {
           event_type: string
@@ -251,6 +269,7 @@ export type Database = {
       profiles: {
         Row: {
           access_expires_at: string | null
+          billing_issue: boolean
           country: string | null
           created_at: string
           data_sharing_consent: boolean
@@ -271,11 +290,14 @@ export type Database = {
           subscription_current_period_end: string | null
           subscription_id: string | null
           subscription_plan: string | null
+          subscription_product_id: string | null
           subscription_status: string | null
+          subscription_store: string | null
           welcome_email_sent: boolean
         }
         Insert: {
           access_expires_at?: string | null
+          billing_issue?: boolean
           country?: string | null
           created_at?: string
           data_sharing_consent?: boolean
@@ -296,11 +318,14 @@ export type Database = {
           subscription_current_period_end?: string | null
           subscription_id?: string | null
           subscription_plan?: string | null
+          subscription_product_id?: string | null
           subscription_status?: string | null
+          subscription_store?: string | null
           welcome_email_sent?: boolean
         }
         Update: {
           access_expires_at?: string | null
+          billing_issue?: boolean
           country?: string | null
           created_at?: string
           data_sharing_consent?: boolean
@@ -321,7 +346,9 @@ export type Database = {
           subscription_current_period_end?: string | null
           subscription_id?: string | null
           subscription_plan?: string | null
+          subscription_product_id?: string | null
           subscription_status?: string | null
+          subscription_store?: string | null
           welcome_email_sent?: boolean
         }
         Relationships: []
