@@ -20,9 +20,9 @@ const plans = [
   },
   {
     name: "Premium",
-    price: "$10",
+    price: "$9.99",
     period: "per month",
-    yearlyPrice: "$99/year",
+    yearlyPrice: "$99.99/year",
     yearlySavings: "Save $21",
     description: "Unlimited protection for peace of mind",
     features: [
@@ -94,9 +94,9 @@ export function MainPricingSection() {
               {/* Popular Badge */}
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <span className="px-4 py-1.5 rounded-full gradient-bg text-sm font-semibold text-primary-foreground shadow-lg">
-                    14-Day Free Trial
-                  </span>
+                    <span className="px-4 py-1.5 rounded-full gradient-bg text-sm font-semibold text-primary-foreground shadow-lg">
+                     7-Day Free Trial
+                   </span>
                 </div>
               )}
 
@@ -117,9 +117,9 @@ export function MainPricingSection() {
                 )}
                 <p className="text-sm text-muted-foreground mt-2">{plan.description}</p>
                 {plan.popular && (
-                  <p className="text-sm text-green-600 dark:text-green-400 font-medium mt-2">
-                    ✓ Try free for 14 days, cancel anytime
-                  </p>
+                 <p className="text-sm text-green-600 dark:text-green-400 font-medium mt-2">
+                     ✓ Try free for 7 days, cancel anytime
+                   </p>
                 )}
               </div>
 
@@ -146,7 +146,7 @@ export function MainPricingSection() {
 
         {/* Trust Note */}
         <p className="text-center text-sm text-muted-foreground mt-8">
-          Start with a 14-day free trial. Accounts can be created when Scamly is released to the App Store and Google Play.
+          Start with a 7-day free trial. Accounts can be created when Scamly is released to the App Store and Google Play.
           <br />
           All prices displayed are in USD. For Australian users: Free plan remains free, Premium is approximately A$16/month or A$159/year.
         </p>
