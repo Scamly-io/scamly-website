@@ -117,9 +117,9 @@ export function MainPricingSection() {
                 )}
                 <p className="text-sm text-muted-foreground mt-2">{plan.description}</p>
                 {plan.popular && (
-                  <p className="text-sm text-green-600 dark:text-green-400 font-medium mt-2">
-                    ✓ Try free for 14 days, cancel anytime
-                  </p>
+                 <p className="text-sm text-green-600 dark:text-green-400 font-medium mt-2">
+                     ✓ Try free for 7 days, cancel anytime
+                   </p>
                 )}
               </div>
 
