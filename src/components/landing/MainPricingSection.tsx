@@ -148,7 +148,7 @@ export function MainPricingSection() {
         <p className="text-center text-sm text-muted-foreground mt-8">
           Start with a 7-day free trial. Accounts can be created when Scamly is released to the App Store and Google Play.
           <br />
-          All prices displayed are in USD. For Australian users: Free plan remains free, Premium is approximately A$16/month or A$159/year.
+          All prices displayed are in USD.
         </p>
       </div>
     </section>

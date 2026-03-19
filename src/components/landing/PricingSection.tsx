@@ -172,7 +172,7 @@ export function PricingSection() {
         <p className="text-center text-sm text-muted-foreground mt-8">
           Start with a 7-day free trial. No credit card charged until trial ends. Cancel anytime.
           <br />
-          All prices displayed are in USD. For Australian users: Free plan remains free, Premium is approximately A$16/month or A$159/year.
+          All prices displayed are in USD.
         </p>
       </div>
     </section>
