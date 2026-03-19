@@ -357,6 +357,13 @@ serve(async (req) => {
         }
 
         logStep("RENEWAL processed successfully", { appUserId });
+
+        // Meta CAPI: payment on renewal
+        const renewalPrice = event.price ? parseFloat(event.price) : 0;
+        if (renewalPrice > 0) {
+          await sendMetaConversionEvent("Purchase", `rc_renewal_${eventId}`, appUserId, renewalPrice);
+        }
+
         break;
       }
 
