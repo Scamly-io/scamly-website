@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import Stripe from "https://esm.sh/stripe@18.5.0";
 import { Resend } from "https://esm.sh/resend";
 import { Redis } from "https://esm.sh/@upstash/redis";
 import { Ratelimit } from "https://esm.sh/@upstash/ratelimit@latest";
@@ -16,6 +15,81 @@ function getCorsHeaders(req: Request) {
 const logStep = (step: string, details?: unknown) => {
   console.log(`[DELETE-ACCOUNT] ${step}${details ? ` - ${JSON.stringify(details)}` : ""}`);
 };
+
+// ── Error codes for support reference ──────────────────────────────────
+// Format: DA-<category><number>
+// DA-SUB01: Profile shows active subscription
+// DA-SUB02: RevenueCat shows active entitlements
+// DA-MIS01: Profile active but RevenueCat inactive (mismatch)
+// DA-MIS02: Profile inactive but RevenueCat active (mismatch)
+// DA-RC01:  RevenueCat API call failed (could not verify)
+
+/**
+ * Check if the user has an active subscription according to the profiles table.
+ * "Active" = subscription_status is one of: active, trialing, past_due, pending
+ */
+function hasActiveProfileSubscription(profile: {
+  subscription_status: string | null;
+}): boolean {
+  const activeStatuses = ["active", "trialing", "past_due", "pending"];
+  return !!profile.subscription_status && activeStatuses.includes(profile.subscription_status);
+}
+
+/**
+ * Check RevenueCat V2 API for active entitlements.
+ * Returns: { hasActive: boolean; error?: string }
+ */
+async function checkRevenueCatEntitlements(
+  userId: string,
+): Promise<{ hasActive: boolean; error?: string }> {
+  const rcApiKey = Deno.env.get("REVENUECAT_V2_API_KEY");
+  const rcProjectId = Deno.env.get("REVENUECAT_PROJECT_ID");
+
+  if (!rcApiKey || !rcProjectId) {
+    logStep("RevenueCat credentials not configured");
+    return { hasActive: false, error: "RevenueCat credentials not configured" };
+  }
+
+  try {
+    const url = `https://api.revenuecat.com/v2/projects/${rcProjectId}/customers/${encodeURIComponent(userId)}`;
+    logStep("Calling RevenueCat V2 API", { url: url.replace(rcProjectId, "***") });
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${rcApiKey}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.status === 404) {
+      // Customer not found in RevenueCat — no active entitlements
+      logStep("Customer not found in RevenueCat (404), treating as no active entitlements");
+      return { hasActive: false };
+    }
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      logStep("RevenueCat API error", { status: response.status, body: errorBody });
+      return { hasActive: false, error: `RevenueCat API returned ${response.status}` };
+    }
+
+    const data = await response.json();
+    const activeEntitlements = data?.active_entitlements?.items || [];
+    const hasActive = activeEntitlements.length > 0;
+
+    logStep("RevenueCat entitlements check", {
+      hasActive,
+      entitlementCount: activeEntitlements.length,
+    });
+
+    return { hasActive };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    logStep("RevenueCat API call failed", { error: msg });
+    return { hasActive: false, error: msg };
+  }
+}
 
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
@@ -73,10 +147,10 @@ serve(async (req) => {
       });
     }
 
-    // Get profile and user email BEFORE deletion
+    // ── Step 1: Fetch profile ──────────────────────────────────────────
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("profiles")
-      .select("stripe_customer_id, subscription_id, subscription_status")
+      .select("stripe_customer_id, subscription_id, subscription_status, subscription_store, subscription_plan")
       .eq("id", userId)
       .single();
 
@@ -85,37 +159,96 @@ serve(async (req) => {
       throw new Error("Failed to fetch profile");
     }
 
-    // Fetch user email before we delete the account
+    logStep("Profile fetched", {
+      subscriptionStatus: profile.subscription_status,
+      subscriptionStore: profile.subscription_store,
+      subscriptionPlan: profile.subscription_plan,
+    });
+
+    // ── Step 2: Check for active subscription in profiles table ───────
+    const profileHasActive = hasActiveProfileSubscription(profile);
+
+    // ── Step 3: Check RevenueCat for active entitlements ──────────────
+    const rcResult = await checkRevenueCatEntitlements(userId);
+
+    logStep("Subscription check results", {
+      profileHasActive,
+      rcHasActive: rcResult.hasActive,
+      rcError: rcResult.error || null,
+    });
+
+    // ── Step 4: Handle RevenueCat API failure ────────────────────────
+    if (rcResult.error) {
+      // If we can't verify with RevenueCat, return an error
+      logStep("Cannot verify RevenueCat status, returning error", { errorCode: "DA-RC01" });
+      return new Response(
+        JSON.stringify({
+          error: "Unable to verify subscription status. Please try again later or contact support.",
+          code: "DA-RC01",
+          type: "verification_failed",
+        }),
+        {
+          status: 503,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // ── Step 5: Both agree user has active subscription ──────────────
+    if (profileHasActive && rcResult.hasActive) {
+      logStep("Active subscription detected (both sources agree)", { errorCode: "DA-SUB01" });
+      return new Response(
+        JSON.stringify({
+          error: "You have an active subscription. Please cancel your subscription in the app before deleting your account.",
+          code: "DA-SUB01",
+          type: "active_subscription",
+        }),
+        {
+          status: 409,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // ── Step 6: Mismatch scenarios ───────────────────────────────────
+    if (profileHasActive && !rcResult.hasActive) {
+      logStep("Mismatch: profile active but RevenueCat inactive", { errorCode: "DA-MIS01" });
+      return new Response(
+        JSON.stringify({
+          error: "There was an issue verifying your subscription status. Please contact support with your error code.",
+          code: "DA-MIS01",
+          type: "subscription_mismatch",
+        }),
+        {
+          status: 422,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    if (!profileHasActive && rcResult.hasActive) {
+      logStep("Mismatch: profile inactive but RevenueCat active", { errorCode: "DA-MIS02" });
+      return new Response(
+        JSON.stringify({
+          error: "There was an issue verifying your subscription status. Please contact support with your error code.",
+          code: "DA-MIS02",
+          type: "subscription_mismatch",
+        }),
+        {
+          status: 422,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // ── Step 7: No active subscription — proceed with deletion ───────
+    logStep("No active subscription, proceeding with deletion");
+
+    // Fetch user email before deletion
     const { data: { user: authUser } } = await supabaseAdmin.auth.admin.getUserById(userId);
     const userEmail = authUser?.email;
 
-    logStep("Profile fetched", {
-      hasStripeCustomer: !!profile.stripe_customer_id,
-      subscriptionStatus: profile.subscription_status,
-      hasSubscriptionId: !!profile.subscription_id,
-      hasEmail: !!userEmail,
-    });
-
-    // Cancel Stripe subscription immediately if active
-    if (profile.subscription_id && profile.subscription_status && !["free", "cancelled"].includes(profile.subscription_status)) {
-      const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-      if (!stripeKey) throw new Error("STRIPE_SECRET_KEY not set");
-
-      const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-
-      try {
-        logStep("Cancelling Stripe subscription immediately", { subscriptionId: profile.subscription_id });
-        await stripe.subscriptions.cancel(profile.subscription_id, {
-          prorate: true,
-          invoice_now: false,
-        });
-        logStep("Stripe subscription cancelled");
-      } catch (stripeErr) {
-        logStep("Stripe cancellation error (proceeding with deletion)", {
-          error: stripeErr instanceof Error ? stripeErr.message : String(stripeErr),
-        });
-      }
-    }
+    logStep("User email fetched", { hasEmail: !!userEmail });
 
     // Send account-deleted email BEFORE deleting the user
     if (userEmail) {
@@ -134,7 +267,6 @@ serve(async (req) => {
           logStep("RESEND_API_KEY not set, skipping account-deleted email");
         }
       } catch (emailErr) {
-        // Log but don't block deletion if email fails
         logStep("Account-deleted email error (proceeding with deletion)", {
           error: emailErr instanceof Error ? emailErr.message : String(emailErr),
         });
