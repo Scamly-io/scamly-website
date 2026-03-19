@@ -53,6 +53,83 @@ const captureError = (error: unknown, context: Record<string, unknown>) => {
   });
 };
 
+// ── Meta Conversions API ─────────────────────────────────────────────────────
+
+const META_PIXEL_ID = "1582049792855534";
+const META_API_VERSION = "v25.0";
+
+/**
+ * Send an event to Meta Conversions API.
+ * - "StartTrial" for trial starts (no value).
+ * - "Purchase" for paid subscriptions / renewals (includes value).
+ * @param eventName  Meta standard event name
+ * @param eventId    Unique ID for deduplication (derived from RC event ID)
+ * @param appUserId  Used as external_id (hashed)
+ * @param value      Purchase amount in USD (omit for trials)
+ */
+const sendMetaConversionEvent = async (
+  eventName: "Purchase" | "StartTrial",
+  eventId: string,
+  appUserId: string,
+  value?: number,
+) => {
+  const metaToken = Deno.env.get("META_CONVERSIONS_API_TOKEN");
+  if (!metaToken) {
+    logWarn("META_CONVERSIONS_API_TOKEN not set, skipping Meta CAPI event");
+    return;
+  }
+
+  try {
+    // Hash the app_user_id as external_id
+    const encoder = new TextEncoder();
+    const data = encoder.encode(appUserId.toLowerCase().trim());
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    const hashedId = Array.from(new Uint8Array(hashBuffer))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+
+    const eventTime = Math.floor(Date.now() / 1000);
+
+    const eventData: Record<string, unknown> = {
+      event_name: eventName,
+      event_id: eventId,
+      event_time: eventTime,
+      action_source: "other",
+      user_data: {
+        external_id: hashedId,
+      },
+    };
+
+    if (value !== undefined && value > 0) {
+      eventData.custom_data = {
+        value,
+        currency: "USD",
+      };
+    }
+
+    const payload = { data: [eventData] };
+
+    const url = `https://graph.facebook.com/${META_API_VERSION}/${META_PIXEL_ID}/events?access_token=${metaToken}`;
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      throw new Error(`Meta CAPI responded with ${response.status}: ${errorBody}`);
+    }
+
+    logStep("Meta CAPI event sent", { eventName, eventId });
+  } catch (error) {
+    logWarn("Failed to send Meta CAPI event", { error, eventName, eventId });
+    captureError(error, { step: "meta-capi-event-failed", eventName, eventId });
+    // Don't throw – tracking failure should not break the webhook
+  }
+};
+
 // ── Product ID mapping ───────────────────────────────────────────────────────
 
 const PRODUCT_TO_PLAN: Record<string, string> = {
@@ -232,6 +309,15 @@ serve(async (req) => {
         }
 
         logStep("INITIAL_PURCHASE processed successfully", { appUserId, status });
+
+        // Meta CAPI: trial start or paid subscription start
+        if (isTrial) {
+          await sendMetaConversionEvent("StartTrial", `rc_trial_${eventId}`, appUserId);
+        } else {
+          const price = event.price ? parseFloat(event.price) : 0;
+          await sendMetaConversionEvent("Purchase", `rc_purchase_${eventId}`, appUserId, price > 0 ? price : undefined);
+        }
+
         break;
       }
 
@@ -271,6 +357,13 @@ serve(async (req) => {
         }
 
         logStep("RENEWAL processed successfully", { appUserId });
+
+        // Meta CAPI: payment on renewal
+        const renewalPrice = event.price ? parseFloat(event.price) : 0;
+        if (renewalPrice > 0) {
+          await sendMetaConversionEvent("Purchase", `rc_renewal_${eventId}`, appUserId, renewalPrice);
+        }
+
         break;
       }
 
