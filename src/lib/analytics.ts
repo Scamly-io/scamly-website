@@ -216,7 +216,6 @@ export function trackPageVisited(pageName: string = "home"): void {
  * This is a key funnel step - if users don't see pricing, they can't convert.
  *
  * Fires when: Pricing section becomes visible (via intersection observer)
- * Note: Uses intersection observer, NOT page load, for accurate visibility tracking
  */
 export function trackPricingViewed(): void {
   captureEvent("pricing_viewed", {
@@ -248,62 +247,11 @@ export function trackSignupStarted(source: string): void {
  * How many users who started signup actually complete it?
  *
  * Fires when: User successfully completes signup flow
- * Note: Only fires AFTER successful signup, not on form submission
  */
 export function trackSignupCompleted(userId?: string): void {
   captureEvent("signup_completed", {
     ...getCommonProperties(),
-    // Include user_id if available for linking to identified user
     user_id: userId,
-  });
-}
-
-/**
- * CHECKOUT_STARTED Event
- *
- * Business Question: How many users initiate payment?
- * What's our checkout initiation rate from the portal?
- *
- * Fires when: User is redirected to Stripe Checkout
- */
-export function trackCheckoutStarted(plan: "monthly" | "yearly", hasReferralCode: boolean): void {
-  captureEvent("checkout_started", {
-    ...getCommonProperties(),
-    // Plan helps analyze which pricing option is more popular
-    checkout_plan: plan,
-    // Referral tracking for attribution
-    has_referral_code: hasReferralCode,
-  });
-}
-
-/**
- * CHECKOUT_COMPLETED Event
- *
- * Business Question: What's our checkout conversion rate?
- * How many users who start checkout actually complete payment?
- *
- * Fires when: User returns from Stripe with confirmed subscription
- * Note: This relies on the success param in the return URL
- */
-export function trackCheckoutCompleted(plan?: string): void {
-  captureEvent("checkout_completed", {
-    ...getCommonProperties(),
-    // Plan info if available
-    checkout_plan: plan,
-  });
-}
-
-/**
- * TRIAL_ABUSE_DETECTED Event
- *
- * Business Question: How many users are attempting to abuse the trial system?
- * This helps us understand the scale of trial abuse and optimize our detection.
- *
- * Fires when: Trial abuse is detected and the modal is shown for the first time
- */
-export function trackTrialAbuseDetected(): void {
-  captureEvent("trial_abuse_detected", {
-    ...getCommonProperties(),
   });
 }
 
