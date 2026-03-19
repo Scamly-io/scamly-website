@@ -348,7 +348,7 @@ serve(async (req) => {
         // Meta CAPI: payment on renewal
         const renewalPrice = event.price ? parseFloat(event.price) : 0;
         if (renewalPrice > 0) {
-          await sendMetaConversionEvent("Purchase", `rc_renewal_${eventId}`, appUserId, renewalPrice);
+          await sendMetaConversionEvent("Purchase", `rc_renewal_${eventId}`, renewalPrice);
         }
 
         break;
