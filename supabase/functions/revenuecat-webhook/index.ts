@@ -299,10 +299,10 @@ serve(async (req) => {
 
         // Meta CAPI: trial start or paid subscription start
         if (isTrial) {
-          await sendMetaConversionEvent("StartTrial", `rc_trial_${eventId}`, appUserId);
+          await sendMetaConversionEvent("StartTrial", `rc_trial_${eventId}`);
         } else {
           const price = event.price ? parseFloat(event.price) : 0;
-          await sendMetaConversionEvent("Purchase", `rc_purchase_${eventId}`, appUserId, price > 0 ? price : undefined);
+          await sendMetaConversionEvent("Purchase", `rc_purchase_${eventId}`, price > 0 ? price : undefined);
         }
 
         break;
