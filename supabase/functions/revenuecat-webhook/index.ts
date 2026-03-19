@@ -64,13 +64,11 @@ const META_API_VERSION = "v25.0";
  * - "Purchase" for paid subscriptions / renewals (includes value).
  * @param eventName  Meta standard event name
  * @param eventId    Unique ID for deduplication (derived from RC event ID)
- * @param appUserId  Used as external_id (hashed)
  * @param value      Purchase amount in USD (omit for trials)
  */
 const sendMetaConversionEvent = async (
   eventName: "Purchase" | "StartTrial",
   eventId: string,
-  appUserId: string,
   value?: number,
 ) => {
   const metaToken = Deno.env.get("META_CONVERSIONS_API_TOKEN");
@@ -80,14 +78,6 @@ const sendMetaConversionEvent = async (
   }
 
   try {
-    // Hash the app_user_id as external_id
-    const encoder = new TextEncoder();
-    const data = encoder.encode(appUserId.toLowerCase().trim());
-    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-    const hashedId = Array.from(new Uint8Array(hashBuffer))
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-
     const eventTime = Math.floor(Date.now() / 1000);
 
     const eventData: Record<string, unknown> = {
@@ -95,9 +85,6 @@ const sendMetaConversionEvent = async (
       event_id: eventId,
       event_time: eventTime,
       action_source: "other",
-      user_data: {
-        external_id: hashedId,
-      },
     };
 
     if (value !== undefined && value > 0) {
@@ -312,10 +299,10 @@ serve(async (req) => {
 
         // Meta CAPI: trial start or paid subscription start
         if (isTrial) {
-          await sendMetaConversionEvent("StartTrial", `rc_trial_${eventId}`, appUserId);
+          await sendMetaConversionEvent("StartTrial", `rc_trial_${eventId}`);
         } else {
           const price = event.price ? parseFloat(event.price) : 0;
-          await sendMetaConversionEvent("Purchase", `rc_purchase_${eventId}`, appUserId, price > 0 ? price : undefined);
+          await sendMetaConversionEvent("Purchase", `rc_purchase_${eventId}`, price > 0 ? price : undefined);
         }
 
         break;
@@ -361,7 +348,7 @@ serve(async (req) => {
         // Meta CAPI: payment on renewal
         const renewalPrice = event.price ? parseFloat(event.price) : 0;
         if (renewalPrice > 0) {
-          await sendMetaConversionEvent("Purchase", `rc_renewal_${eventId}`, appUserId, renewalPrice);
+          await sendMetaConversionEvent("Purchase", `rc_renewal_${eventId}`, renewalPrice);
         }
 
         break;
