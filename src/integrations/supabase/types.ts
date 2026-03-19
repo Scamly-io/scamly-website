@@ -135,33 +135,6 @@ export type Database = {
           },
         ]
       }
-      payment_fingerprints: {
-        Row: {
-          created_at: string
-          fingerprint: string
-          fingerprint_type: string
-          first_used_at: string
-          id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          fingerprint: string
-          fingerprint_type: string
-          first_used_at?: string
-          id?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          fingerprint?: string
-          fingerprint_type?: string
-          first_used_at?: string
-          id?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       policies: {
         Row: {
           content_hash: string | null
@@ -248,24 +221,6 @@ export type Database = {
         }
         Relationships: []
       }
-      processed_stripe_events: {
-        Row: {
-          event_type: string
-          id: string
-          processed_at: string
-        }
-        Insert: {
-          event_type: string
-          id: string
-          processed_at?: string
-        }
-        Update: {
-          event_type?: string
-          id?: string
-          processed_at?: string
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
           access_expires_at: string | null
@@ -276,17 +231,10 @@ export type Database = {
           dob: string | null
           first_name: string | null
           gender: string | null
-          has_consumed_trial: boolean
-          has_paid_first_invoice: boolean
           id: string
           onboarding_completed: boolean | null
-          referral_code: string | null
-          referral_code_active: boolean
-          referral_code_updated_at: string | null
           referral_source: string | null
-          referred_user: boolean
           review_prompted: boolean | null
-          stripe_customer_id: string | null
           subscription_current_period_end: string | null
           subscription_id: string | null
           subscription_plan: string | null
@@ -304,17 +252,10 @@ export type Database = {
           dob?: string | null
           first_name?: string | null
           gender?: string | null
-          has_consumed_trial?: boolean
-          has_paid_first_invoice?: boolean
           id: string
           onboarding_completed?: boolean | null
-          referral_code?: string | null
-          referral_code_active?: boolean
-          referral_code_updated_at?: string | null
           referral_source?: string | null
-          referred_user?: boolean
           review_prompted?: boolean | null
-          stripe_customer_id?: string | null
           subscription_current_period_end?: string | null
           subscription_id?: string | null
           subscription_plan?: string | null
@@ -332,17 +273,10 @@ export type Database = {
           dob?: string | null
           first_name?: string | null
           gender?: string | null
-          has_consumed_trial?: boolean
-          has_paid_first_invoice?: boolean
           id?: string
           onboarding_completed?: boolean | null
-          referral_code?: string | null
-          referral_code_active?: boolean
-          referral_code_updated_at?: string | null
           referral_source?: string | null
-          referred_user?: boolean
           review_prompted?: boolean | null
-          stripe_customer_id?: string | null
           subscription_current_period_end?: string | null
           subscription_id?: string | null
           subscription_plan?: string | null
@@ -352,92 +286,6 @@ export type Database = {
           welcome_email_sent?: boolean
         }
         Relationships: []
-      }
-      referral_rewards: {
-        Row: {
-          applied: boolean
-          applied_at: string | null
-          created_at: string
-          id: string
-          percent: number
-          source_referral_id: string | null
-          stripe_coupon_id: string
-          user_id: string
-        }
-        Insert: {
-          applied?: boolean
-          applied_at?: string | null
-          created_at?: string
-          id?: string
-          percent: number
-          source_referral_id?: string | null
-          stripe_coupon_id: string
-          user_id: string
-        }
-        Update: {
-          applied?: boolean
-          applied_at?: string | null
-          created_at?: string
-          id?: string
-          percent?: number
-          source_referral_id?: string | null
-          stripe_coupon_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "referral_rewards_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      referrals: {
-        Row: {
-          converted: boolean
-          converted_at: string | null
-          created_at: string
-          id: string
-          referral_code_used: string
-          referred_user_id: string
-          referrer_user_id: string
-        }
-        Insert: {
-          converted?: boolean
-          converted_at?: string | null
-          created_at?: string
-          id?: string
-          referral_code_used: string
-          referred_user_id: string
-          referrer_user_id: string
-        }
-        Update: {
-          converted?: boolean
-          converted_at?: string | null
-          created_at?: string
-          id?: string
-          referral_code_used?: string
-          referred_user_id?: string
-          referrer_user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "referrals_referred_user_id_fkey"
-            columns: ["referred_user_id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "referrals_referrer_user_id_fkey"
-            columns: ["referrer_user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       scans: {
         Row: {
@@ -492,7 +340,6 @@ export type Database = {
           user_accepted_version: string
         }[]
       }
-      generate_referral_code: { Args: never; Returns: string }
       get_current_policy_version: {
         Args: { p_policy_type: string }
         Returns: {
@@ -503,15 +350,6 @@ export type Database = {
           version: string
         }[]
       }
-      get_referral_stats: {
-        Args: { p_user_id: string }
-        Returns: {
-          converted_referrals: number
-          pending_discount_percent: number
-          pending_referrals: number
-          total_referrals: number
-        }[]
-      }
       get_user_counts: {
         Args: { uid: string }
         Returns: {
@@ -520,14 +358,9 @@ export type Database = {
           scan_count: number
         }[]
       }
-      has_used_referral_code: { Args: { user_id: string }; Returns: boolean }
       increment_article_views: {
         Args: { article_id: string }
         Returns: undefined
-      }
-      is_valid_referral_code_format: {
-        Args: { code: string }
-        Returns: boolean
       }
       message_belongs_to_user: {
         Args: { msg_conversation_id: string }
