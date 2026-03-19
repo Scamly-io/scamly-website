@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { ReferralDashboard, ReferralCodeInput } from "@/components/referral";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PolicyAcceptanceModal } from "@/components/policy";
 import { usePolicyCompliance } from "@/hooks/usePolicyCompliance";
@@ -29,23 +28,18 @@ import {
   Check,
   ExternalLink,
   Loader2,
-  ArrowUpRight,
-  Gift,
-  AlertTriangle,
 } from "lucide-react";
 import { z } from "zod";
 import { countries } from "@/constants/countries";
 import { DeleteAccountSection } from "@/components/DeleteAccountSection";
 import {
-  trackCheckoutStarted,
-  trackCheckoutCompleted,
   identifyUser,
   resetUser,
 } from "@/lib/analytics";
 
 const genders = ["Male", "Female", "Prefer not to say"];
 
-type Tab = "profile" | "subscription" | "referrals" | "security";
+type Tab = "profile" | "subscription" | "security";
 
 export default function Portal() {
   const navigate = useNavigate();
@@ -78,51 +72,6 @@ export default function Portal() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // Referral code for checkout
-  const [checkoutReferralCode, setCheckoutReferralCode] = useState<string | null>(null);
-
-  // Trial abuse modal state
-  const [showTrialAbuseModal, setShowTrialAbuseModal] = useState(false);
-
-  // Handle checkout success/cancel params and referral code from URL
-  useEffect(() => {
-    const success = searchParams.get("success");
-    const canceled = searchParams.get("canceled");
-    const refCode = searchParams.get("ref");
-
-    // Pre-fill referral code if passed from auth page
-    if (refCode && !checkoutReferralCode) {
-      setCheckoutReferralCode(refCode);
-      // Go to subscription tab to show the referral code input
-      setActiveTab("subscription");
-    }
-
-    if (success === "true") {
-      // Track successful checkout completion
-      // This answers: "What's our checkout conversion rate?"
-      trackCheckoutCompleted(profile?.subscription_plan || undefined);
-
-      console.log("[portal.tsx] Fired trackedCheckoutCompleted");
-
-      toast({
-        title: "Subscription activated!",
-        description: "Welcome to Scamly Premium. Your subscription is now active.",
-      });
-      // Refresh profile to get updated subscription status
-      refreshProfile();
-      // Clear the query params
-      setSearchParams({});
-      setActiveTab("subscription");
-    } else if (canceled === "true") {
-      toast({
-        title: "Checkout canceled",
-        description: "You can subscribe anytime from your portal.",
-        variant: "destructive",
-      });
-      setSearchParams({});
-    }
-  }, [searchParams, setSearchParams, toast, refreshProfile, profile?.subscription_plan]);
-
   // Identify user for analytics when they're logged in
   useEffect(() => {
     if (user) {
@@ -150,38 +99,14 @@ export default function Portal() {
     }
   }, [user, loading, navigate, profile]);
 
-  // Helper to get user-specific localStorage key for trial abuse modal
-  const getTrialAbuseModalKey = (userId: string) => `trial_abuse_modal_dismissed_${userId}`;
-
   useEffect(() => {
     if (profile && user) {
       setFirstName(profile.first_name || "");
       setDob(profile.dob || "");
       setCountry(profile.country || "");
       setGender(profile.gender || "");
-
-      // Show trial abuse modal only if:
-      // 1. User has consumed trial but is on free plan
-      // 2. User hasn't already dismissed this modal (checked via localStorage)
-      const isPremiumStatus = profile.subscription_status === "active" || profile.subscription_status === "trialing";
-      const modalKey = getTrialAbuseModalKey(user.id);
-      const hasSeenModal = localStorage.getItem(modalKey) === "true";
-
-      if (!isPremiumStatus && profile.has_consumed_trial && !hasSeenModal) {
-        setShowTrialAbuseModal(true);
-        setActiveTab("subscription");
-        // Note: trial_abuse_detected event is now tracked server-side in stripe-webhook
-      }
     }
   }, [profile, user]);
-
-  // Handler to dismiss trial abuse modal and save to localStorage
-  const handleDismissTrialAbuseModal = () => {
-    if (user) {
-      localStorage.setItem(getTrialAbuseModalKey(user.id), "true");
-    }
-    setShowTrialAbuseModal(false);
-  };
 
   const handleUpdateProfile = async () => {
     // Validate required fields
@@ -294,106 +219,6 @@ export default function Portal() {
     navigate("/");
   };
 
-  // Stripe checkout functions
-  const handleUpgrade = async (plan: "monthly" | "yearly") => {
-    // Track checkout started immediately on button click
-    // This answers: "How many users initiate payment?"
-    trackCheckoutStarted(plan, !!checkoutReferralCode);
-    
-    setSaving(true);
-    toast({
-      title: "Redirecting to checkout...",
-      description: `You'll be redirected to complete your ${plan} subscription.`,
-    });
-
-    try {
-      console.log("[Portal] Starting checkout for plan:", plan, "country:", country);
-      
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { plan, referralCode: checkoutReferralCode, country },
-      });
-
-      console.log("[Portal] Checkout response:", { data, error });
-
-      if (error) {
-        // FunctionsHttpError, FunctionsRelayError, or FunctionsFetchError
-        const errorMessage = error.message || "Unknown edge function error";
-        const errorContext = error.context || {};
-        console.error("[Portal] Edge function error:", { errorMessage, errorContext, error });
-        throw new Error(errorMessage);
-      }
-      
-      if (data?.url) {
-        window.location.href = data.url;
-      } else if (data?.error) {
-        // Handle error returned in the response body
-        throw new Error(data.error);
-      } else {
-        throw new Error("No checkout URL received");
-      }
-    } catch (error) {
-      console.error("[Portal] Checkout error:", error);
-      captureError(error instanceof Error ? error : new Error("Checkout failed"), {
-        source: "Portal",
-        action: "handleUpgrade",
-        userId: user?.id,
-        metadata: { plan, errorDetails: error instanceof Error ? error.message : String(error) },
-      });
-      toast({
-        title: "Checkout failed",
-        description: error instanceof Error ? error.message : "Failed to start checkout",
-        variant: "destructive",
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleManageSubscription = async () => {
-    setSaving(true);
-    toast({
-      title: "Opening billing portal...",
-      description: "You can manage your subscription there.",
-    });
-
-    try {
-      console.log("[Portal] Opening billing portal");
-      
-      const { data, error } = await supabase.functions.invoke("customer-portal");
-
-      console.log("[Portal] Billing portal response:", { data, error });
-
-      if (error) {
-        const errorMessage = error.message || "Unknown edge function error";
-        console.error("[Portal] Edge function error:", { errorMessage, error });
-        throw new Error(errorMessage);
-      }
-      
-      if (data?.url) {
-        window.location.href = data.url;
-      } else if (data?.error) {
-        throw new Error(data.error);
-      } else {
-        throw new Error("No portal URL received");
-      }
-    } catch (error) {
-      console.error("[Portal] Billing portal error:", error);
-      captureError(error instanceof Error ? error : new Error("Billing portal failed"), {
-        source: "Portal",
-        action: "handleManageSubscription",
-        userId: user?.id,
-        metadata: { errorDetails: error instanceof Error ? error.message : String(error) },
-      });
-      toast({
-        title: "Portal failed",
-        description: error instanceof Error ? error.message : "Failed to open billing portal",
-        variant: "destructive",
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
-
   // Detect OAuth provider
   const authProvider = user?.app_metadata?.provider as string | undefined;
   const isOAuthUser = authProvider === "google" || authProvider === "apple";
@@ -402,11 +227,6 @@ export default function Portal() {
   const isPremium = profile?.subscription_status === "active" || profile?.subscription_status === "trialing";
   const isTrialing = profile?.subscription_status === "trialing";
   const isCancelling = !!profile?.access_expires_at && profile?.subscription_status !== "free";
-  const isEligibleForTrial = !profile?.has_consumed_trial;
-  const isAustralian = profile?.country === "Australia";
-  const monthlyPrice = isAustralian ? "A$15" : "$10";
-  const yearlyPrice = isAustralian ? "A$139" : "$99";
-  const yearlySavings = isAustralian ? "A$41" : "$21";
   const subscriptionEndDate = profile?.subscription_current_period_end
     ? new Date(profile.subscription_current_period_end).toLocaleDateString()
     : null;
@@ -425,7 +245,6 @@ export default function Portal() {
   const tabs = [
     { id: "profile" as Tab, label: "Profile", icon: User },
     { id: "subscription" as Tab, label: "Subscription", icon: CreditCard },
-    { id: "referrals" as Tab, label: "Referrals", icon: Gift },
     { id: "security" as Tab, label: "Security", icon: Settings },
   ];
 
@@ -468,8 +287,6 @@ export default function Portal() {
             <h1 className="font-display text-3xl font-bold mb-2">Welcome back, {profile?.first_name || "there"}!</h1>
             <p className="text-muted-foreground">Manage your account settings and subscription.</p>
           </div>
-
-          {/* Subscription Status Banner - hidden: subscriptions now managed via mobile app */}
 
           {/* Tabs */}
           <div className="grid grid-cols-2 md:flex gap-1 p-1 rounded-xl bg-muted mb-8">
@@ -574,7 +391,7 @@ export default function Portal() {
               <div className="space-y-6">
                 <div>
                   <h2 className="font-display text-xl font-bold mb-1">Subscription</h2>
-                  <p className="text-sm text-muted-foreground">Manage your Scamly subscription and billing.</p>
+                  <p className="text-sm text-muted-foreground">Manage your Scamly subscription.</p>
                 </div>
 
                 {/* Current Plan */}
@@ -598,15 +415,11 @@ export default function Portal() {
                   <p className="font-display font-bold text-lg">
                     {isPremium
                       ? isTrialing
-                        ? "Free for 14 days"
-                        : profile?.subscription_plan === "premium-yearly"
-                          ? `${yearlyPrice}/year`
-                          : `${monthlyPrice}/month`
+                        ? "Free Trial"
+                        : "Premium"
                       : isCancelling
-                        ? profile?.subscription_plan === "premium-yearly"
-                          ? `${yearlyPrice}/year`
-                          : `${monthlyPrice}/month`
-                        : "$0/month"}
+                        ? "Premium (Cancelling)"
+                        : "Free"}
                   </p>
                   {isPremium && subscriptionEndDate && (
                     <p className="text-sm text-muted-foreground mt-1">
@@ -638,19 +451,6 @@ export default function Portal() {
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
-
-            {/* Referrals Tab */}
-            {activeTab === "referrals" && (
-              <div className="space-y-6">
-                <div>
-                  <h2 className="font-display text-xl font-bold mb-1">Referral Program</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Share your code and earn discounts on your subscription.
-                  </p>
-                </div>
-                <ReferralDashboard />
               </div>
             )}
 

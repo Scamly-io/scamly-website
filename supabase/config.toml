@@ -1,23 +1,5 @@
 project_id = "rdrumcjwntyfnjhownbd"
 
-[functions.create-checkout]
-verify_jwt = false
-
-[functions.customer-portal]
-verify_jwt = false
-
-[functions.stripe-webhook]
-verify_jwt = false
-
-[functions.validate-referral]
-verify_jwt = false
-
-[functions.update-referral-code]
-verify_jwt = false
-
-[functions.get-referral-stats]
-verify_jwt = false
-
 [functions.send-customer-email]
 verify_jwt = false
 
@@ -38,4 +20,3 @@ verify_jwt = false
 
 [functions.revenuecat-webhook]
 verify_jwt = false
-
