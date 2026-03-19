@@ -150,7 +150,7 @@ serve(async (req) => {
     // ── Step 1: Fetch profile ──────────────────────────────────────────
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("profiles")
-      .select("stripe_customer_id, subscription_id, subscription_status, subscription_store, subscription_plan")
+      .select("subscription_id, subscription_status, subscription_store, subscription_plan")
       .eq("id", userId)
       .single();
 
