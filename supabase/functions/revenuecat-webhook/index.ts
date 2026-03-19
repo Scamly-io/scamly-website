@@ -309,6 +309,15 @@ serve(async (req) => {
         }
 
         logStep("INITIAL_PURCHASE processed successfully", { appUserId, status });
+
+        // Meta CAPI: trial start or paid subscription start
+        if (isTrial) {
+          await sendMetaConversionEvent("StartTrial", `rc_trial_${eventId}`, appUserId);
+        } else {
+          const price = event.price ? parseFloat(event.price) : 0;
+          await sendMetaConversionEvent("Purchase", `rc_purchase_${eventId}`, appUserId, price > 0 ? price : undefined);
+        }
+
         break;
       }
 
