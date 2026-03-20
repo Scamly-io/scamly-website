@@ -138,7 +138,5 @@ export function Navbar() {
         )}
       </div>
     </nav>
-    <AnnouncementBanner />
-    </div>
   );
 }

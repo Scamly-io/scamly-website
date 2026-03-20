@@ -23,6 +23,9 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
+      <div className="pt-16">
+        <AnnouncementBanner />
+      </div>
       <main>
         <HeroSection />
         <FeatureShowcaseSection />
