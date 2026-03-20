@@ -33,6 +33,7 @@ const TestSubdomainApp = () => (
       <Route path="/check-email" element={<CheckEmail />} />
       <Route path="/portal/onboarding" element={<PortalOnboarding />} />
       <Route path="/portal/onboarding-complete" element={<PortalOnboardingComplete />} />
+      <Route path="/portal/feedback" element={<PortalFeedback />} />
       <Route path="/portal" element={<Portal />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/terms" element={<Terms />} />
