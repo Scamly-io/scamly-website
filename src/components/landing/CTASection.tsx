@@ -30,11 +30,13 @@ export function CTASection() {
             <Button 
               variant="gradient" 
               size="xl" 
-              disabled
-              className="opacity-50 cursor-not-allowed"
+              asChild
+              onClick={() => trackSignupStarted('cta')}
             >
-              Create Free Account
-              <ArrowRight className="w-5 h-5 ml-1" />
+              <Link to="/auth">
+                Create Free Account
+                <ArrowRight className="w-5 h-5 ml-1" />
+              </Link>
             </Button>
             <Button variant="outline" size="xl" asChild>
               <a href="#pricing">View Pricing</a>

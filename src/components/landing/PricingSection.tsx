@@ -159,10 +159,11 @@ export function PricingSection() {
               <Button 
                 variant={plan.variant} 
                 size="lg" 
-                className="w-full opacity-50 cursor-not-allowed" 
-                disabled
+                className="w-full" 
+                asChild
+                onClick={() => handleSignupClick(plan.name)}
               >
-                {plan.cta}
+                <Link to="/auth">{plan.cta}</Link>
               </Button>
             </div>
           ))}
