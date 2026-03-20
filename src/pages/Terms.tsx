@@ -62,14 +62,14 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">3. Registration to Use the Services</h2>
+            <h2 className="text-2xl font-semibold mb-4">3. Registration to use the Services</h2>
             <div className="text-muted-foreground space-y-4">
               <p>
                 (a) In order to access the Services, you must first register for an account through the Application
                 (Account).
               </p>
               <p>
-                (b) As part of the registration process, or as part of your continued use of the Services, you may be
+                (a) As part of the registration process, or as part of your continued use of the Services, you may be
                 required to provide personal information about yourself (such as identification or contact details),
                 including:
               </p>
@@ -99,13 +99,14 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">4. Your Obligations as a Member</h2>
+            <h2 className="text-2xl font-semibold mb-4">4. Your obligations as a Member</h2>
             <div className="text-muted-foreground space-y-4">
               <p>(a) As a Member, you agree to comply with the following:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  (i) you will use the Services only for purposes that are permitted by: (A) the Terms; and (B) any
-                  applicable law, regulation or generally accepted practices or guidelines in the relevant
+                  (i) you will use the Services only for purposes that are permitted by:
+                  {" "}(a) the Terms; and
+                  {" "}(b) any applicable law, regulation or generally accepted practices or guidelines in the relevant
                   jurisdictions;
                 </li>
                 <li>
@@ -133,9 +134,7 @@ export default function Terms() {
                 </li>
                 <li>
                   (vii) you agree that commercial advertisements, affiliate links, and other forms of solicitation may
-                  be removed from the Application without notice and may result in termination of the Services.
-                  Appropriate legal action will be taken by SCAMLY PTY LTD for any illegal or unauthorised use of the
-                  Application; and
+                  be removed from the Application without notice and may result in termination of the Services; and
                 </li>
                 <li>
                   (viii) you acknowledge and agree that any automated use of the Application or its Services is
@@ -149,10 +148,12 @@ export default function Terms() {
             <h2 className="text-2xl font-semibold mb-4">5. Payment</h2>
             <div className="text-muted-foreground space-y-4">
               <p>
-                (a) All payments made in the course of your use of the Services are made using Stripe. In using the
-                Application, the Services or when making any payment in relation to your use of the Services, you
-                warrant that you have read, understood and agree to be bound by the Stripe terms and conditions which
-                are available on their website.
+                (a) All payments made in the course of your use of the Services are managed through RevenueCat and
+                processed via Apple App Store or Google Play Store In-App Purchase (IAP) systems, depending on your
+                device platform. In using the Application, the Services or when making any payment in relation to your
+                use of the Services, you warrant that you have read, understood and agree to be bound by the RevenueCat
+                terms and conditions, as well as the applicable Apple Media Services Terms and Conditions or Google Play
+                Terms of Service, each of which are available on their respective websites.
               </p>
               <p>
                 (b) You acknowledge and agree that where a request for the payment of the Services Fee is returned or
@@ -160,6 +161,15 @@ export default function Terms() {
                 then you are liable for any costs, including banking fees and charges, associated with the Services Fee.
               </p>
               <p>(c) You agree and acknowledge that SCAMLY PTY LTD can vary the Services Fee at any time.</p>
+              <p>
+                (d) Subscriptions to the Services will automatically renew at the end of each billing period unless
+                cancelled at least 24 hours before the end of the current billing period. Your nominated payment method
+                will be charged for renewal within 24 hours prior to the end of the current billing period at the
+                then-current subscription rate. You may manage or cancel your subscription at any time through your
+                Apple App Store or Google Play Store account settings. No refund or credit will be provided for any
+                unused portion of a billing period upon cancellation, except as required under the Australian Consumer
+                Law or the applicable platform's refund policy.
+              </p>
             </div>
           </section>
 
@@ -184,11 +194,7 @@ export default function Terms() {
               <p>
                 (a) The Application, the Services and all of the related products of SCAMLY PTY LTD are subject to
                 copyright. The material on the Application is protected by copyright under the laws of Australia and
-                through international treaties. Unless otherwise indicated, all rights (including copyright) in the
-                Services and compilation of the Application (including but not limited to text, graphics, logos, button
-                icons, video images, audio clips, Application code, scripts, design elements and interactive features)
-                or the Services are owned or controlled for these purposes, and are reserved by SCAMLY PTY LTD or its
-                contributors.
+                through international treaties.
               </p>
               <p>
                 (b) All trademarks, service marks and trade names are owned, registered and/or licensed by SCAMLY PTY
@@ -208,7 +214,7 @@ export default function Terms() {
                 Services. All other rights are expressly reserved by SCAMLY PTY LTD.
               </p>
               <p>
-                (c) SCAMLY PTY LTD retains all rights, title and interest in and to the Application and all related
+                (c) SCAMLY PTY LTD retains all rights, title, and interest in and to the Application and all related
                 Services. Nothing you do on or in relation to the Application will transfer any:
               </p>
               <ul className="list-disc pl-6 space-y-2">
@@ -217,7 +223,7 @@ export default function Terms() {
                   or copyright, or
                 </li>
                 <li>
-                  (ii) a right to use or exploit a business name, trading name, domain name, trade mark or industrial
+                  (ii) a right ot use or exploit a business name, trading name, domain name, trademark or industrial
                   design, or
                 </li>
                 <li>
@@ -228,20 +234,21 @@ export default function Terms() {
               <p>to you.</p>
               <p>
                 (d) You may not, without the prior written permission of SCAMLY PTY LTD and the permission of any other
-                relevant rights owners: broadcast, republish, upload to a third party, transmit, post, distribute, show
+                relevant rights owners: broadcast, republish, up-load to a third party, transmit, post, distribute, show
                 or play in public, adapt or change in any way the Services or third party Services for any purpose,
-                unless otherwise provided by these Terms. This prohibition does not extend to materials on the
-                Application, which are freely available for re-use or are in the public domain.
+                unless otherwise provided by these Terms.
               </p>
               <p>
-                (e) <strong>User-Generated Data and Service Improvements:</strong> By submitting any content,
-                communications, or data to the Application for analysis (including emails, messages, URLs, or other
-                materials), you grant a perpetual, worldwide, royalty-free, non-exclusive license to use, reproduce, and
-                analyse such submissions in anonymised and aggregated form to improve fraud detection algorithms, train
-                machine learning models, and enhance the Services. All fraud detection patterns, analysis results, and
-                derivative works generated by the Application remain the exclusive property of SCAMLY PTY LTD, and you
-                acknowledge that SCAMLY PTY LTD may use such insights to improve the Services without further
-                compensation to you.
+                (e) <strong>User-Generated Data and Service Improvements</strong>
+              </p>
+              <p>
+                By submitting any content, communications, or data to the Application for analysis (including emails,
+                messages, URLs, or other materials), you grant a perpetual, worldwide, royalty-free, non-exclusive
+                license to use, reproduce, and analyse such submissions in anonymised and aggregated form to improve
+                fraud detection algorithms, train machine learning models, and enhance the Services. All fraud detection
+                patterns, analysis results, and derivative works generated by the Application remain the exclusive
+                property of SCAMLY PTY LTD, and you acknowledge that SCAMLY PTY LTD may use such insights to improve
+                the services without further compensation to you.
               </p>
             </div>
           </section>
@@ -250,10 +257,11 @@ export default function Terms() {
             <h2 className="text-2xl font-semibold mb-4">8. Privacy</h2>
             <div className="text-muted-foreground space-y-4">
               <p>
-                SCAMLY PTY LTD takes your privacy seriously and any information provided through your use of the
-                Application and/or Services are subject to SCAMLY PTY LTD's{" "}
+                (a) SCAMLY PTY LTD takes your privacy seriously and any information provided through your use of the
+                Application and/or Services are subject to SCAMLY PTY LTD's Privacy Policy, which is available on the
+                Application and at{" "}
                 <Link to="/privacy" className="text-primary hover:underline">
-                  Privacy Policy
+                  scamly.io/privacy
                 </Link>
                 .
               </p>
@@ -275,21 +283,19 @@ export default function Terms() {
                   the Terms are excluded; and
                 </li>
                 <li>
-                  (ii) SCAMLY PTY LTD will not be liable for any special, indirect or consequential loss or damage
-                  (unless such loss or damage is reasonably foreseeable resulting from our failure to meet an applicable
-                  Consumer Guarantee), loss of profit or opportunity, or damage to goodwill arising out of or in
-                  connection with the Services or these Terms (including as a result of not being able to use the
-                  Services or the late supply of the Services), whether at common law, under contract, tort (including
-                  negligence), in equity, pursuant to statute or otherwise.
+                  (ii) SCAMLY PTY LTD will not be liable for any special, indirect or consequential loss or damage,
+                  loss of profit or opportunity, or damage to goodwill arising out of or in connection with the Services
+                  or these Terms, whether at common law, under contract, tort (including negligence), in equity, pursuant
+                  to statute or otherwise.
                 </li>
               </ul>
               <p>
                 (c) Use of the Application and the Services is at your own risk. Everything on the Application and the
                 Services is provided to you "as is" and "as available" without warranty or condition of any kind. None
                 of the affiliates, directors, officers, employees, agents, contributors and licensors of SCAMLY PTY LTD
-                make any express or implied representation or warranty about the Services or any products or Services
-                (including the products or Services of SCAMLY PTY LTD) referred to on the Application. This includes
-                (but is not restricted to) loss or damage you might suffer as a result of any of the following:
+                make any express or implied representation or warranty about the Services (including the products or
+                Services of SCAMLY PTY LTD) referred to on the Application. This includes (but is not limited to) loss
+                or damage you may suffer as a result of any of the following:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
@@ -300,12 +306,12 @@ export default function Terms() {
                 </li>
                 <li>
                   (ii) the accuracy, suitability or currency of any information on the Application, the Services, or any
-                  of its Services related products (including third party material and advertisements on the
+                  of its Services related products (including third party materials and advertisements on the
                   Application);
                 </li>
                 <li>
-                  (iii) costs incurred as a result of you using the Application, the Services or any of the products of
-                  SCAMLY PTY LTD; and
+                  (iii) consts incurred as a result of you using the Application, the Services or any of the products of
+                  SCAMLY PTY LTD;
                 </li>
                 <li>(iv) the Services or operation in respect to links which are provided for your convenience.</li>
               </ul>
@@ -313,7 +319,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">10. Limitation of Liability</h2>
+            <h2 className="text-2xl font-semibold mb-4">10. Limitation of liability</h2>
             <div className="text-muted-foreground space-y-4">
               <p>
                 (a) SCAMLY PTY LTD's total liability arising out of or in connection with the Services or these Terms,
@@ -333,8 +339,8 @@ export default function Terms() {
                 technologies are inherently probabilistic and may produce inaccurate, incomplete or false results.
                 SCAMLY PTY LTD does not warrant that the Application will detect all scams, phishing attempts or
                 fraudulent activities, nor that its analysis will be free from error. To the maximum extent permitted by
-                law, SCAMLY PTY LTD shall not be liable for any loss of funds, financial loss, or harm suffered by you
-                as a result of:
+                the law, SCAMLY PTY LTD shall not be liable for any loss of funds, financial loss, or harm suffered by
+                you as a result of:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
@@ -342,8 +348,8 @@ export default function Terms() {
                   systems;
                 </li>
                 <li>
-                  (ii) the failure of the Application to identify a scam, fraudulent communication or phishing attempt;
-                  or
+                  (ii) the failure of the Application to identify a scam, fraudulent communication or physhing attempt,
+                  or;
                 </li>
                 <li>(iii) any inaccurate, incomplete or misleading output produced by the Application.</li>
               </ul>
@@ -352,12 +358,18 @@ export default function Terms() {
                 encouraged to exercise independent judgement before acting on any analysis provided.
               </p>
               <p>
-                (d) Notwithstanding the foregoing, the limitations in this clause do not apply to liability for: (a)
-                death or personal injury caused by negligence; (b) fraud, wilful misconduct or gross negligence; (c)
-                breach of confidentiality obligations under clause 14.4; (d) infringement of third-party intellectual
-                property rights; or (e) any liability that cannot be excluded or limited under the Australian Consumer
-                Law or other applicable law.
+                (d) Notwithstanding the foregoing, the limitations in this clause do not apply to liability for:
               </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>(i) death or personal injury caused by negligence;</li>
+                <li>(ii) fraud, wilful misconduct or gross negligence;</li>
+                <li>(iii) breach of confidentiality under clause 14.4;</li>
+                <li>(iv) infringement of third-party intellectual property rights; or</li>
+                <li>
+                  (v) any liability that cannot be excluded or limited under the Australian Consumer Law or other
+                  applicable law.
+                </li>
+              </ul>
             </div>
           </section>
 
@@ -383,7 +395,7 @@ export default function Terms() {
               </p>
               <p>(b) If you want to terminate the Terms, you may do so by:</p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>(i) providing SCAMLY PTY LTD with 7 days notice of your intention to terminate; and</li>
+                <li>(i) providing SCAMLY PTY LTD with 1 day's notice of your intention to terminate; and</li>
                 <li>
                   (ii) closing your accounts for all of the services which you use, where SCAMLY PTY LTD has made this
                   option available to you.
@@ -397,14 +409,14 @@ export default function Terms() {
                 <li>(i) you have breached any provision of the Terms or intend to breach any provision;</li>
                 <li>(ii) SCAMLY PTY LTD is required to do so by law;</li>
                 <li>
-                  (iii) the provision of the services to you by SCAMLY PTY LTD is, in the opinion of SCAMLY PTY LTD, no
+                  (iii) the provision of the Services to you by SCAMLY PTY LTD is, in the opinion of SCAMLY PTY LTD, no
                   longer commercially viable.
                 </li>
               </ul>
               <p>
                 (d) Subject to local applicable laws, SCAMLY PTY LTD reserves the right to discontinue or cancel your
-                membership at any time and may suspend of deny, in its sole discretion, your access to all or any
-                portion of the Application or the Services without notice if you breach any provision of the Terms or
+                membership at any time and may suspend or deny, in its sole discretion, your access to all or any
+                portion of the Application or the Services without notice if you breach any provision of hte Terms or
                 any applicable law or if your conduct impacts SCAMLY PTY LTD's name or reputation or violates the rights
                 of those of another party.
               </p>
@@ -442,47 +454,46 @@ export default function Terms() {
             <h2 className="text-2xl font-semibold mb-4">14. Dispute Resolution</h2>
             <div className="text-muted-foreground space-y-4">
               <p>
-                <strong>14.1. Compulsory:</strong> If a dispute arises out of or relates to the Terms, either party may
+                <strong>14.1 Compulsory:</strong> If a dispute arises out of or relates to the Terms, either party may
                 not commence any Tribunal or Court proceedings in relation to the dispute, unless the following clauses
                 have been complied with (except where urgent interlocutory relief is sought).
               </p>
               <p>
-                <strong>14.2. Notice:</strong> A party to the Terms claiming a dispute (Dispute) has arisen under the
+                <strong>14.2 Notice:</strong> A party to the Terms claiming a dispute (Dispute) has arisen under the
                 Terms, must give written notice to the other party detailing the nature of the dispute, the desired
                 outcome and the action required to settle the Dispute.
               </p>
               <p>
-                <strong>14.3. Resolution:</strong> On receipt of that notice (Notice) by that other party, the parties
-                to the Terms (Parties) must:
+                <strong>14.3 Resolution:</strong> On receipt of that notice (Notice), the parties must:
               </p>
               <ul className="list-decimal pl-6 space-y-2">
                 <li>
-                  Within 28 days of the Notice endeavour in good faith to resolve the Dispute expeditiously by
+                  (a) Within 28 days of the Notice endeavour in good faith to resolve the Dispute expeditiously by
                   negotiation or such other means upon which they may mutually agree;
                 </li>
                 <li>
-                  If for any reason whatsoever, 28 days after the date of the Notice, the Dispute has not been resolved,
-                  the Parties must either agree upon selection of a mediator or request that an appropriate mediator be
-                  appointed by the Resolution Institute;
+                  (b) If for any reason whatsoever, 28 days after the date of the Notice, the Dispute has not been
+                  resolved, the Parties must either agree upon selection of a mediator or request that an appropriate
+                  mediator be appointed by the Resolution Institute;
                 </li>
                 <li>
-                  The Parties are equally liable for the fees and reasonable expenses of a mediator and the cost of the
-                  venue of the mediation and without limiting the foregoing undertake to pay any amounts requested by
-                  the mediator as a precondition to the mediation commencing. The Parties must each pay their own costs
+                  (c) The Parties are equally liable for the fees and reasonable expenses of a mediator and the cost of
+                  the venue of the mediation and without limiting the foregoing undertake to pay any amounts requested by
+                  the mediator as a precondition ot the mediation commencing. The Parties must each pay their own costs
                   associated with the mediation;
                 </li>
-                <li>The mediation will be held in Sydney, Australia.</li>
+                <li>(d) The mediation will be held in Sydney, Australia.</li>
               </ul>
               <p>
-                <strong>14.4. Confidential:</strong> All communications concerning negotiations made by the Parties
+                <strong>14.4 Confidential</strong> All communications concerning negotiations made by the Parties
                 arising out of and in connection with this dispute resolution clause are confidential and to the extent
                 possible, must be treated as "without prejudice" negotiations for the purpose of applicable laws of
                 evidence.
               </p>
               <p>
-                <strong>14.5. Termination of Mediation:</strong> If 2 months have elapsed after the start of a mediation
+                <strong>14.5 Termination of Mediation:</strong> If 2 months have elapsed after the start of a mediation
                 of the Dispute and the Dispute has not been resolved, either Party may ask the mediator to terminate the
-                mediation and the mediator must do so.
+                mediation and the mediator must do so..
               </p>
             </div>
           </section>
@@ -492,7 +503,7 @@ export default function Terms() {
             <div className="text-muted-foreground space-y-4">
               <p>
                 The Services offered by SCAMLY PTY LTD are available to users worldwide. Notwithstanding the global
-                availability of the Services, in the event of any dispute arising out of or in relation to the
+                availability of the service, in the event of any dispute arising out of or in relation to the
                 Application or these Terms, you agree that the exclusive venue for resolving any such dispute shall be
                 in the courts of New South Wales, Australia, and you irrevocably submit to the jurisdiction of those
                 courts.
