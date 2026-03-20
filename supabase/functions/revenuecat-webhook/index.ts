@@ -470,6 +470,14 @@ serve(async (req) => {
         }
 
         logStep("CANCELLATION processed successfully", { appUserId, cancelReason });
+
+        // Send manual cancellation email
+        await sendCustomerEmail(supabaseAdmin, {
+          type: "manual_cancellation",
+          userId: appUserId,
+          accessExpiresAt: expirationDate,
+        });
+
         break;
       }
 
