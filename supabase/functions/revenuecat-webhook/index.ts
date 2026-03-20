@@ -559,6 +559,13 @@ serve(async (req) => {
         }
 
         logStep("EXPIRATION processed successfully", { appUserId });
+
+        // Send forced cancellation email
+        await sendCustomerEmail(supabaseAdmin, {
+          type: "forced_cancellation",
+          userId: appUserId,
+        });
+
         break;
       }
 
