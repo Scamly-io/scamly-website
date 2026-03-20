@@ -1,6 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
-import { AnnouncementBanner } from '@/components/AnnouncementBanner';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -24,8 +23,7 @@ export function Navbar() {
   ];
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50">
-    <nav className="glass border-b border-border/50">
+    <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -140,7 +138,5 @@ export function Navbar() {
         )}
       </div>
     </nav>
-    <AnnouncementBanner />
-    </div>
   );
 }

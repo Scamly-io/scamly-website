@@ -4,7 +4,7 @@ import { Navbar } from '@/components/Navbar';
 import { MainDomainNavbar } from '@/components/MainDomainNavbar';
 import { Footer } from '@/components/Footer';
 import { MainDomainFooter } from '@/components/MainDomainFooter';
-
+import { AnnouncementBanner } from '@/components/AnnouncementBanner';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { FeatureShowcaseSection } from '@/components/landing/FeatureShowcase';
 import { PricingSection } from '@/components/landing/PricingSection';
@@ -23,6 +23,9 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
+      <div className="pt-16">
+        <AnnouncementBanner />
+      </div>
       <main>
         <HeroSection />
         <FeatureShowcaseSection />
