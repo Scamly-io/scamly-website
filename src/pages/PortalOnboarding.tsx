@@ -168,6 +168,12 @@ export default function PortalOnboarding() {
         variant: "destructive",
       });
     } else {
+      // Trigger welcome email now that onboarding is complete
+      // Fire-and-forget so it doesn't block navigation
+      supabase.functions.invoke("send-customer-email", {
+        body: { type: "welcome", userId },
+      }).catch((err) => console.error("Failed to send welcome email:", err));
+
       const hasToken = searchParams.get("token");
       navigate(hasToken ? "/portal/onboarding-complete?ref=app" : "/portal/onboarding-complete?ref=web");
     }
