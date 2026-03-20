@@ -449,17 +449,22 @@ serve(async (req) => {
 
       /**
        * CANCELLATION
-       * User cancelled — retain access until expiry.
+       * User cancelled (or billing-issue cancellation).
+       * Access is NOT revoked here — that happens on EXPIRATION.
+       * Only send the manual_cancellation email if the user actively cancelled
+       * (i.e. cancel_reason is NOT BILLING_ERROR).
        */
       case "CANCELLATION": {
         const cancelReason: string | null = event.cancel_reason || null;
-        logStep("Processing CANCELLATION", { cancelReason });
+        const isBillingCancel = cancelReason === "BILLING_ERROR";
+        logStep("Processing CANCELLATION", { cancelReason, isBillingCancel });
 
         const { error } = await supabaseAdmin
           .from("profiles")
           .update({
             subscription_status: "cancelled",
             access_expires_at: expirationDate,
+            ...(isBillingCancel ? { billing_issue: true } : {}),
           })
           .eq("id", appUserId);
 
@@ -471,12 +476,14 @@ serve(async (req) => {
 
         logStep("CANCELLATION processed successfully", { appUserId, cancelReason });
 
-        // Send manual cancellation email
-        await sendCustomerEmail(supabaseAdmin, {
-          type: "manual_cancellation",
-          userId: appUserId,
-          accessExpiresAt: expirationDate,
-        });
+        // Only send manual cancellation email for user-initiated cancellations
+        if (!isBillingCancel) {
+          await sendCustomerEmail(supabaseAdmin, {
+            type: "manual_cancellation",
+            userId: appUserId,
+            accessExpiresAt: expirationDate,
+          });
+        }
 
         break;
       }
