@@ -25,9 +25,11 @@ serve(async (req) => {
       });
     }
 
-    const valid = VALID_CODES.has(code.toLowerCase().trim());
+    const normalised = code.toLowerCase().trim();
+    const offer = VALID_CODES[normalised] ?? null;
+    const valid = offer !== null;
 
-    return new Response(JSON.stringify({ valid }), {
+    return new Response(JSON.stringify({ valid, offer }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
