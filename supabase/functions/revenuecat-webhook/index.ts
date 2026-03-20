@@ -129,6 +129,46 @@ function mapProductToPlan(productId: string | null): string {
   return PRODUCT_TO_PLAN[productId] || "premium-monthly";
 }
 
+// ── Customer email helper ────────────────────────────────────────────────────
+
+/**
+ * Fire-and-forget call to the send-customer-email edge function.
+ * Failures are logged + captured but never block webhook processing.
+ */
+const sendCustomerEmail = async (
+  supabaseAdmin: any,
+  payload: Record<string, unknown>,
+) => {
+  try {
+    const { error } = await supabaseAdmin.functions.invoke("send-customer-email", {
+      body: payload,
+    });
+    if (error) {
+      logWarn("send-customer-email invocation returned error", { error, payload });
+      captureError(new Error("send-customer-email failed"), { step: "send-customer-email", payload, errorMessage: String(error) });
+    } else {
+      logStep("Customer email triggered", { type: payload.type, userId: payload.userId });
+    }
+  } catch (err) {
+    logWarn("Failed to invoke send-customer-email", { err, payload });
+    captureError(err, { step: "send-customer-email-invoke", payload });
+  }
+};
+
+/**
+ * Derive billing period label and formatted price from a RevenueCat event.
+ */
+function deriveBillingDetails(productId: string | null, event: Record<string, unknown>) {
+  const isYearly = productId?.includes("yearly");
+  const billingPeriod = isYearly ? "year" : "month";
+
+  const rawPrice = event.price ? parseFloat(String(event.price)) : null;
+  const currency = (event.currency as string)?.toUpperCase() || "USD";
+  const price = rawPrice !== null ? `${currency} $${rawPrice.toFixed(2)}` : (isYearly ? "USD $49.99" : "USD $7.99");
+
+  return { billingPeriod, price };
+}
+
 /**
  * Determine the store type from the RevenueCat event's `store` field.
  */
