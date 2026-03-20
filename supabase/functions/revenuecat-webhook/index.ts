@@ -345,6 +345,30 @@ serve(async (req) => {
           await sendMetaConversionEvent("Purchase", `rc_purchase_${eventId}`, price > 0 ? price : undefined);
         }
 
+        // Send customer email
+        {
+          const { billingPeriod, price: formattedPrice } = deriveBillingDetails(productId, event);
+          const nextPayment = expirationDate || new Date().toISOString();
+
+          if (isTrial) {
+            await sendCustomerEmail(supabaseAdmin, {
+              type: "free_trial_created",
+              userId: appUserId,
+              price: formattedPrice,
+              billingPeriod,
+              nextPayment,
+            });
+          } else {
+            await sendCustomerEmail(supabaseAdmin, {
+              type: "subscription_created",
+              userId: appUserId,
+              price: formattedPrice,
+              billingPeriod,
+              nextPayment,
+            });
+          }
+        }
+
         break;
       }
 
