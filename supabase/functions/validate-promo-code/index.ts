@@ -7,7 +7,7 @@ const corsHeaders = {
 
 const VALID_CODES: Record<string, string> = {
   "early40": "early_interest",
-  "scamly10": "social_discount",
+  // "scamly10": "social_discount", // Disabled – re-enable when ready
 };
 
 serve(async (req) => {
