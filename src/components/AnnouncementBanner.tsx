@@ -5,7 +5,7 @@ import { AlertTriangle, X } from 'lucide-react';
 const BANNER_ENABLED = true;
 
 const BANNER_MESSAGE =
-  'Scamly is temporarily unavailable on the Google Play Store. We're working to resolve this as soon as possible. We apologise for the inconvenience.';
+  "Scamly is temporarily unavailable on the Google Play Store. We're working to resolve this as soon as possible. We apologise for the inconvenience.";
 
 export function AnnouncementBanner() {
   const [dismissed, setDismissed] = useState(false);
