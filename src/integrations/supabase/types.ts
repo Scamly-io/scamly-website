@@ -325,6 +325,30 @@ export type Database = {
           },
         ]
       }
+      user_feedback: {
+        Row: {
+          content: string
+          content_hash: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          content_hash: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          content_hash?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
