@@ -573,7 +573,6 @@ export default function Portal() {
                     </div>
                   </>
                 )}
-              </div>
 
                 <div className="pt-4 border-t border-border">
                   <p className="text-sm text-muted-foreground">
@@ -583,6 +582,7 @@ export default function Portal() {
                     </Link>
                   </p>
                 </div>
+              </div>
             )}
           </div>
         </div>
