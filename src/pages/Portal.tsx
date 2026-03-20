@@ -574,6 +574,15 @@ export default function Portal() {
                   </>
                 )}
               </div>
+
+                <div className="pt-4 border-t border-border">
+                  <p className="text-sm text-muted-foreground">
+                    We would love to hear your feedback on Scamly.{" "}
+                    <Link to="/portal/feedback" className="text-primary hover:underline">
+                      Click here to provide feedback
+                    </Link>
+                  </p>
+                </div>
             )}
           </div>
         </div>
