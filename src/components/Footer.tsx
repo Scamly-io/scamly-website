@@ -12,7 +12,8 @@ export function Footer() {
     product: [
       { label: 'Features', href: '/#features' },
       { label: 'Pricing', href: '/#pricing' },
-      { label: 'Download App', href: '#' },
+      { label: 'Download from App Store', href: 'https://apps.apple.com/app/id6759246327', external: true },
+      { label: 'Download from Play Store', href: '#', disabled: true },
     ],
     support: [
       { label: 'Contact', href: '/contact' },
