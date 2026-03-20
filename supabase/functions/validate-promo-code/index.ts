@@ -5,7 +5,10 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const VALID_CODES = new Set(["early40", "scamly10"]);
+const VALID_CODES: Record<string, string> = {
+  "early40": "early_interest",
+  "scamly10": "social_discount",
+};
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
