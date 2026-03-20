@@ -13,6 +13,7 @@ import CheckEmail from "./pages/CheckEmail";
 import Portal from "./pages/Portal";
 import PortalOnboarding from "./pages/PortalOnboarding";
 import PortalOnboardingComplete from "./pages/PortalOnboardingComplete";
+import PortalFeedback from "./pages/PortalFeedback";
 import ResetPassword from "./pages/ResetPassword";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
