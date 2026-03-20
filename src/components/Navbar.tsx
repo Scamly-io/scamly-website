@@ -69,11 +69,11 @@ export function Navbar() {
               </Button>
             ) : (
               <>
-                <Button variant="ghost" disabled className="opacity-50 cursor-not-allowed">
-                  Sign In
+                <Button variant="ghost" asChild>
+                  <Link to="/auth">Sign In</Link>
                 </Button>
-                <Button variant="gradient" disabled className="opacity-50 cursor-not-allowed">
-                  Get Started
+                <Button variant="gradient" asChild onClick={() => trackSignupStarted('navbar')}>
+                  <Link to="/auth">Get Started</Link>
                 </Button>
               </>
             )}
@@ -124,11 +124,11 @@ export function Navbar() {
                   </Button>
                 ) : (
                   <>
-                    <Button variant="outline" disabled className="w-full opacity-50 cursor-not-allowed">
-                      Sign In
+                    <Button variant="outline" asChild className="w-full">
+                      <Link to="/auth">Sign In</Link>
                     </Button>
-                    <Button variant="gradient" disabled className="w-full opacity-50 cursor-not-allowed">
-                      Get Started
+                    <Button variant="gradient" asChild className="w-full" onClick={() => trackSignupStarted('navbar_mobile')}>
+                      <Link to="/auth">Get Started</Link>
                     </Button>
                   </>
                 )}
