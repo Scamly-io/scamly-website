@@ -160,13 +160,25 @@ const sendCustomerEmail = async (
  */
 function deriveBillingDetails(productId: string | null, event: Record<string, unknown>) {
   const isYearly = productId?.includes("yearly");
-  const billingPeriod = isYearly ? "year" : "month";
+  const billingPeriod = isYearly ? "Yearly" : "Monthly";
 
   const rawPrice = event.price ? parseFloat(String(event.price)) : null;
-  const currency = (event.currency as string)?.toUpperCase() || "USD";
-  const price = rawPrice !== null ? `${currency} $${rawPrice.toFixed(2)}` : (isYearly ? "USD $49.99" : "USD $7.99");
+  const price = rawPrice !== null ? rawPrice.toFixed(2) : (isYearly ? "49.99" : "7.99");
 
   return { billingPeriod, price };
+}
+
+/**
+ * Format an ISO date string to a human-readable date (e.g. "Saturday, 28 March 2026").
+ */
+function formatReadableDate(isoDate: string): string {
+  const date = new Date(isoDate);
+  return date.toLocaleDateString("en-AU", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 }
 
 /**
@@ -348,7 +360,7 @@ serve(async (req) => {
         // Send customer email
         {
           const { billingPeriod, price: formattedPrice } = deriveBillingDetails(productId, event);
-          const nextPayment = expirationDate || new Date().toISOString();
+          const nextPayment = formatReadableDate(expirationDate || new Date().toISOString());
 
           if (isTrial) {
             await sendCustomerEmail(supabaseAdmin, {
