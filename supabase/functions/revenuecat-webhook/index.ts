@@ -360,7 +360,7 @@ serve(async (req) => {
         // Send customer email
         {
           const { billingPeriod, price: formattedPrice } = deriveBillingDetails(productId, event);
-          const nextPayment = expirationDate || new Date().toISOString();
+          const nextPayment = formatReadableDate(expirationDate || new Date().toISOString());
 
           if (isTrial) {
             await sendCustomerEmail(supabaseAdmin, {
