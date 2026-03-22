@@ -13,7 +13,7 @@ export function Footer() {
       { label: 'Features', href: '/#features' },
       { label: 'Pricing', href: '/#pricing' },
       { label: 'Download from App Store', href: 'https://apps.apple.com/app/id6759246327', external: true },
-      { label: 'Download from Play Store', href: '#', disabled: true },
+      { label: 'Download from Play Store', href: 'https://play.google.com/store/apps/details?id=io.scamly.app&hl=en', external: true },
     ],
     support: [
       { label: 'Contact', href: '/contact' },
