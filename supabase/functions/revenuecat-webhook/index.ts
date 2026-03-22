@@ -360,7 +360,7 @@ serve(async (req) => {
 
         // Send customer email
         {
-          const { billingPeriod, price: formattedPrice } = deriveBillingDetails(productId, event);
+          const { billingPeriod, formattedPrice } = deriveBillingDetails(productId, event);
           const nextPayment = formatReadableDate(expirationDate || new Date().toISOString());
 
           if (isTrial) {
