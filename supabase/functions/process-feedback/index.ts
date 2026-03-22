@@ -155,7 +155,7 @@ Deno.serve(async (req) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            from: "Scamly <noreply@notifications.scamly.io>",
+            from: "Scamly <noreply@scamly.io>",
             to: ["feedback@scamly.io"],
             subject: "[AUTO-FEEDBACK] A USER SUBMITTED NEW FEEDBACK",
             html: emailHtml,

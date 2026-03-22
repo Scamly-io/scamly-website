@@ -163,9 +163,10 @@ function deriveBillingDetails(productId: string | null, event: Record<string, un
   const billingPeriod = isYearly ? "Yearly" : "Monthly";
 
   const rawPrice = event.price ? parseFloat(String(event.price)) : null;
-  const price = rawPrice !== null ? rawPrice.toFixed(2) : (isYearly ? "49.99" : "7.99");
+  const amount = rawPrice !== null ? rawPrice.toFixed(2) : (isYearly ? "49.99" : "4.99");
+  const formattedPrice = `${amount} USD`;
 
-  return { billingPeriod, price };
+  return { billingPeriod, formattedPrice };
 }
 
 /**
