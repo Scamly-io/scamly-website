@@ -193,12 +193,16 @@ export default function Auth() {
       isoDate = dobParts.length === 3 ? `${dobParts[2]}-${dobParts[1]}-${dobParts[0]}` : dob;
     }
 
+    // Gather browser metadata (fbp, fbq, ip, user agent)
+    const browserMeta = await getBrowserMetadata();
+
     const { error } = await signUp(email, password, {
       first_name: firstName,
       ...(isoDate ? { dob: isoDate } : {}),
       country,
       ...(gender ? { gender } : {}),
       referral_source: referralSource,
+      ...browserMeta,
     });
     setLoading(false);
 

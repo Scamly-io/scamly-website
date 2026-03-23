@@ -133,26 +133,25 @@ export default function PortalOnboarding() {
       isoDate = dobParts.length === 3 ? `${dobParts[2]}-${dobParts[1]}-${dobParts[0]}` : dob;
     }
 
+    // Gather browser metadata (fbp, fbq, ip, user agent)
+    const browserMeta = await getBrowserMetadata();
+
+    const profileData = {
+      first_name: firstName,
+      ...(isoDate ? { dob: isoDate } : {}),
+      country,
+      ...(gender ? { gender } : {}),
+      referral_source: referralSource,
+      onboarding_completed: true,
+      ...browserMeta,
+    };
+
     const { error } = await supabase
       .from("profiles")
-      .update({
-        first_name: firstName,
-        ...(isoDate ? { dob: isoDate } : {}),
-        country,
-        ...(gender ? { gender } : {}),
-        referral_source: referralSource,
-        onboarding_completed: true,
-      })
+      .update(profileData)
       .eq("id", userId);
 
-      const { error: updateProfileError } = await updateProfile({
-        first_name: firstName,
-        ...(isoDate ? { dob: isoDate } : {}),
-        country,
-        ...(gender ? { gender } : {}),
-        referral_source: referralSource,
-        onboarding_completed: true,
-      });
+    const { error: updateProfileError } = await updateProfile(profileData);
 
     setSaving(false);
 
