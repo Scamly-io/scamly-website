@@ -103,6 +103,41 @@ export type Database = {
           },
         ]
       }
+      initial_meta_capi_events: {
+        Row: {
+          created_at: string
+          event_id: string
+          event_name: string
+          event_time: number
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          event_name: string
+          event_time: number
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          event_name?: string
+          event_time?: number
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "initial_meta_capi_event_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           chat_id: string
@@ -229,9 +264,12 @@ export type Database = {
           created_at: string
           data_sharing_consent: boolean
           dob: string | null
+          fbp: string | null
+          fbq: string | null
           first_name: string | null
           gender: string | null
           id: string
+          ip_address: string | null
           onboarding_completed: boolean | null
           referral_source: string | null
           review_prompted: boolean | null
@@ -241,6 +279,7 @@ export type Database = {
           subscription_product_id: string | null
           subscription_status: string | null
           subscription_store: string | null
+          user_agent: string | null
           welcome_email_sent: boolean
         }
         Insert: {
@@ -250,9 +289,12 @@ export type Database = {
           created_at?: string
           data_sharing_consent?: boolean
           dob?: string | null
+          fbp?: string | null
+          fbq?: string | null
           first_name?: string | null
           gender?: string | null
           id: string
+          ip_address?: string | null
           onboarding_completed?: boolean | null
           referral_source?: string | null
           review_prompted?: boolean | null
@@ -262,6 +304,7 @@ export type Database = {
           subscription_product_id?: string | null
           subscription_status?: string | null
           subscription_store?: string | null
+          user_agent?: string | null
           welcome_email_sent?: boolean
         }
         Update: {
@@ -271,9 +314,12 @@ export type Database = {
           created_at?: string
           data_sharing_consent?: boolean
           dob?: string | null
+          fbp?: string | null
+          fbq?: string | null
           first_name?: string | null
           gender?: string | null
           id?: string
+          ip_address?: string | null
           onboarding_completed?: boolean | null
           referral_source?: string | null
           review_prompted?: boolean | null
@@ -283,6 +329,7 @@ export type Database = {
           subscription_product_id?: string | null
           subscription_status?: string | null
           subscription_store?: string | null
+          user_agent?: string | null
           welcome_email_sent?: boolean
         }
         Relationships: []

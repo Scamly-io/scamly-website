@@ -19,6 +19,10 @@ export interface Profile {
   onboarding_completed: boolean | null;
   data_sharing_consent: boolean;
   review_prompted: boolean | null;
+  fbp: string | null;
+  fbq: string | null;
+  ip_address: string | null;
+  user_agent: string | null;
 }
 
 export type SubscriptionStatus = Profile['subscription_status'];
