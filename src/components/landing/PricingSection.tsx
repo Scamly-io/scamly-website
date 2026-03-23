@@ -163,7 +163,7 @@ export function PricingSection() {
                 asChild
                 onClick={() => handleSignupClick(plan.name)}
               >
-                <Link to="/auth">{plan.cta}</Link>
+                <Link to="/auth?mode=signup">{plan.cta}</Link>
               </Button>
             </div>
           ))}
