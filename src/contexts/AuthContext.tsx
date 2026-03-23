@@ -133,6 +133,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             country: profileData.country,
             referral_source: profileData.referral_source,
             onboarding_completed: true,
+            fbp: profileData.fbp,
+            fbq: profileData.fbq,
+            ip_address: profileData.ip_address,
+            user_agent: profileData.user_agent,
           },
         },
       });

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { AlertTriangle, X } from "lucide-react";
 
 // Toggle this to show/hide the banner site-wide
-const BANNER_ENABLED = true;
+const BANNER_ENABLED = false;
 
 const BANNER_MESSAGE =
   "Scamly is currently unavailable on the Google Play Store. We're working to resolve this as soon as possible. We apologise for the inconvenience.";

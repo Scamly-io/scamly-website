@@ -57,7 +57,7 @@ export function HeroSection() {
             style={{ animationDelay: "0.4s" }}
           >
             <Button variant="gradient" size="xl" asChild className="group" onClick={() => trackSignupStarted('hero')}>
-              <Link to="/auth">
+              <Link to="/auth?mode=signup">
                 Start Free Trial
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Link>

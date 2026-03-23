@@ -13,6 +13,7 @@ import logoLight from "@/assets/navbar-logo-light.png";
 import logoDark from "@/assets/navbar-logo-dark.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { CountryWhyCollected } from "@/components/CountryWhyCollected";
+import { getBrowserMetadata } from "@/lib/browser-metadata";
 
 const genders = ["Male", "Female", "Prefer not to say"];
 
@@ -132,26 +133,25 @@ export default function PortalOnboarding() {
       isoDate = dobParts.length === 3 ? `${dobParts[2]}-${dobParts[1]}-${dobParts[0]}` : dob;
     }
 
+    // Gather browser metadata (fbp, fbq, ip, user agent)
+    const browserMeta = await getBrowserMetadata();
+
+    const profileData = {
+      first_name: firstName,
+      ...(isoDate ? { dob: isoDate } : {}),
+      country,
+      ...(gender ? { gender } : {}),
+      referral_source: referralSource,
+      onboarding_completed: true,
+      ...browserMeta,
+    };
+
     const { error } = await supabase
       .from("profiles")
-      .update({
-        first_name: firstName,
-        ...(isoDate ? { dob: isoDate } : {}),
-        country,
-        ...(gender ? { gender } : {}),
-        referral_source: referralSource,
-        onboarding_completed: true,
-      })
+      .update(profileData)
       .eq("id", userId);
 
-      const { error: updateProfileError } = await updateProfile({
-        first_name: firstName,
-        ...(isoDate ? { dob: isoDate } : {}),
-        country,
-        ...(gender ? { gender } : {}),
-        referral_source: referralSource,
-        onboarding_completed: true,
-      });
+    const { error: updateProfileError } = await updateProfile(profileData);
 
     setSaving(false);
 

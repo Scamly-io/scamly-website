@@ -24,10 +24,10 @@ const plans = [
   },
   {
     name: "Premium",
-    price: "$9.99",
+    price: "$4.99",
     period: "per month",
-    yearlyPrice: "$99.99/year",
-    yearlySavings: "Save $21",
+    yearlyPrice: "$49.99/year",
+    yearlySavings: "Save $10",
     description: "Unlimited protection for peace of mind",
     features: [
       { text: "Unlimited scans", included: true },
@@ -163,7 +163,7 @@ export function PricingSection() {
                 asChild
                 onClick={() => handleSignupClick(plan.name)}
               >
-                <Link to="/auth">{plan.cta}</Link>
+                <Link to="/auth?mode=signup">{plan.cta}</Link>
               </Button>
             </div>
           ))}

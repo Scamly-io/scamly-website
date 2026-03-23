@@ -13,7 +13,7 @@ export function Footer() {
       { label: 'Features', href: '/#features' },
       { label: 'Pricing', href: '/#pricing' },
       { label: 'Download from App Store', href: 'https://apps.apple.com/app/id6759246327', external: true },
-      { label: 'Download from Play Store', href: '#', disabled: true },
+      { label: 'Download from Play Store', href: 'https://play.google.com/store/apps/details?id=io.scamly.app&hl=en', external: true },
     ],
     support: [
       { label: 'Contact', href: '/contact' },
@@ -58,11 +58,10 @@ export function Footer() {
               {footerLinks.product.map((link) => (
                 <li key={link.label}>
                   <a
-                    href={link.disabled ? undefined : link.href}
+                    href={link.href}
                     target={link.external ? '_blank' : undefined}
                     rel={link.external ? 'noopener noreferrer' : undefined}
-                    className={`text-sm text-muted-foreground transition-colors ${link.disabled ? 'cursor-not-allowed opacity-60' : 'hover:text-foreground'}`}
-                    onClick={link.disabled ? (e) => e.preventDefault() : undefined}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {link.label}
                   </a>
