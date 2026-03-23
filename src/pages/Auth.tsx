@@ -15,6 +15,7 @@ import { z } from "zod";
 import { countries } from "@/constants/countries";
 import { trackSignupCompleted } from "@/lib/analytics";
 import { CountryWhyCollected } from "@/components/CountryWhyCollected";
+import { getBrowserMetadata } from "@/lib/browser-metadata";
 
 const referralSourceOptions = [
   "Facebook",

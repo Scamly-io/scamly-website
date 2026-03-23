@@ -13,6 +13,7 @@ import logoLight from "@/assets/navbar-logo-light.png";
 import logoDark from "@/assets/navbar-logo-dark.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { CountryWhyCollected } from "@/components/CountryWhyCollected";
+import { getBrowserMetadata } from "@/lib/browser-metadata";
 
 const genders = ["Male", "Female", "Prefer not to say"];
 
