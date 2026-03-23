@@ -128,7 +128,7 @@ export function Navbar() {
                       <Link to="/auth">Sign In</Link>
                     </Button>
                     <Button variant="gradient" asChild className="w-full" onClick={() => trackSignupStarted('navbar_mobile')}>
-                      <Link to="/auth">Get Started</Link>
+                      <Link to="/auth?mode=signup">Get Started</Link>
                     </Button>
                   </>
                 )}

@@ -33,7 +33,7 @@ export function CTASection() {
               asChild
               onClick={() => trackSignupStarted('cta')}
             >
-              <Link to="/auth">
+              <Link to="/auth?mode=signup">
                 Create Free Account
                 <ArrowRight className="w-5 h-5 ml-1" />
               </Link>
