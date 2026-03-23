@@ -73,7 +73,7 @@ export function Navbar() {
                   <Link to="/auth">Sign In</Link>
                 </Button>
                 <Button variant="gradient" asChild onClick={() => trackSignupStarted('navbar')}>
-                  <Link to="/auth">Get Started</Link>
+                  <Link to="/auth?mode=signup">Get Started</Link>
                 </Button>
               </>
             )}
