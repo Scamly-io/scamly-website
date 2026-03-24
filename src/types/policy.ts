@@ -1,12 +1,20 @@
 // Types for versioned policy acceptance system
 
+export interface PolicySection {
+  level: number;
+  text: string;
+}
+
+export interface PolicyContentBlock {
+  title: string;
+  sections: PolicySection[];
+}
+
 export interface Policy {
   id: string;
   policy_type: 'privacy' | 'terms';
   version: string;
-  published_at: string;
-  content_hash: string | null;
-  created_at: string;
+  content: PolicyContentBlock[] | null;
 }
 
 export interface PolicyAcceptance {

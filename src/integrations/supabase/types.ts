@@ -172,27 +172,21 @@ export type Database = {
       }
       policies: {
         Row: {
-          content_hash: string | null
-          created_at: string
+          content: Json | null
           id: string
           policy_type: string
-          published_at: string
           version: string
         }
         Insert: {
-          content_hash?: string | null
-          created_at?: string
+          content?: Json | null
           id?: string
           policy_type: string
-          published_at?: string
           version: string
         }
         Update: {
-          content_hash?: string | null
-          created_at?: string
+          content?: Json | null
           id?: string
           policy_type?: string
-          published_at?: string
           version?: string
         }
         Relationships: []
