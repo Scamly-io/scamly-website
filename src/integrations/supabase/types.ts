@@ -423,6 +423,7 @@ export type Database = {
           scan_count: number
         }[]
       }
+      get_user_email_by_id: { Args: { p_user_id: string }; Returns: string }
       increment_article_views: {
         Args: { article_id: string }
         Returns: undefined

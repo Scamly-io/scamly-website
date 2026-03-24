@@ -233,21 +233,18 @@ async function getProfileDataForCapiEvent(
     .eq("id", appUserId)
     .maybeSingle();
 
-  const { data: authData, error: authError } = await supabaseAdmin
-    .from("auth.users")
-    .select("email")
-    .eq("id", appUserId)
-    .single();
+  const { data: email, error: emailError } = await supabaseAdmin
+    .rpc("get_user_email_by_id", { p_user_id: appUserId });
 
   if (profileError) {
     captureError(profileError, { step: "get-profile-data-for-capi-event" });
   }
-  if (authError) {
-    captureError(authError, { step: "get-profile-data-for-capi-event" });
+  if (emailError) {
+    captureError(emailError, { step: "get-user-email-for-capi-event" });
     return null;
   }
 
-  const em = nonEmptyString(authData?.email);
+  const em = nonEmptyString(email);
   const ipAddress = nonEmptyString(profileData?.ip_address);
   if (!em || !ipAddress) {
     return null;
