@@ -402,15 +402,15 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    // ── Auth: verify bearer token matches project anon key ───────────────
+    // ── Auth: verify bearer token matches webhook key ───────────────
     const authHeader = req.headers.get("Authorization");
-    const expectedAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    const expectedWebhookKey = Deno.env.get("REVENUECAT_WEBHOOK_KEY");
 
-    if (!expectedAnonKey) {
-      throw new Error("SUPABASE_ANON_KEY is not configured");
+    if (!expectedWebhookKey) {
+      throw new Error("REVENUECAT_WEBHOOK_KEY is not configured");
     }
 
-    if (!authHeader || authHeader !== `Bearer ${expectedAnonKey}`) {
+    if (!authHeader || authHeader !== `Bearer ${expectedWebhookKey}`) {
       logError("Unauthorized webhook request");
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
