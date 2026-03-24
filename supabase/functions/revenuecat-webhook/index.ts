@@ -609,7 +609,7 @@ serve(async (req) => {
         const profileData = await getProfileDataForCapiEvent(supabaseAdmin, appUserId);
         const price = event.price ? parseFloat(String(event.price)) : undefined;
 
-        const originalEvent = await supabaseAdmin
+        const originalEventResult = await supabaseAdmin
           .from("initial_meta_capi_events")
           .select("event_id, event_name, event_time")
           .eq("user_id", appUserId)
@@ -633,11 +633,13 @@ serve(async (req) => {
             ...(profileData.fbp !== undefined && { fbp: profileData.fbp }),
             ...(profileData.fbq !== undefined && { fbq: profileData.fbq }),
             ...(profileData.userAgent !== undefined && { userAgent: profileData.userAgent }),
-            originalEventData: {
-              event_id: originalEvent.event_id,
-              event_name: originalEvent.event_name,
-              event_time: originalEvent.event_time,
-            },
+            ...(originalEventResult.data && {
+              originalEventData: {
+                event_id: originalEventResult.data.event_id,
+                event_name: originalEventResult.data.event_name,
+                event_time: originalEventResult.data.event_time,
+              },
+            }),
             contents: {
               id: plan,
               quantity: 1,
