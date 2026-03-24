@@ -34,7 +34,7 @@ export function usePolicyCompliance(): UsePolicyComplianceReturn {
       
       for (const policy of data) {
         if (!seenTypes.has(policy.policy_type)) {
-          latestPolicies.push(policy as Policy);
+          latestPolicies.push(policy as unknown as Policy);
           seenTypes.add(policy.policy_type);
         }
       }
