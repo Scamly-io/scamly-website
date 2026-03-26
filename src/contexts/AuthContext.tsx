@@ -193,8 +193,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const updateEmail = async (newEmail: string) => {
     try {
+      const oldEmail = user?.email;
       const { error } = await supabase.auth.updateUser({ email: newEmail });
       if (error) throw error;
+
+      // Sync with Resend: delete old contact, create new one
+      if (oldEmail) {
+        try {
+          await supabase.functions.invoke("resend-contact-sync", {
+            body: {
+              action: "update",
+              old_email: oldEmail,
+              new_email: newEmail,
+              first_name: profile?.first_name || undefined,
+            },
+          });
+        } catch (resendErr) {
+          // Non-blocking: log but don't fail the email update
+          console.error("[AuthContext] Resend contact update failed:", resendErr);
+          captureError(
+            resendErr instanceof Error ? resendErr : new Error("Resend contact update failed"),
+            { source: "AuthContext", action: "updateEmail.resendSync", userId: user?.id }
+          );
+        }
+      }
+
       return { error: null };
     } catch (error) {
       return { error: error as Error };

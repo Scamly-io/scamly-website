@@ -271,6 +271,42 @@ serve(async (req) => {
           error: emailErr instanceof Error ? emailErr.message : String(emailErr),
         });
       }
+
+      // Remove contact from Resend audience
+      try {
+        const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+        const internalSecret = Deno.env.get("INTERNAL_SECRET");
+        const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+
+        if (internalSecret && supabaseAnonKey) {
+          logStep("Removing Resend contact", { userEmail });
+          const syncRes = await fetch(
+            `${supabaseUrl}/functions/v1/resend-contact-sync`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                action: "delete",
+                email: userEmail,
+              }),
+            }
+          );
+
+          if (!syncRes.ok) {
+            const syncBody = await syncRes.text();
+            logStep("Resend contact removal failed (proceeding)", { status: syncRes.status, body: syncBody });
+          } else {
+            logStep("Resend contact removed");
+          }
+        }
+      } catch (syncErr) {
+        logStep("Resend contact removal error (proceeding with deletion)", {
+          error: syncErr instanceof Error ? syncErr.message : String(syncErr),
+        });
+      }
     }
 
     // Delete the user from auth (cascades to profiles and other FK tables)
