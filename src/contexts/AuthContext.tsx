@@ -66,6 +66,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!error && data) {
       setProfile(data as Profile);
       
+      // Backfill user_agent if missing
+      if (!data.user_agent) {
+        const ua = navigator.userAgent;
+        if (ua) {
+          supabase.from("profiles").update({ user_agent: ua }).eq("id", userId).then();
+        }
+      }
+
       // Send welcome email if email is confirmed, onboarding is done, and welcome email hasn't been sent yet
       if (userEmailConfirmed && data.onboarding_completed && !data.welcome_email_sent) {
         sendWelcomeEmail(userId);
