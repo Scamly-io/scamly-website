@@ -102,7 +102,17 @@ export default function Portal() {
   useEffect(() => {
     if (profile && user) {
       setFirstName(profile.first_name || "");
-      setDob(profile.dob || "");
+      // Convert ISO yyyy-mm-dd to dd/mm/yyyy for display
+      if (profile.dob) {
+        const parts = profile.dob.split("-");
+        if (parts.length === 3) {
+          setDob(`${parts[2]}/${parts[1]}/${parts[0]}`);
+        } else {
+          setDob(profile.dob);
+        }
+      } else {
+        setDob("");
+      }
       setCountry(profile.country || "");
       setGender(profile.gender || "");
     }
@@ -119,10 +129,17 @@ export default function Portal() {
       return;
     }
 
+    // Convert dd/mm/yyyy to yyyy-mm-dd for storage
+    let isoDate: string | null = null;
+    if (dob && dob.trim() !== "") {
+      const dobParts = dob.split("/");
+      isoDate = dobParts.length === 3 ? `${dobParts[2]}-${dobParts[1]}-${dobParts[0]}` : dob;
+    }
+
     setSaving(true);
     const { error } = await updateProfile({
       first_name: firstName,
-      dob,
+      ...(isoDate ? { dob: isoDate } : { dob: null }),
       country,
       gender,
     });
@@ -337,7 +354,28 @@ export default function Portal() {
 
                   <div className="space-y-2">
                     <Label htmlFor="dob">Date of Birth</Label>
-                    <Input id="dob" type="date" value={dob} onChange={(e) => setDob(e.target.value)} />
+                    <div className="relative">
+                      <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                      <Input
+                        id="dob"
+                        type="text"
+                        inputMode="numeric"
+                        placeholder="dd/mm/yyyy"
+                        value={dob}
+                        onChange={(e) => {
+                          let val = e.target.value.replace(/[^\d/]/g, "");
+                          const digits = val.replace(/\//g, "");
+                          if (digits.length > 4) {
+                            val = digits.slice(0, 2) + "/" + digits.slice(2, 4) + "/" + digits.slice(4, 8);
+                          } else if (digits.length > 2) {
+                            val = digits.slice(0, 2) + "/" + digits.slice(2);
+                          }
+                          setDob(val);
+                        }}
+                        maxLength={10}
+                        className="pl-10"
+                      />
+                    </div>
                   </div>
 
                   <div className="space-y-2">
