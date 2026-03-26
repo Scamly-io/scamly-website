@@ -264,6 +264,7 @@ export type Database = {
           gender: string | null
           id: string
           ip_address: string | null
+          is_admin: boolean | null
           onboarding_completed: boolean | null
           referral_source: string | null
           review_prompted: boolean | null
@@ -289,6 +290,7 @@ export type Database = {
           gender?: string | null
           id: string
           ip_address?: string | null
+          is_admin?: boolean | null
           onboarding_completed?: boolean | null
           referral_source?: string | null
           review_prompted?: boolean | null
@@ -314,6 +316,7 @@ export type Database = {
           gender?: string | null
           id?: string
           ip_address?: string | null
+          is_admin?: boolean | null
           onboarding_completed?: boolean | null
           referral_source?: string | null
           review_prompted?: boolean | null
@@ -428,6 +431,7 @@ export type Database = {
         Args: { article_id: string }
         Returns: undefined
       }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
       message_belongs_to_user: {
         Args: { msg_conversation_id: string }
         Returns: boolean
