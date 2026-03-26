@@ -240,10 +240,10 @@ export function FeatureShowcaseSection() {
         {/* Stats */}
         <div className="mt-32 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
           {[
-            { value: "99%", label: "Detection Accuracy" },
+            { value: "90%", label: "Detection Accuracy" },
             { value: "500k+", label: "Scan Tokens Used" },
             { value: "24/7", label: "AI Protection" },
-            { value: "150+", label: "Countries Covered" },
+            { value: "170+", label: "Countries Covered" },
           ].map((stat) => (
             <div key={stat.label} className="text-center group">
               <p className="font-display text-3xl md:text-4xl font-bold gradient-text mb-1 transition-transform duration-300 group-hover:scale-110">
