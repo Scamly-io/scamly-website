@@ -205,8 +205,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
           await supabase.functions.invoke("resend-contact-sync", {
             body: {
-              action: "create",
-              email: newEmail
+              action: "update",
+              new_email: newEmail,
+              old_email: oldEmail,
             },
           });
         } catch (resendErr) {
