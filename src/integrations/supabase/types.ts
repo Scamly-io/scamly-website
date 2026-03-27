@@ -175,18 +175,21 @@ export type Database = {
           content: Json | null
           id: string
           policy_type: string
+          published_at: string
           version: string
         }
         Insert: {
           content?: Json | null
           id?: string
           policy_type: string
+          published_at?: string
           version: string
         }
         Update: {
           content?: Json | null
           id?: string
           policy_type?: string
+          published_at?: string
           version?: string
         }
         Relationships: []
