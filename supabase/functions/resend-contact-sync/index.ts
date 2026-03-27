@@ -118,15 +118,14 @@ serve(async (req: Request) => {
 
   try {
     const body = await req.json();
-    const action = body.action
+    const action = body.action || "create";
 
     logStep("Request received", { action });
 
+    // There is no update action. Updating an email address simply creates a new contact. The user can manually unsubscribe from their old email.
     switch (action) {
       case "create":
         return await handleCreateContact(body);
-      case "update":
-        return await handleUpdateContact(body);
       case "delete":
         return await handleDeleteContact(body);
       default:
@@ -184,69 +183,6 @@ serve(async (req: Request) => {
 
     if (error) {
       captureError(error, { email });
-      return new Response(JSON.stringify({ error: "Failed to create contact" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
-
-  /**
-   * Handles updating a Resend contact. Works by deleting the old contact and creating a new one.
-   * @param body
-   * @returns 
-   */
-  async function handleUpdateContact(body: { old_email: string, new_email: string }) {
-    const { old_email, new_email } = body;
-    if (!old_email || !new_email) {
-      return new Response(JSON.stringify({ error: "old_email and new_email are required" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const userId = await authenticateUser(req.headers.get("Authorization"));
-    if (!userId) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const rateLimitOk = await checkRateLimit(`resend-update:${userId}`, 5, 86400);
-    if (!rateLimitOk) {
-      logStep("Rate limited (update)", { userId });
-      return new Response(JSON.stringify({ error: "Too many requests. Please try again later." }), {
-        status: 429,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const { removeError } = await resend.contacts.remove({
-      email: old_email,
-    })
-
-    if (removeError) {
-      captureError(removeError, { userId, old_email });
-      return new Response(JSON.stringify({ error: "Failed to delete contact" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const { createError } = await resend.contacts.create({
-      email: new_email,
-      unsubscribed: false,
-      segments: [{ id: audienceId }],
-    });
-
-    if (createError) {
-      captureError(createError, { userId, new_email });
       return new Response(JSON.stringify({ error: "Failed to create contact" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

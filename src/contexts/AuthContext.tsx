@@ -194,17 +194,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updateEmail = async (newEmail: string) => {
     try {
       const oldEmail = user?.email;
-      const { error } = await supabase.auth.updateUser({ email: newEmail });
+      const { error } = await supabase.auth.updateUser({ 
+        email: newEmail,
+        emailRedirectTo: `https://scamly.io/portal` 
+      });
       if (error) throw error;
 
-      // Sync with Resend: delete old contact, create new one
+      // Sync with Resend: create new contact for new email address.
       if (oldEmail) {
         try {
           await supabase.functions.invoke("resend-contact-sync", {
             body: {
-              action: "update",
-              old_email: oldEmail,
-              new_email: newEmail,
+              action: "create",
+              email: newEmail
             },
           });
         } catch (resendErr) {
