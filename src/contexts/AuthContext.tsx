@@ -205,7 +205,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               action: "update",
               old_email: oldEmail,
               new_email: newEmail,
-              first_name: profile?.first_name || undefined,
             },
           });
         } catch (resendErr) {

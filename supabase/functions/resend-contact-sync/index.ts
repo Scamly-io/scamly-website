@@ -2,6 +2,8 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Redis } from "https://esm.sh/@upstash/redis";
 import { Ratelimit } from "https://esm.sh/@upstash/ratelimit@latest";
+import { Resend } from "https://esm.sh/resend";
+import * as Sentry from "https://deno.land/x/sentry@8.55.0/index.mjs";
 
 const FUNCTION_NAME = "resend-contact-sync";
 
@@ -17,93 +19,43 @@ const logStep = (step: string, details?: unknown) => {
   console.log(`[${FUNCTION_NAME}] ${step}${details ? ` - ${JSON.stringify(details)}` : ""}`);
 };
 
-/**
- * Look up a Resend contact by email and return their ID (or null).
- */
-async function findResendContactByEmail(
-  email: string,
-  apiKey: string,
-  audienceId: string
-): Promise<string | null> {
-  const res = await fetch(
-    `https://api.resend.com/audiences/${audienceId}/contacts`,
-    {
-      method: "GET",
-      headers: { Authorization: `Bearer ${apiKey}` },
-    }
-  );
+const logError = (error: unknown, details?: unknown) => {
+  console.error(`[${FUNCTION_NAME}] ERROR - ${JSON.stringify(error)}${details ? ` - ${JSON.stringify(details)}` : ""}`);
+};
 
-  if (!res.ok) {
-    const body = await res.text();
-    logStep("Failed to list contacts", { status: res.status, body });
-    throw new Error(`Resend list contacts failed: ${res.status}`);
-  }
+const resend = new Resend(Deno.env.get("RESEND_API_KEY")!);
+const audienceId = Deno.env.get("RESEND_AUDIENCE_ID")!;
 
-  const data = await res.json();
-  const contacts = data?.data || [];
-  const match = contacts.find(
-    (c: { email: string }) => c.email.toLowerCase() === email.toLowerCase()
-  );
-  return match?.id || null;
+
+const sentryDsn = Deno.env.get("SENTRY_DSN");
+if (sentryDsn) {
+  Sentry.init({
+    dsn: sentryDsn,
+    environment: "production",
+    tracesSampleRate: 0.1,
+    beforeSend(event: any) {
+      if (event.request?.headers) {
+        delete event.request.headers["authorization"];
+      }
+      return event;
+    },
+  });
 }
 
 /**
- * Delete a Resend contact by their contact ID.
+ * Captures an error in Sentry
+ * @param error 
+ * @param context - Additional error details
  */
-async function deleteResendContact(
-  contactId: string,
-  apiKey: string,
-  audienceId: string
-): Promise<void> {
-  const res = await fetch(
-    `https://api.resend.com/audiences/${audienceId}/contacts/${contactId}`,
-    {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${apiKey}` },
-    }
-  );
-
-  if (!res.ok) {
-    const body = await res.text();
-    logStep("Failed to delete contact", { status: res.status, body });
-    throw new Error(`Resend delete contact failed: ${res.status}`);
-  }
-}
-
-/**
- * Create a Resend contact.
- */
-async function createResendContact(
-  email: string,
-  firstName: string | undefined,
-  apiKey: string,
-  audienceId: string
-): Promise<unknown> {
-  const res = await fetch(
-    `https://api.resend.com/audiences/${audienceId}/contacts`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        email,
-        first_name: firstName || undefined,
-        unsubscribed: false,
-      }),
-    }
-  );
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    logStep("Failed to create contact", { status: res.status, data });
-    throw new Error(`Resend create contact failed: ${res.status}`);
-  }
-
-  return data;
-}
+const captureError = (error: unknown, context: Record<string, unknown>) => {
+  if (!sentryDsn) return;
+  Sentry.withScope((scope: any) => {
+    scope.setTag("function", FUNCTION_NAME);
+    scope.setTag("source", "edge-function");
+    scope.setContext("details", context);
+    Sentry.captureException(error);
+  });
+};
 
 /**
  * Authenticate a user via their JWT token.
@@ -164,205 +116,195 @@ serve(async (req: Request) => {
     });
   }
 
-  const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-  const RESEND_AUDIENCE_ID = Deno.env.get("RESEND_AUDIENCE_ID");
-  const SENTRY_DSN = Deno.env.get("SENTRY_DSN");
+  try {
+    const body = await req.json();
+    const action = body.action
 
-  if (!RESEND_API_KEY || !RESEND_AUDIENCE_ID) {
-    console.error("RESEND_API_KEY or RESEND_AUDIENCE_ID not configured");
-    return new Response(JSON.stringify({ error: "Server misconfiguration" }), {
+    logStep("Request received", { action });
+
+    switch (action) {
+      case "create":
+        return await handleCreateContact(body);
+      case "update":
+        return await handleUpdateContact(body);
+      case "delete":
+        return await handleDeleteContact(body);
+      default:
+        return new Response(JSON.stringify({ error: `Unknown action: ${action}` }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    logError(error);
+    captureError(error, { message });
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
-  try {
-    const body = await req.json();
-    const action = body.action || "create";
-
-    logStep("Request received", { action });
-
-    // ── CREATE ──────────────────────────────────────────────────────────
-    if (action === "create") {
-      // Protected by internal secret (called from pg_net trigger)
-      const INTERNAL_SECRET = Deno.env.get("INTERNAL_SECRET");
-      if (!INTERNAL_SECRET) {
-        console.error("INTERNAL_SECRET not configured");
-        return new Response(JSON.stringify({ error: "Server misconfiguration" }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
-      const internalSecretHeader = req.headers.get("x-internal-secret");
-      if (internalSecretHeader !== INTERNAL_SECRET) {
-        return new Response(JSON.stringify({ error: "Unauthorized" }), {
-          status: 401,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
-      const { email, first_name } = body;
-      if (!email) {
-        return new Response(JSON.stringify({ error: "Email is required" }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
-      const data = await createResendContact(email, first_name, RESEND_API_KEY, RESEND_AUDIENCE_ID);
-      logStep("Contact created", { email });
-
-      return new Response(JSON.stringify({ success: true, data }), {
-        status: 200,
+  /**
+   * Handles the creation of a Resend contact
+   * @param body 
+   * @returns 
+   */
+  async function handleCreateContact(body: { email: string }) {
+    const { email } = body;
+    if (!email) {
+      return new Response(JSON.stringify({ error: "Email is required" }), {
+        status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // ── UPDATE ──────────────────────────────────────────────────────────
-    if (action === "update") {
-      // Requires authenticated user
-      const userId = await authenticateUser(req.headers.get("Authorization"));
-      if (!userId) {
-        return new Response(JSON.stringify({ error: "Unauthorized" }), {
-          status: 401,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
-      // Rate limit: 5 per day
-      const rateLimitOk = await checkRateLimit(`resend-update:${userId}`, 5, 86400);
-      if (!rateLimitOk) {
-        logStep("Rate limited (update)", { userId });
-        return new Response(JSON.stringify({ error: "Too many requests. Please try again later." }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
-      const { old_email, new_email, first_name } = body;
-      if (!old_email || !new_email) {
-        return new Response(JSON.stringify({ error: "old_email and new_email are required" }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
-      // Delete old contact if it exists
-      const oldContactId = await findResendContactByEmail(old_email, RESEND_API_KEY, RESEND_AUDIENCE_ID);
-      if (oldContactId) {
-        await deleteResendContact(oldContactId, RESEND_API_KEY, RESEND_AUDIENCE_ID);
-        logStep("Old contact deleted", { old_email });
-      } else {
-        logStep("Old contact not found, skipping delete", { old_email });
-      }
-
-      // Create new contact
-      const data = await createResendContact(new_email, first_name, RESEND_API_KEY, RESEND_AUDIENCE_ID);
-      logStep("New contact created", { new_email });
-
-      return new Response(JSON.stringify({ success: true, data }), {
-        status: 200,
+    const INTERNAL_SECRET = Deno.env.get("INTERNAL_SECRET");
+    if (!INTERNAL_SECRET) {
+      captureError(new Error("INTERNAL_SECRET not configured"), { action: "create-contact" });
+      return new Response(JSON.stringify({ error: "Server misconfiguration" }), {
+        status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // ── DELETE ──────────────────────────────────────────────────────────
-    if (action === "delete") {
-      // Requires authenticated user
-      const userId = await authenticateUser(req.headers.get("Authorization"));
-      if (!userId) {
-        return new Response(JSON.stringify({ error: "Unauthorized" }), {
-          status: 401,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
-      // Rate limit: 1 per day
-      const rateLimitOk = await checkRateLimit(`resend-delete:${userId}`, 1, 86400);
-      if (!rateLimitOk) {
-        logStep("Rate limited (delete)", { userId });
-        return new Response(JSON.stringify({ error: "Too many requests. Please try again later." }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
-      const { email } = body;
-      if (!email) {
-        return new Response(JSON.stringify({ error: "Email is required" }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
-      const contactId = await findResendContactByEmail(email, RESEND_API_KEY, RESEND_AUDIENCE_ID);
-      if (contactId) {
-        await deleteResendContact(contactId, RESEND_API_KEY, RESEND_AUDIENCE_ID);
-        logStep("Contact deleted", { email });
-      } else {
-        logStep("Contact not found for deletion", { email });
-      }
-
-      return new Response(JSON.stringify({ success: true }), {
-        status: 200,
+    const internalSecretHeader = req.headers.get("x-internal-secret");
+    if (internalSecretHeader !== INTERNAL_SECRET) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    return new Response(JSON.stringify({ error: `Unknown action: ${action}` }), {
-      status: 400,
+    const { error } = await resend.contacts.create({
+      email: email,
+      unsubscribed: false,
+      segments: [{ id: audienceId }],
+    });
+
+    if (error) {
+      captureError(error, { email });
+      return new Response(JSON.stringify({ error: "Failed to create contact" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    logStep("ERROR", { message });
+  }
 
-    // Report to Sentry via fetch (edge functions can't use the SDK directly)
-    try {
-      const SENTRY_DSN = Deno.env.get("SENTRY_DSN");
-      if (SENTRY_DSN) {
-        // Parse DSN: https://<key>@<host>/<project_id>
-        const dsnUrl = new URL(SENTRY_DSN);
-        const projectId = dsnUrl.pathname.replace("/", "");
-        const sentryKey = dsnUrl.username;
-        const sentryHost = dsnUrl.hostname;
-
-        await fetch(`https://${sentryHost}/api/${projectId}/store/`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Sentry-Auth": `Sentry sentry_version=7, sentry_key=${sentryKey}, sentry_client=edge-function/1.0`,
-          },
-          body: JSON.stringify({
-            event_id: crypto.randomUUID().replace(/-/g, ""),
-            timestamp: new Date().toISOString(),
-            level: "error",
-            logger: FUNCTION_NAME,
-            platform: "node",
-            server_name: FUNCTION_NAME,
-            exception: {
-              values: [
-                {
-                  type: err instanceof Error ? err.constructor.name : "Error",
-                  value: message,
-                },
-              ],
-            },
-            tags: {
-              source: "edge-function",
-              function_name: FUNCTION_NAME,
-            },
-          }),
-        });
-      }
-    } catch (sentryErr) {
-      console.error("Failed to report to Sentry:", sentryErr);
+  /**
+   * Handles updating a Resend contact. Works by deleting the old contact and creating a new one.
+   * @param body
+   * @returns 
+   */
+  async function handleUpdateContact(body: { old_email: string, new_email: string }) {
+    const { old_email, new_email } = body;
+    if (!old_email || !new_email) {
+      return new Response(JSON.stringify({ error: "old_email and new_email are required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    return new Response(
-      JSON.stringify({ error: "Internal server error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    const userId = await authenticateUser(req.headers.get("Authorization"));
+    if (!userId) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const rateLimitOk = await checkRateLimit(`resend-update:${userId}`, 5, 86400);
+    if (!rateLimitOk) {
+      logStep("Rate limited (update)", { userId });
+      return new Response(JSON.stringify({ error: "Too many requests. Please try again later." }), {
+        status: 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const { removeError } = await resend.contacts.remove({
+      email: old_email,
+    })
+
+    if (removeError) {
+      captureError(removeError, { userId, old_email });
+      return new Response(JSON.stringify({ error: "Failed to delete contact" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const { createError } = await resend.contacts.create({
+      email: new_email,
+      unsubscribed: false,
+      segments: [{ id: audienceId }],
+    });
+
+    if (createError) {
+      captureError(createError, { userId, new_email });
+      return new Response(JSON.stringify({ error: "Failed to create contact" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  /**
+   * Handles the deletion of a Resend contact
+   * @param body 
+   * @returns 
+   */
+  async function handleDeleteContact(body: { email: string }) {
+    const { email } = body;
+    if (!email) {
+      return new Response(JSON.stringify({ error: "Email is required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const userId = await authenticateUser(req.headers.get("Authorization"));
+    if (!userId) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const rateLimitOk = await checkRateLimit(`resend-delete:${userId}`, 1, 86400);
+    if (!rateLimitOk) {
+      logStep("Rate limited (delete)", { userId });
+      return new Response(JSON.stringify({ error: "Too many requests. Please try again later." }), {
+        status: 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const { error } = await resend.contacts.remove({
+      email: email,
+    });
+
+    if (error) {
+      captureError(error, { userId });
+      return new Response(JSON.stringify({ error: "Failed to delete contact" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
