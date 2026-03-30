@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { useTheme } from "@/contexts/ThemeContext";
 
 // Feature screenshots
 import scanDark from "@/assets/features/scan-dark.png";
@@ -34,7 +33,7 @@ function FeatureShowcase({
   badge,
   badgeVariant = "premium",
 }: FeatureShowcaseProps) {
-  const { theme } = useTheme();
+  
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -56,7 +55,7 @@ function FeatureShowcase({
     return () => observer.disconnect();
   }, []);
 
-  const currentImage = theme === "dark" ? imageDark : imageLight;
+  const currentImage = imageLight;
 
   return (
     <div
