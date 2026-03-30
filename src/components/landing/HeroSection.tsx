@@ -2,7 +2,7 @@ import { Sparkles } from "lucide-react";
 import phoneMockup from "../../assets/3d-phone-mockup.png";
 import appStoreBadge from "../../assets/badge-app-store.png";
 import googlePlayBadge from "../../assets/badge-google-play.png";
-import Aurora from "@/components/Aurora";
+import { AuroraBackground } from "@/components/AuroraBackground";
 
 export function HeroSection() {
   return (
