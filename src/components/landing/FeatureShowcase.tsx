@@ -55,7 +55,7 @@ function FeatureShowcase({
     return () => observer.disconnect();
   }, []);
 
-  const currentImage = theme === "dark" ? imageDark : imageLight;
+  const currentImage = imageLight;
 
   return (
     <div
