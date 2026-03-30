@@ -33,7 +33,7 @@ function FeatureShowcase({
   badge,
   badgeVariant = "premium",
 }: FeatureShowcaseProps) {
-  const { theme } = useTheme();
+  
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
