@@ -103,6 +103,164 @@ export type Database = {
           },
         ]
       }
+      feedback_comments: {
+        Row: {
+          content: string
+          created_at: string
+          feedback_id: string
+          id: number
+          posted_by: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          feedback_id: string
+          id?: number
+          posted_by: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          feedback_id?: string
+          id?: number
+          posted_by?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feature_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_comments_feedback_id_fkey"
+            columns: ["feedback_id"]
+            isOneToOne: false
+            referencedRelation: "feedback_wall"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feedback_likes: {
+        Row: {
+          created_at: string
+          feedback_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          feedback_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          feedback_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feature_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_likes_feedback_id_fkey"
+            columns: ["feedback_id"]
+            isOneToOne: false
+            referencedRelation: "feedback_wall"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feedback_reports: {
+        Row: {
+          created_at: string
+          feedback_id: string
+          id: string
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          feedback_id: string
+          id?: string
+          reason: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          feedback_id?: string
+          id?: string
+          reason?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feature_reports_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_reports_feedback_id_fkey"
+            columns: ["feedback_id"]
+            isOneToOne: false
+            referencedRelation: "feedback_wall"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feedback_wall: {
+        Row: {
+          content_hash: string
+          created_at: string
+          description: string
+          id: string
+          posted_by: string
+          status: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          content_hash: string
+          created_at?: string
+          description: string
+          id?: string
+          posted_by: string
+          status?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          content_hash?: string
+          created_at?: string
+          description?: string
+          id?: string
+          posted_by?: string
+          status?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feature_wall_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       initial_meta_capi_events: {
         Row: {
           created_at: string
@@ -419,6 +577,20 @@ export type Database = {
           policy_type: string
           published_at: string
           version: string
+        }[]
+      }
+      get_feedback_items: {
+        Args: { page_limit?: number; page_offset?: number }
+        Returns: {
+          comment_count: number
+          created_at: string
+          description: string
+          id: string
+          posted_by: string
+          status: string
+          title: string
+          user_has_voted: boolean
+          vote_count: number
         }[]
       }
       get_user_counts: {
