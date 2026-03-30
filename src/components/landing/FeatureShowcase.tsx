@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { useTheme } from "@/contexts/ThemeContext";
 
 // Feature screenshots
 import scanDark from "@/assets/features/scan-dark.png";
