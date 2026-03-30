@@ -6,7 +6,7 @@ import { AuroraBackground } from "@/components/AuroraBackground";
 
 export function HeroSection() {
   return (
-    <AuroraBackground className="min-h-[90vh]" showRadialGradient={true} animationSpeed={15}>
+    <AuroraBackground className="min-h-[90vh]" showRadialGradient={true} animationSpeed={60}>
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left side — Text content */}
@@ -41,7 +41,8 @@ export function HeroSection() {
               className="text-base md:text-lg text-muted-foreground max-w-xl mb-8 opacity-0 animate-fade-up"
               style={{ animationDelay: "0.4s" }}
             >
-              Meet Scamly, the world's best scam protection app that allows you to screenshot any form of online media and tell instantly if it is a scam.
+              Meet Scamly, the world's best scam protection app that allows you to screenshot any form of online media
+              and tell instantly if it is a scam.
             </p>
 
             {/* App store badges */}
@@ -55,11 +56,7 @@ export function HeroSection() {
                 rel="noopener noreferrer"
                 className="transition-transform hover:scale-105 active:scale-95"
               >
-                <img
-                  src={appStoreBadge}
-                  alt="Download on the App Store"
-                  className="h-12 md:h-14 w-auto"
-                />
+                <img src={appStoreBadge} alt="Download on the App Store" className="h-12 md:h-14 w-auto" />
               </a>
               <a
                 href="https://play.google.com/store/apps/details?id=com.scamly"
@@ -67,11 +64,7 @@ export function HeroSection() {
                 rel="noopener noreferrer"
                 className="transition-transform hover:scale-105 active:scale-95"
               >
-                <img
-                  src={googlePlayBadge}
-                  alt="Get it on Google Play"
-                  className="h-12 md:h-14 w-auto"
-                />
+                <img src={googlePlayBadge} alt="Get it on Google Play" className="h-12 md:h-14 w-auto" />
               </a>
             </div>
           </div>
