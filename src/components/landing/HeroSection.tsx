@@ -1,143 +1,102 @@
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ArrowRight, Check, Sparkles } from "lucide-react";
-import { useTheme } from "@/contexts/ThemeContext";
-import phoneMockupLight from "../../assets/3d-phone-mockup.png";
-import phoneMockupDark from "../../assets/3d-phone-mockup-dark.png";
-import { trackSignupStarted } from "@/lib/analytics";
-import { isTestSubdomain } from "@/lib/subdomain";
+import { Sparkles } from "lucide-react";
+import phoneMockup from "../../assets/3d-phone-mockup.png";
+import appStoreBadge from "../../assets/badge-app-store.png";
+import googlePlayBadge from "../../assets/badge-google-play.png";
+import Aurora from "@/components/Aurora";
 
 export function HeroSection() {
-  const { theme } = useTheme();
-  const isTest = isTestSubdomain();
-  const phoneMockup = theme === "dark" ? phoneMockupLight : phoneMockupDark;
   return (
-    <section className="relative min-h-screen flex flex-col items-center overflow-hidden bg-background">
-      {/* Subtle gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-secondary/5" />
-
-      {/* Animated gradient orbs - more vibrant with drifting motion */}
-      <div className="absolute top-[15%] left-[10%] w-[500px] h-[500px] bg-gradient-to-br from-primary/30 via-secondary/25 to-primary/20 rounded-full blur-[100px] animate-blob-drift-1" />
-      <div className="absolute top-[40%] right-[5%] w-[600px] h-[600px] bg-gradient-to-tl from-secondary/35 via-primary/20 to-secondary/15 rounded-full blur-[120px] animate-blob-drift-2" />
-      <div className="absolute bottom-[20%] left-[30%] w-[400px] h-[400px] bg-gradient-to-tr from-primary/25 to-secondary/30 rounded-full blur-[80px] animate-blob-drift-3" />
-
-      <div className="container mx-auto px-4 pt-32 pb-16 relative z-10">
-        <div className="max-w-4xl mx-auto text-center">
-          {/* Tagline badge */}
-          <div
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/60 bg-card/50 backdrop-blur-sm mb-8 opacity-0 animate-fade-up"
-            style={{ animationDelay: "0.1s" }}
-          >
-            <Sparkles className="w-4 h-4 text-secondary" />
-            <span className="text-sm font-medium text-muted-foreground">AI-Powered Scam Detection</span>
-          </div>
-
-          {/* Main headline with elegant typography */}
-          <h1
-            className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] mb-6 opacity-0 animate-fade-up"
-            style={{ animationDelay: "0.2s" }}
-          >
-            <span className="text-foreground">World class scam protection.</span>
-            <br />
-            <span className="gradient-text italic font-normal">In the palm of your hand.</span>
-          </h1>
-
-          {/* Subtitle */}
-          <p
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 opacity-0 animate-fade-up"
-            style={{ animationDelay: "0.3s" }}
-          >
-            Scamly uses specialized AI to instantly detect scams in text messages, emails, and social media. Screenshot,
-            scan, and stay safe.
-          </p>
-
-          {/* CTA Buttons */}
-          <div
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 opacity-0 animate-fade-up"
-            style={{ animationDelay: "0.4s" }}
-          >
-            <Button variant="gradient" size="xl" asChild className="group" onClick={() => trackSignupStarted('hero')}>
-              <Link to="/auth?mode=signup">
-                Start Free Trial
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Link>
-            </Button>
-            <Button variant="outline" size="xl" asChild className="backdrop-blur-sm">
-              <a href="#features">Learn More</a>
-            </Button>
-          </div>
-
-          {/* Trust badges */}
-          <div
-            className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground opacity-0 animate-fade-up"
-            style={{ animationDelay: "0.5s" }}
-          >
-            <div className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-primary" />
-              <span>6 free scans monthly</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-primary" />
-              <span>No ads</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-primary" />
-              <span>Cancel anytime</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Hero phone mockup */}
-        <div
-          className="mt-16 relative flex justify-center opacity-0 animate-fade-up"
-          style={{ animationDelay: "0.6s" }}
-        >
-          {/* Glow effect behind phone */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[600px] bg-gradient-to-b from-primary/20 to-secondary/20 rounded-full blur-[100px]" />
-
-          {/* Phone mockup image */}
-          <img
-            src={phoneMockup}
-            alt="Scamly app showing fraud detection features on mobile phones"
-            className="relative max-w-[600px] md:max-w-[750px] w-full h-auto drop-shadow-2xl"
-            fetchPriority="high"
-          />
-        </div>
+    <section className="relative min-h-[90vh] flex items-center overflow-hidden">
+      {/* Aurora background */}
+      <div className="absolute inset-0 z-0">
+        <Aurora
+          colorStops={["#7cff67", "#B19EEF", "#5227FF"]}
+          blend={1}
+          amplitude={1.0}
+          speed={0.2}
+        />
       </div>
 
-      {/* How it works section */}
-      <div className="w-full py-20 bg-muted/30 relative z-10">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div>
-                <h2 className="font-display text-3xl md:text-4xl font-bold mb-2">
-                  Designed to <span className="gradient-text italic font-normal">Protect You</span>
-                </h2>
-                <p className="text-muted-foreground">
-                  Our AI-powered app helps you identify scams instantly, keeping you and your loved ones safe online.
-                </p>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { step: "1", title: "Screenshot", desc: "Capture any suspicious message" },
-                  { step: "2", title: "Upload", desc: "Share it with Scamly" },
-                  { step: "3", title: "Analyze", desc: "AI scans for scam indicators" },
-                  { step: "4", title: "Results", desc: "Get instant protection" },
-                ].map((item) => (
-                  <div
-                    key={item.step}
-                    className="p-4 rounded-2xl bg-card border border-border/50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
-                  >
-                    <div className="w-8 h-8 rounded-full gradient-bg flex items-center justify-center text-sm font-bold text-primary-foreground mb-3">
-                      {item.step}
-                    </div>
-                    <h4 className="font-semibold mb-1">{item.title}</h4>
-                    <p className="text-sm text-muted-foreground">{item.desc}</p>
-                  </div>
-                ))}
-              </div>
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          {/* Left side — Text content */}
+          <div className="flex flex-col items-start">
+            {/* Pill badge */}
+            <div
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/60 bg-background/60 backdrop-blur-sm mb-8 opacity-0 animate-fade-up"
+              style={{ animationDelay: "0.1s" }}
+            >
+              <Sparkles className="w-4 h-4 text-secondary" />
+              <span className="text-sm font-medium text-muted-foreground">AI-powered scam protection</span>
             </div>
+
+            {/* Title */}
+            <h1
+              className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] mb-4 text-foreground opacity-0 animate-fade-up"
+              style={{ animationDelay: "0.2s" }}
+            >
+              The world's best scam protection app
+            </h1>
+
+            {/* Subtitle */}
+            <p
+              className="text-xl md:text-2xl text-foreground/80 mb-4 opacity-0 animate-fade-up"
+              style={{ animationDelay: "0.3s" }}
+            >
+              Stay safe from scams with a simple screenshot
+            </p>
+
+            {/* Description */}
+            <p
+              className="text-base md:text-lg text-muted-foreground max-w-xl mb-8 opacity-0 animate-fade-up"
+              style={{ animationDelay: "0.4s" }}
+            >
+              Meet Scamly, the world's best scam protection app that allows you to screenshot any form of online media and tell instantly if it is a scam.
+            </p>
+
+            {/* App store badges */}
+            <div
+              className="flex flex-wrap items-center gap-4 opacity-0 animate-fade-up"
+              style={{ animationDelay: "0.5s" }}
+            >
+              <a
+                href="https://apps.apple.com/app/scamly"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-transform hover:scale-105 active:scale-95"
+              >
+                <img
+                  src={appStoreBadge}
+                  alt="Download on the App Store"
+                  className="h-12 md:h-14 w-auto"
+                />
+              </a>
+              <a
+                href="https://play.google.com/store/apps/details?id=com.scamly"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-transform hover:scale-105 active:scale-95"
+              >
+                <img
+                  src={googlePlayBadge}
+                  alt="Get it on Google Play"
+                  className="h-12 md:h-14 w-auto"
+                />
+              </a>
+            </div>
+          </div>
+
+          {/* Right side — Phone mockup */}
+          <div
+            className="flex justify-center lg:justify-end opacity-0 animate-fade-up"
+            style={{ animationDelay: "0.5s" }}
+          >
+            <img
+              src={phoneMockup}
+              alt="Scamly app showing fraud detection features on mobile phones"
+              className="max-w-[500px] lg:max-w-[600px] w-full h-auto drop-shadow-2xl"
+              fetchPriority="high"
+            />
           </div>
         </div>
       </div>

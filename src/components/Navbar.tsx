@@ -2,36 +2,32 @@ import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { useTheme } from '@/contexts/ThemeContext';
-import { Menu, X, Sun, Moon } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { trackSignupStarted } from '@/lib/analytics';
 import logoLight from '@/assets/navbar-logo-light.png';
-import logoDark from '@/assets/navbar-logo-dark.png';
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const location = useLocation();
-
-  const isActive = (path: string) => location.pathname === path;
 
   const navLinks = [
     { href: '/#features', label: 'Features' },
     { href: '/#pricing', label: 'Pricing' },
     { href: '/#about', label: 'About' },
+    { href: '/blog', label: 'Blog' },
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/50">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+    <nav className="fixed top-4 left-4 right-4 z-50 mx-auto max-w-6xl rounded-2xl bg-background/70 backdrop-blur-xl border border-border/50 shadow-sm">
+      <div className="px-6">
+        <div className="flex items-center justify-between h-14">
           {/* Logo */}
           <Link to="/" className="flex items-center group">
             <img 
-              src={theme === 'dark' ? logoDark : logoLight} 
+              src={logoLight} 
               alt="Scamly" 
-              className="h-9 w-auto"
+              className="h-8 w-auto"
             />
           </Link>
 
@@ -50,29 +46,16 @@ export function Navbar() {
 
           {/* Right Section */}
           <div className="hidden md:flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              className="rounded-full"
-            >
-              {theme === 'dark' ? (
-                <Sun className="w-5 h-5" />
-              ) : (
-                <Moon className="w-5 h-5" />
-              )}
-            </Button>
-            
             {user ? (
-              <Button variant="gradient" asChild>
+              <Button variant="gradient" size="sm" asChild>
                 <Link to="/portal">My Account</Link>
               </Button>
             ) : (
               <>
-                <Button variant="ghost" asChild>
+                <Button variant="ghost" size="sm" asChild>
                   <Link to="/auth">Sign In</Link>
                 </Button>
-                <Button variant="gradient" asChild onClick={() => trackSignupStarted('navbar')}>
+                <Button variant="gradient" size="sm" asChild onClick={() => trackSignupStarted('navbar')}>
                   <Link to="/auth?mode=signup">Get Started</Link>
                 </Button>
               </>
@@ -81,18 +64,6 @@ export function Navbar() {
 
           {/* Mobile Menu Button */}
           <div className="flex md:hidden items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              className="rounded-full"
-            >
-              {theme === 'dark' ? (
-                <Sun className="w-5 h-5" />
-              ) : (
-                <Moon className="w-5 h-5" />
-              )}
-            </Button>
             <Button
               variant="ghost"
               size="icon"
