@@ -92,7 +92,7 @@ export function FeatureShowcaseSection() {
                       </div>
 
                       {/* Content */}
-                      <div className="flex-1 text-center md:text-left">
+                      <div className="w-fit text-center md:text-left">
                         <div className="flex items-center justify-center md:justify-start gap-3 mb-3">
                           <h3 className="font-display text-2xl md:text-3xl font-bold">{feature.title}</h3>
                           {feature.badge && (
