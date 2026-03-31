@@ -48,11 +48,12 @@ export function FeatureShowcaseSection() {
           <div className="font-display text-4xl md:text-5xl lg:text-6xl font-bold gradient-text mb-6">
             <TextType
               text={["stay safe", "protect your family", "avoid scammers"]}
-              typingSpeed={45}
-              deletingSpeed={25}
-              pauseDuration={2000}
+              typingSpeed={60}
+              deletingSpeed={45}
+              pauseDuration={2500}
               showCursor
-              cursorCharacter="_"
+              cursorCharacter="|"
+              startOnVisible
             />
           </div>
           <p className="text-lg text-muted-foreground">
