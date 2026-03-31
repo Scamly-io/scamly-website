@@ -3,7 +3,7 @@ import ScrollStack, { ScrollStackItem } from "@/components/ScrollStack";
 
 export function FeatureShowcaseSection() {
   return (
-    <section id="features" className="relative overflow-hidden">
+    <section id="features" className="relative">
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-8">
