@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import TextType from "@/components/TextType";
 import { GridPattern } from "@/components/GridPattern";
