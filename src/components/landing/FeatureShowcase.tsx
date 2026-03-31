@@ -104,8 +104,8 @@ export function FeatureShowcaseSection() {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="left-3 top-1/2 -translate-y-1/2 md:left-4 lg:-left-12" />
-              <CarouselNext className="right-3 top-1/2 -translate-y-1/2 md:right-4 lg:-right-12" />
+              <CarouselPrevious className="left-2 top-1/2 -translate-y-1/2 md:left-3 lg:-left-12" />
+              <CarouselNext className="right-2 top-1/2 -translate-y-1/2 md:right-3 lg:-right-12" />
             </Carousel>
           </div>
         </div>
