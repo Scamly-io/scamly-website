@@ -70,6 +70,9 @@ export function FeatureShowcaseSection() {
 
         {/* Feature Carousel Box */}
         <div className="relative max-w-5xl mx-auto rounded-2xl border border-border bg-card overflow-hidden">
+          {/* Soft corner colors */}
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-sky-100 rounded-full blur-3xl opacity-50 -translate-x-1/3 translate-y-1/3 pointer-events-none" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-100 rounded-full blur-3xl opacity-50 translate-x-1/3 -translate-y-1/3 pointer-events-none" />
           <GridPattern
             width={40}
             height={40}
