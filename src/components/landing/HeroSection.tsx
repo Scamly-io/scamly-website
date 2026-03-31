@@ -2,11 +2,12 @@ import { Sparkles } from "lucide-react";
 import phoneMockup from "../../assets/3d-phone-mockup.png";
 import appStoreBadge from "../../assets/badge-app-store.png";
 import googlePlayBadge from "../../assets/badge-google-play.png";
-import { AuroraBackground } from "@/components/AuroraBackground";
+import { LightRays } from "@/components/LightRays";
 
 export function HeroSection() {
   return (
-    <AuroraBackground className="min-h-[90vh] pt-28 md:pt-32 lg:pt-36" showRadialGradient={false} animationSpeed={120}>
+    <section className="relative min-h-[90vh] pt-28 md:pt-32 lg:pt-36 bg-zinc-50 overflow-hidden">
+      <LightRays />
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left side — Text content */}
@@ -83,6 +84,6 @@ export function HeroSection() {
           </div>
         </div>
       </div>
-    </AuroraBackground>
+    </section>
   );
 }
