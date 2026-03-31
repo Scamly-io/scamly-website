@@ -42,6 +42,13 @@ const features = [
 export function FeatureShowcaseSection() {
   const [current, setCurrent] = useState(0);
 
+  useEffect(() => {
+    features.forEach(({ image }) => {
+      const img = new Image();
+      img.src = image;
+    });
+  }, []);
+
   const prev = () => setCurrent((c) => (c === 0 ? features.length - 1 : c - 1));
   const next = () => setCurrent((c) => (c === features.length - 1 ? 0 : c + 1));
 
