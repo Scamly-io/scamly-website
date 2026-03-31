@@ -127,26 +127,26 @@ export function FeatureShowcaseSection() {
       scrollTrigger: {
         trigger: container,
         start: "top top",
-        // Each card gets ~80vh of scroll before transitioning
-        end: () => `+=${(totalCards - 1) * 80}vh`,
+        // Much longer scroll distance per card
+        end: () => `+=${(totalCards - 1) * 200}vh`,
         pin: true,
-        scrub: 1,
+        scrub: 2.5,
         anticipatePin: 1,
       },
     });
 
-    // Animate each card transition
+    // Animate each card transition with long dwell time
     for (let i = 0; i < totalCards - 1; i++) {
-      // Slide current card out left while fading
+      // Slide current card out left — slower duration
       tl.to(
         cards[i],
         {
           xPercent: -100,
           opacity: 0,
-          duration: 1,
-          ease: "power2.inOut",
+          duration: 1.5,
+          ease: "power3.inOut",
         },
-        i * 1.5 // Spacing: 1.5 units per card (1 for transition + 0.5 pause)
+        i * 3 // 3 units spacing: 1.5 transition + 1.5 dwell
       );
       // Slide next card in from right
       tl.to(
@@ -154,10 +154,10 @@ export function FeatureShowcaseSection() {
         {
           xPercent: 0,
           opacity: 1,
-          duration: 1,
-          ease: "power2.inOut",
+          duration: 1.5,
+          ease: "power3.inOut",
         },
-        i * 1.5 // Same start time — simultaneous
+        i * 3
       );
     }
 
