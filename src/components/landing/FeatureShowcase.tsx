@@ -1,220 +1,57 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import TextType from "@/components/TextType";
+import { GridPattern } from "@/components/GridPattern";
+import { Button } from "@/components/ui/button";
 
-// Feature screenshots
-import scanDark from "@/assets/features/scan-dark.png";
 import scanLight from "@/assets/features/scan-light.png";
-import chatDark from "@/assets/features/chat-dark.png";
 import chatLight from "@/assets/features/chat-light.png";
-import searchDark from "@/assets/features/search-dark.png";
 import searchLight from "@/assets/features/search-light.png";
-import libraryDark from "@/assets/features/library-dark.png";
 import libraryLight from "@/assets/features/library-light.png";
 
-interface FeatureShowcaseProps {
-  title: string;
-  subtitle: string;
-  description: string;
-  bulletPoints: string[];
-  imageDark: string;
-  imageLight: string;
-  reverse?: boolean;
-  badge?: string;
-  badgeVariant?: "premium" | "beta";
-}
-
-function FeatureShowcase({
-  title,
-  subtitle,
-  description,
-  bulletPoints,
-  imageDark,
-  imageLight,
-  reverse = false,
-  badge,
-  badgeVariant = "premium",
-}: FeatureShowcaseProps) {
-  
-  const [isVisible, setIsVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.unobserve(entry.target);
-        }
-      },
-      { threshold: 0.2 },
-    );
-
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
-  const currentImage = imageLight;
-
-  return (
-    <div
-      ref={ref}
-      className={`flex flex-col ${reverse ? "lg:flex-row-reverse" : "lg:flex-row"} items-center gap-12 lg:gap-20 max-w-4xl`}
-    >
-      {/* Screenshot */}
-      <div
-        className={`flex-1 flex justify-center transition-all duration-700 ${
-          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
-        }`}
-      >
-        <div className="relative group">
-          {/* Glow effect */}
-          <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-          {/* Screenshot */}
-          <img
-            src={currentImage}
-            alt={title}
-            className="relative w-[280px] sm:w-[320px] rounded-[48px] shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]"
-          />
-
-          {/* Floating decoration */}
-          <div className="absolute -bottom-4 -right-4 w-24 h-24 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 blur-xl animate-pulse" />
-        </div>
-      </div>
-
-      {/* Content */}
-      <div
-        className={`flex-1 text-center lg:text-left transition-all duration-700 delay-200 ${
-          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
-        }`}
-      >
-        {/* Subtitle */}
-        <span className="text-sm font-semibold uppercase tracking-wider text-secondary mb-2 block">{subtitle}</span>
-
-        {/* Title with badge */}
-        <div className="flex items-center justify-center lg:justify-start gap-3 mb-4">
-          <h3 className="font-display text-3xl md:text-4xl font-bold">{title}</h3>
-          {badge && (
-            <span
-              className={`px-3 py-1 text-xs font-bold rounded-full ${
-                badgeVariant === "beta"
-                  ? "bg-orange-500/20 text-orange-500 dark:bg-orange-400/20 dark:text-orange-400 border border-orange-500/30"
-                  : "gradient-bg text-primary-foreground"
-              }`}
-            >
-              {badge}
-            </span>
-          )}
-        </div>
-
-        {/* Description */}
-        <p className="text-lg text-muted-foreground mb-6 max-w-lg mx-auto lg:mx-0">{description}</p>
-
-        {/* Bullet points */}
-        <ul className="space-y-3">
-          {bulletPoints.map((point, index) => (
-            <li
-              key={index}
-              className="flex items-start gap-3 text-left"
-              style={{ transitionDelay: `${300 + index * 100}ms` }}
-            >
-              <span className="flex-shrink-0 w-6 h-6 rounded-full gradient-bg flex items-center justify-center mt-0.5">
-                <svg
-                  className="w-3.5 h-3.5 text-primary-foreground"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={3}
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              </span>
-              <span className="text-foreground/90">{point}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
-}
-
-// Feature data
 const features = [
   {
     title: "AI Scam Scanner",
-    subtitle: "Instant Protection",
     description:
       "Upload screenshots of suspicious messages, emails, or social media posts. Our AI analyzes content patterns and provides instant risk assessments with actionable advice.",
-    bulletPoints: [
-      "Analyzes texts, emails, and social media messages",
-      "Instant confidence score with risk level",
-      "Clear recommendations on next steps",
-      "Works with screenshots in any language",
-    ],
-    imageDark: scanDark,
-    imageLight: scanLight,
+    image: scanLight,
   },
   {
     title: "AI Chat Assistant",
-    subtitle: "Expert Knowledge",
     description:
       "Have natural conversations about scams, fraud, and cybersecurity. Get personalized answers to complex questions and learn how to stay protected.",
-    bulletPoints: [
-      "Ask anything about scams and fraud",
-      "Get expert-level answers instantly",
-      "Learn about new and emerging threats",
-      "Receive personalized safety recommendations",
-    ],
-    imageDark: chatDark,
-    imageLight: chatLight,
+    image: chatLight,
     badge: "Premium",
   },
   {
     title: "Contact Search",
-    subtitle: "Verify Before You Trust",
     description:
       "Powered by Perplexity AI, find legitimate contact information for any company worldwide. Never fall for fake customer service scams again.",
-    bulletPoints: [
-      "Search any company or organization",
-      "Get verified contact details instantly",
-      "Find official websites and phone numbers",
-      "Avoid fake customer service scams",
-    ],
-    imageDark: searchDark,
-    imageLight: searchLight,
+    image: searchLight,
     badge: "Beta",
     badgeVariant: "beta" as const,
   },
   {
     title: "Learning Library",
-    subtitle: "Stay Informed",
     description:
       "Access a comprehensive library of articles, guides, and tips about scam types, prevention strategies, and online safety best practices.",
-    bulletPoints: [
-      "In-depth articles on scam types",
-      "Step-by-step prevention guides",
-      "Regular updates on new threats",
-      "Expert tips for staying safe online",
-    ],
-    imageDark: libraryDark,
-    imageLight: libraryLight,
+    image: libraryLight,
   },
 ];
 
 export function FeatureShowcaseSection() {
+  const [current, setCurrent] = useState(0);
+
+  const prev = () => setCurrent((c) => (c === 0 ? features.length - 1 : c - 1));
+  const next = () => setCurrent((c) => (c === features.length - 1 ? 0 : c + 1));
+
+  const feature = features[current];
+
   return (
     <section id="features" className="py-24 relative overflow-hidden">
-      {/* Background elements */}
-      <div className="absolute inset-0 bg-hero-pattern opacity-30" />
-      <div className="absolute top-1/4 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-secondary/5 rounded-full blur-3xl" />
-
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-20">
+        <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-2">
             Everything You Need to
           </h2>
@@ -234,11 +71,102 @@ export function FeatureShowcaseSection() {
           </p>
         </div>
 
-        {/* Features */}
-        <div className="space-y-32 flex flex-col items-center justify-center">
-          {features.map((feature, index) => (
-            <FeatureShowcase key={feature.title} {...feature} reverse={index % 2 === 1} />
-          ))}
+        {/* Feature Carousel Box */}
+        <div className="relative max-w-5xl mx-auto rounded-2xl border border-border bg-card overflow-hidden">
+          {/* Grid Background */}
+          <GridPattern
+            width={40}
+            height={40}
+            className="opacity-40"
+          />
+
+          <div className="relative z-10 p-8 md:p-12">
+            <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+              {/* Left arrow - desktop */}
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={prev}
+                className="hidden md:flex shrink-0 rounded-full h-10 w-10"
+                aria-label="Previous feature"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+
+              {/* Screenshot */}
+              <div className="flex-shrink-0">
+                <img
+                  src={feature.image}
+                  alt={feature.title}
+                  className="w-[200px] sm:w-[240px] rounded-[40px] shadow-xl transition-all duration-300"
+                />
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 text-center md:text-left">
+                <div className="flex items-center justify-center md:justify-start gap-3 mb-3">
+                  <h3 className="font-display text-2xl md:text-3xl font-bold">{feature.title}</h3>
+                  {feature.badge && (
+                    <span
+                      className={`px-3 py-1 text-xs font-bold rounded-full ${
+                        feature.badgeVariant === "beta"
+                          ? "bg-orange-500/20 text-orange-600 border border-orange-500/30"
+                          : "gradient-bg text-primary-foreground"
+                      }`}
+                    >
+                      {feature.badge}
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm md:text-base text-muted-foreground max-w-md">
+                  {feature.description}
+                </p>
+              </div>
+
+              {/* Right arrow - desktop */}
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={next}
+                className="hidden md:flex shrink-0 rounded-full h-10 w-10"
+                aria-label="Next feature"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </Button>
+            </div>
+
+            {/* Mobile arrows */}
+            <div className="flex md:hidden items-center justify-center gap-4 mt-6">
+              <Button variant="outline" size="icon" onClick={prev} className="rounded-full h-10 w-10" aria-label="Previous feature">
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+              <div className="flex gap-1.5">
+                {features.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrent(i)}
+                    className={`w-2 h-2 rounded-full transition-colors ${i === current ? "bg-primary" : "bg-muted-foreground/30"}`}
+                    aria-label={`Go to feature ${i + 1}`}
+                  />
+                ))}
+              </div>
+              <Button variant="outline" size="icon" onClick={next} className="rounded-full h-10 w-10" aria-label="Next feature">
+                <ChevronRight className="h-5 w-5" />
+              </Button>
+            </div>
+
+            {/* Desktop dots */}
+            <div className="hidden md:flex items-center justify-center gap-2 mt-8">
+              {features.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrent(i)}
+                  className={`w-2.5 h-2.5 rounded-full transition-colors ${i === current ? "bg-primary" : "bg-muted-foreground/30"}`}
+                  aria-label={`Go to feature ${i + 1}`}
+                />
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Stats */}
