@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import TextType from "@/components/TextType";
 
 // Feature screenshots
 import scanDark from "@/assets/features/scan-dark.png";
