@@ -59,17 +59,17 @@ function FeatureCard({
   feature: (typeof features)[0];
 }) {
   return (
-    <div className="absolute inset-0 flex items-center justify-center px-4">
-      <div className="glass border border-border/50 rounded-3xl p-8 md:p-12 max-w-5xl w-full shadow-2xl">
-        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
-          {/* Screenshot */}
-          <div className="flex-shrink-0">
+    <div className="absolute inset-0 flex items-center justify-center px-4 py-16 md:py-24">
+      <div className="glass border border-border/50 rounded-3xl px-6 py-5 md:px-10 md:py-6 max-w-4xl w-full shadow-2xl relative">
+        <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-12">
+          {/* Screenshot — oversized to stick out */}
+          <div className="flex-shrink-0 -my-16 md:-my-20">
             <div className="relative group">
               <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <img
                 src={feature.imageLight}
                 alt={feature.title}
-                className="relative w-[220px] sm:w-[260px] md:w-[280px] rounded-[40px] shadow-2xl"
+                className="relative w-[240px] sm:w-[280px] md:w-[320px] rounded-[44px] shadow-2xl"
               />
               <div className="absolute -bottom-4 -right-4 w-20 h-20 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 blur-xl animate-pulse" />
             </div>
@@ -77,7 +77,7 @@ function FeatureCard({
 
           {/* Content */}
           <div className="flex-1 text-center lg:text-left">
-            <div className="flex items-center justify-center lg:justify-start gap-3 mb-4">
+            <div className="flex items-center justify-center lg:justify-start gap-3 mb-3">
               <h3 className="font-display text-3xl md:text-4xl font-bold text-foreground">
                 {feature.title}
               </h3>
@@ -127,26 +127,26 @@ export function FeatureShowcaseSection() {
       scrollTrigger: {
         trigger: container,
         start: "top top",
-        // Each card gets ~80vh of scroll before transitioning
-        end: () => `+=${(totalCards - 1) * 80}vh`,
+        // Much longer scroll distance per card
+        end: () => `+=${(totalCards - 1) * 200}vh`,
         pin: true,
-        scrub: 1,
+        scrub: 2.5,
         anticipatePin: 1,
       },
     });
 
-    // Animate each card transition
+    // Animate each card transition with long dwell time
     for (let i = 0; i < totalCards - 1; i++) {
-      // Slide current card out left while fading
+      // Slide current card out left — slower duration
       tl.to(
         cards[i],
         {
           xPercent: -100,
           opacity: 0,
-          duration: 1,
-          ease: "power2.inOut",
+          duration: 1.5,
+          ease: "power3.inOut",
         },
-        i * 1.5 // Spacing: 1.5 units per card (1 for transition + 0.5 pause)
+        i * 3 // 3 units spacing: 1.5 transition + 1.5 dwell
       );
       // Slide next card in from right
       tl.to(
@@ -154,10 +154,10 @@ export function FeatureShowcaseSection() {
         {
           xPercent: 0,
           opacity: 1,
-          duration: 1,
-          ease: "power2.inOut",
+          duration: 1.5,
+          ease: "power3.inOut",
         },
-        i * 1.5 // Same start time — simultaneous
+        i * 3
       );
     }
 
