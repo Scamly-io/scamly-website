@@ -1,12 +1,6 @@
 import TextType from "@/components/TextType";
 import { GridPattern } from "@/components/GridPattern";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 import scanLight from "@/assets/features/scan-light.png";
 import chatLight from "@/assets/features/chat-light.png";
@@ -49,9 +43,7 @@ export function FeatureShowcaseSection() {
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-2">
-            Everything You Need to
-          </h2>
+          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-2">Everything You Need to</h2>
           <div className="font-display text-4xl md:text-5xl lg:text-6xl font-bold gradient-text mb-6">
             <TextType
               text={["stay safe", "protect your family", "avoid scammers"]}
@@ -63,21 +55,17 @@ export function FeatureShowcaseSection() {
             />
           </div>
           <p className="text-lg text-muted-foreground">
-            Scamly combines cutting-edge AI with practical tools to protect you from the dynamic landscape of
-            online fraud and scams.
+            Scamly combines cutting-edge AI with practical tools to protect you from the dynamic landscape of online
+            fraud and scams.
           </p>
         </div>
 
         {/* Feature Carousel Box */}
         <div className="relative max-w-5xl mx-auto rounded-2xl border border-border bg-card overflow-hidden">
           {/* Soft corner colors */}
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-sky-100 rounded-full blur-3xl opacity-50 -translate-x-1/4 translate-y-1/4 pointer-events-none" />
-          <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-100 rounded-full blur-3xl opacity-50 translate-x-1/4 -translate-y-1/4 pointer-events-none" />
-          <GridPattern
-            width={40}
-            height={40}
-            className="opacity-40"
-          />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-sky-100 rounded-full blur-3xl opacity-70 -translate-x-1/4 translate-y-1/4 pointer-events-none" />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-100 rounded-full blur-3xl opacity-70 translate-x-1/4 -translate-y-1/4 pointer-events-none" />
+          <GridPattern width={40} height={40} className="opacity-40" />
 
           <div className="relative z-10 p-8 md:p-12">
             <Carousel opts={{ loop: true }} className="w-full max-w-4xl mx-auto">
@@ -110,9 +98,7 @@ export function FeatureShowcaseSection() {
                             </span>
                           )}
                         </div>
-                        <p className="text-sm md:text-base text-muted-foreground max-w-md">
-                          {feature.description}
-                        </p>
+                        <p className="text-sm md:text-base text-muted-foreground max-w-md">{feature.description}</p>
                       </div>
                     </div>
                   </CarouselItem>
