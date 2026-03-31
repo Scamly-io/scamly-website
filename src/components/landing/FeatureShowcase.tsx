@@ -4,7 +4,7 @@ import ScrollStack, { ScrollStackItem } from "@/components/ScrollStack";
 export function FeatureShowcaseSection() {
   return (
     <section id="features" className="relative overflow-hidden">
-      <div className="container mx-auto px-4 relative z-10 h-screen">
+      <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-8">
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
@@ -29,7 +29,7 @@ export function FeatureShowcaseSection() {
         </div>
 
         {/* ScrollStack Features - simplified for testing */}
-        <ScrollStack>
+        <ScrollStack useWindowScroll>
           <ScrollStackItem>
             <h3 className="font-display text-2xl font-bold mb-2">AI Scam Scanner</h3>
             <p className="text-muted-foreground">Upload screenshots of suspicious messages for instant risk assessments.</p>
