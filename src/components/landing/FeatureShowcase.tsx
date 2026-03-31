@@ -105,7 +105,7 @@ export function FeatureShowcaseSection() {
                 ))}
               </CarouselContent>
               <CarouselPrevious className="left-1" />
-              <CarouselNext className="left-1" />
+              <CarouselNext className="right-1" />
             </Carousel>
           </div>
         </div>
