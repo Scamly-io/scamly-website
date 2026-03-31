@@ -77,11 +77,11 @@ export function FeatureShowcaseSection() {
           />
 
           <div className="relative z-10 p-8 md:p-12">
-            <Carousel opts={{ loop: true }} className="w-full">
+            <Carousel opts={{ loop: true }} className="w-full max-w-4xl mx-auto">
               <CarouselContent>
                 {features.map((feature) => (
                   <CarouselItem key={feature.title}>
-                    <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+                    <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 px-4 md:px-8">
                       {/* Screenshot */}
                       <div className="flex-shrink-0">
                         <img
@@ -115,8 +115,8 @@ export function FeatureShowcaseSection() {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="hidden md:flex -left-4 lg:-left-12" />
-              <CarouselNext className="hidden md:flex -right-4 lg:-right-12" />
+              <CarouselPrevious />
+              <CarouselNext />
             </Carousel>
           </div>
         </div>
