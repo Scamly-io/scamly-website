@@ -45,7 +45,7 @@ export function FeatureShowcaseSection() {
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-2">Everything You Need to</h2>
-          <div className="font-display text-4xl md:text-5xl lg:text-6xl font-bold gradient-text mb-6">
+          <div className="text-4xl md:text-5xl lg:text-6xl font-bold gradient-text mb-6" style={{ fontFamily: "'DM Serif Display', serif", fontStyle: 'italic' }}>
             <TextType
               text={["stay safe", "protect your family", "avoid scammers"]}
               typingSpeed={60}
