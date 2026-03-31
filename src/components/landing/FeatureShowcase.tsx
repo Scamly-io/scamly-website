@@ -44,21 +44,20 @@ export function FeatureShowcaseSection() {
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-8">
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-            Everything you need to{" "}
-            <span className="gradient-text">
-              <TextType
-                text={["stay safe", "protect your family", "avoid scammers"]}
-                typingSpeed={45}
-                deletingSpeed={25}
-                pauseDuration={2000}
-                showCursor
-                cursorCharacter="_"
-                cursorClassName="text-secondary"
-                className="inline"
-                as="span"
-              />
-            </span>
+            Everything you need to
           </h2>
+          <div className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-4 gradient-text">
+            <TextType
+              text={["stay safe", "protect your family", "avoid scammers"]}
+              typingSpeed={45}
+              deletingSpeed={25}
+              pauseDuration={2000}
+              showCursor
+              cursorCharacter="_"
+              cursorClassName="text-secondary"
+              as="span"
+            />
+          </div>
           <p className="text-lg text-muted-foreground">
             Scamly combines cutting-edge AI with practical tools to protect you
             from the dynamic landscape of online fraud and scams.
