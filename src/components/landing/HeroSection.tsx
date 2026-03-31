@@ -6,7 +6,7 @@ import { AuroraBackground } from "@/components/AuroraBackground";
 
 export function HeroSection() {
   return (
-    <AuroraBackground className="min-h-[90vh] pt-28 md:pt-32 lg:pt-28" showRadialGradient={true} animationSpeed={60}>
+    <AuroraBackground className="min-h-[90vh] pt-28 md:pt-32" showRadialGradient={true} animationSpeed={60}>
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left side — Text content */}
