@@ -51,9 +51,7 @@ export function FeatureShowcaseSection() {
               typingSpeed={60}
               deletingSpeed={45}
               pauseDuration={2500}
-              showCursor
               cursorCharacter="|"
-              startOnVisible
             />
           </div>
           <p className="text-lg text-muted-foreground">
