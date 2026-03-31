@@ -1,8 +1,12 @@
-import { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import TextType from "@/components/TextType";
 import { GridPattern } from "@/components/GridPattern";
-import { Button } from "@/components/ui/button";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 import scanLight from "@/assets/features/scan-light.png";
 import chatLight from "@/assets/features/chat-light.png";
@@ -40,13 +44,6 @@ const features = [
 ];
 
 export function FeatureShowcaseSection() {
-  const [current, setCurrent] = useState(0);
-
-  const prev = () => setCurrent((c) => (c === 0 ? features.length - 1 : c - 1));
-  const next = () => setCurrent((c) => (c === features.length - 1 ? 0 : c + 1));
-
-  const feature = features[current];
-
   return (
     <section id="features" className="py-24 relative overflow-hidden">
       <div className="container mx-auto px-4 relative z-10">
@@ -73,7 +70,6 @@ export function FeatureShowcaseSection() {
 
         {/* Feature Carousel Box */}
         <div className="relative max-w-5xl mx-auto rounded-2xl border border-border bg-card overflow-hidden">
-          {/* Grid Background */}
           <GridPattern
             width={40}
             height={40}
@@ -81,91 +77,47 @@ export function FeatureShowcaseSection() {
           />
 
           <div className="relative z-10 p-8 md:p-12">
-            <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
-              {/* Left arrow - desktop */}
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={prev}
-                className="hidden md:flex shrink-0 rounded-full h-10 w-10"
-                aria-label="Previous feature"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </Button>
+            <Carousel opts={{ loop: true }} className="w-full">
+              <CarouselContent>
+                {features.map((feature) => (
+                  <CarouselItem key={feature.title}>
+                    <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+                      {/* Screenshot */}
+                      <div className="flex-shrink-0">
+                        <img
+                          src={feature.image}
+                          alt={feature.title}
+                          className="w-[200px] sm:w-[240px] rounded-[40px] shadow-xl"
+                        />
+                      </div>
 
-              {/* Screenshot */}
-              <div className="flex-shrink-0">
-                <img
-                  src={feature.image}
-                  alt={feature.title}
-                  className="w-[200px] sm:w-[240px] rounded-[40px] shadow-xl transition-all duration-300"
-                />
-              </div>
-
-              {/* Content */}
-              <div className="flex-1 text-center md:text-left">
-                <div className="flex items-center justify-center md:justify-start gap-3 mb-3">
-                  <h3 className="font-display text-2xl md:text-3xl font-bold">{feature.title}</h3>
-                  {feature.badge && (
-                    <span
-                      className={`px-3 py-1 text-xs font-bold rounded-full ${
-                        feature.badgeVariant === "beta"
-                          ? "bg-orange-500/20 text-orange-600 border border-orange-500/30"
-                          : "gradient-bg text-primary-foreground"
-                      }`}
-                    >
-                      {feature.badge}
-                    </span>
-                  )}
-                </div>
-                <p className="text-sm md:text-base text-muted-foreground max-w-md">
-                  {feature.description}
-                </p>
-              </div>
-
-              {/* Right arrow - desktop */}
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={next}
-                className="hidden md:flex shrink-0 rounded-full h-10 w-10"
-                aria-label="Next feature"
-              >
-                <ChevronRight className="h-5 w-5" />
-              </Button>
-            </div>
-
-            {/* Mobile arrows */}
-            <div className="flex md:hidden items-center justify-center gap-4 mt-6">
-              <Button variant="outline" size="icon" onClick={prev} className="rounded-full h-10 w-10" aria-label="Previous feature">
-                <ChevronLeft className="h-5 w-5" />
-              </Button>
-              <div className="flex gap-1.5">
-                {features.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setCurrent(i)}
-                    className={`w-2 h-2 rounded-full transition-colors ${i === current ? "bg-primary" : "bg-muted-foreground/30"}`}
-                    aria-label={`Go to feature ${i + 1}`}
-                  />
+                      {/* Content */}
+                      <div className="flex-1 text-center md:text-left">
+                        <div className="flex items-center justify-center md:justify-start gap-3 mb-3">
+                          <h3 className="font-display text-2xl md:text-3xl font-bold">{feature.title}</h3>
+                          {feature.badge && (
+                            <span
+                              className={`px-3 py-1 text-xs font-bold rounded-full ${
+                                feature.badgeVariant === "beta"
+                                  ? "bg-orange-500/20 text-orange-600 border border-orange-500/30"
+                                  : "gradient-bg text-primary-foreground"
+                              }`}
+                            >
+                              {feature.badge}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm md:text-base text-muted-foreground max-w-md">
+                          {feature.description}
+                        </p>
+                      </div>
+                    </div>
+                  </CarouselItem>
                 ))}
-              </div>
-              <Button variant="outline" size="icon" onClick={next} className="rounded-full h-10 w-10" aria-label="Next feature">
-                <ChevronRight className="h-5 w-5" />
-              </Button>
-            </div>
-
-            {/* Desktop dots */}
-            <div className="hidden md:flex items-center justify-center gap-2 mt-8">
-              {features.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrent(i)}
-                  className={`w-2.5 h-2.5 rounded-full transition-colors ${i === current ? "bg-primary" : "bg-muted-foreground/30"}`}
-                  aria-label={`Go to feature ${i + 1}`}
-                />
-              ))}
-            </div>
+              </CarouselContent>
+              <CarouselPrevious className="hidden md:flex -left-4 lg:-left-12" />
+              <CarouselNext className="hidden md:flex -right-4 lg:-right-12" />
+            </Carousel>
           </div>
         </div>
 
