@@ -160,14 +160,15 @@ async function formatPrompt(supabase: any, userId: string): Promise<string> {
     5. Detections (3–6 items):
       - Each detection highlights a specific clue or pattern that supports your assessment.
       - Include a "description" thats a few words explaining what was noticed (e.g, "Suspicious contact number", "Urgent request for money", "Unusual link")
-      - Include "details" that provides more context and explanation of the detection. This must be in easy to understand language, not overly technical.
+      - Include "details" that provides more context and explanation of the detection. This must be in easy to understand language, not overly technical. Write this as if you are addressing the user directly. Do not use terms like "the user" as your output will be shown directly to them.
       - Include a "severity" of "low", "medium", or "high" showing how you believe it contributes to the legitmacy. Low risk detections are things that positively influence the legitimacy, and vice versa.
       - Example:
         { "description": "Suspicious contact number", "details": "The phone number (+123 456 7890) appears to be from a different country to the content, and is not a legitimate contact number for the company.", "severity": "high" }
     6. Caution: When uncertain, lean toward treating the content as a potential scam, but explain your reasoning clearly through detections and confidence level.
     7. Success: If you are unable to properly assess the content (for example, due to poor image quality, unreadable text, or missing information), set "scan_successful" to false and include a short, user-readable explanation in "scan_failure_reason". If the scan is successful, set "scan_successful" to true and "scan_failure_reason" to null.
     8. Relevance: If a user provides an image that is not related to any form of online media communication (a selfie, a picture of a dog, explicit images of any form). Set "scan_successful" to false and set "scan_failure_reason" to "You have provided an image that is not related to detecting a scam." In this case also set the other data points to "error" 
-  
+    9. Do not attempt to return a link to the user in the detection details as they will not be able to interact with it and it will cause display issues.
+    
     Guide and tips when analysing the image:
     1. When analysing grammar, focus on the overall structure of the message, not just individual words. Scammers may use correct grammar in a sentence but the sentence structure doesn't make sense.
     2. If a link is present, the domain is the most useful way to tell if it is a scam. Even if a message has a real link inside though, its important to know that scammers may put this in to distract from the actual scam (such as calling the phone number).
@@ -477,9 +478,9 @@ serve(async (req) => {
 
       // OpenAI response
       const response = await openai.responses.create({
-        model: "gpt-5-mini",
+        model: "gpt-5.4-mini",
         tools: [{ type: "web_search"}],
-        reasoning: { effort: "low" },
+        reasoning: { effort: "medium" },
         instructions: systemPrompt,
         input: [
           { role: "user",

@@ -29,23 +29,20 @@ export function FeatureShowcaseSection() {
         </div>
 
         {/* ScrollStack Features - simplified for testing */}
-        <ScrollStack useWindowScroll>
-          <ScrollStackItem itemClassName="bg-white/60 border border-border/50 backdrop-blur-xl !rounded-3xl !shadow-lg">
+        <ScrollStack>
+          <ScrollStackItem>
             <h3 className="font-display text-2xl font-bold mb-2">AI Scam Scanner</h3>
             <p className="text-muted-foreground">Upload screenshots of suspicious messages for instant risk assessments.</p>
-          </ScrollStackItem>
-
-          <ScrollStackItem itemClassName="bg-white/60 border border-border/50 backdrop-blur-xl !rounded-3xl !shadow-lg">
+          </ScrollStackItem>  
+          <ScrollStackItem>
             <h3 className="font-display text-2xl font-bold mb-2">AI Chat Assistant</h3>
             <p className="text-muted-foreground">Have natural conversations about scams, fraud, and cybersecurity.</p>
-          </ScrollStackItem>
-
-          <ScrollStackItem itemClassName="bg-white/60 border border-border/50 backdrop-blur-xl !rounded-3xl !shadow-lg">
+          </ScrollStackItem>  
+          <ScrollStackItem>
             <h3 className="font-display text-2xl font-bold mb-2">Contact Search</h3>
             <p className="text-muted-foreground">Find legitimate contact information for any company worldwide.</p>
           </ScrollStackItem>
-
-          <ScrollStackItem itemClassName="bg-white/60 border border-border/50 backdrop-blur-xl !rounded-3xl !shadow-lg">
+          <ScrollStackItem>
             <h3 className="font-display text-2xl font-bold mb-2">Learning Library</h3>
             <p className="text-muted-foreground">Access articles, guides, and tips about scam prevention.</p>
           </ScrollStackItem>
