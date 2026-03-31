@@ -1,6 +1,7 @@
 import TextType from "@/components/TextType";
 import ScrollStack, { ScrollStackItem } from "@/components/ScrollStack";
 
+// Feature screenshots
 import scanLight from "@/assets/features/scan-light.png";
 import chatLight from "@/assets/features/chat-light.png";
 import searchLight from "@/assets/features/search-light.png";
@@ -10,25 +11,28 @@ const features = [
   {
     title: "AI Scam Scanner",
     description:
-      "Upload screenshots of suspicious messages, emails, or websites for instant AI-powered risk assessments and detailed breakdowns.",
+      "Upload screenshots of suspicious messages, emails, or social media posts. Our AI analyzes content patterns and provides instant risk assessments with actionable advice.",
     image: scanLight,
   },
   {
     title: "AI Chat Assistant",
     description:
-      "Have natural conversations about scams, fraud, and cybersecurity. Get personalised advice and guidance in real time.",
+      "Have natural conversations about scams, fraud, and cybersecurity. Get personalized answers to complex questions and learn how to stay protected.",
     image: chatLight,
+    badge: "Premium",
   },
   {
     title: "Contact Search",
     description:
-      "Find legitimate contact information for any company worldwide. Verify phone numbers, emails, and websites before engaging.",
+      "Powered by Perplexity AI, find legitimate contact information for any company worldwide. Never fall for fake customer service scams again.",
     image: searchLight,
+    badge: "Beta",
+    badgeVariant: "beta" as const,
   },
   {
     title: "Learning Library",
     description:
-      "Access articles, guides, and tips about scam prevention. Stay informed about the latest threats and how to avoid them.",
+      "Access a comprehensive library of articles, guides, and tips about scam types, prevention strategies, and online safety best practices.",
     image: libraryLight,
   },
 ];
@@ -61,37 +65,48 @@ export function FeatureShowcaseSection() {
         </div>
 
         {/* ScrollStack Features */}
-        <div className="h-96">
-          <ScrollStack>
-            {features.map((feature) => (
-              <ScrollStackItem
-                key={feature.title}
-                itemClassName="bg-background/60 border border-border/50 backdrop-blur-xl !rounded-3xl !shadow-lg"
-              >
-                <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10 h-full">
-                  {/* Phone mockup */}
-                  <div className="flex-shrink-0 flex items-center justify-center">
-                    <img
-                      src={feature.image}
-                      alt={feature.title}
-                      className="h-48 md:h-56 w-auto object-contain drop-shadow-xl"
-                    />
-                  </div>
+        <ScrollStack useWindowScroll>
+          {features.map((feature) => (
+            <ScrollStackItem
+              key={feature.title}
+              itemClassName="glass border border-border/50 backdrop-blur-xl !rounded-3xl !shadow-lg"
+            >
+              <div className="flex flex-col md:flex-row items-center gap-8 h-full">
+                {/* Phone image */}
+                <div className="flex-shrink-0">
+                  <img
+                    src={feature.image}
+                    alt={feature.title}
+                    className="w-[140px] sm:w-[180px] md:w-[200px] rounded-[32px] shadow-xl"
+                  />
+                </div>
 
-                  {/* Text content */}
-                  <div className="flex flex-col justify-center text-center md:text-left">
-                    <h3 className="font-display text-2xl md:text-3xl font-bold mb-3">
+                {/* Text content */}
+                <div className="flex-1 text-center md:text-left">
+                  <div className="flex items-center justify-center md:justify-start gap-3 mb-3">
+                    <h3 className="font-display text-2xl md:text-3xl font-bold">
                       {feature.title}
                     </h3>
-                    <p className="text-muted-foreground text-base md:text-lg leading-relaxed max-w-md">
-                      {feature.description}
-                    </p>
+                    {feature.badge && (
+                      <span
+                        className={`px-3 py-1 text-xs font-bold rounded-full ${
+                          feature.badgeVariant === "beta"
+                            ? "bg-orange-500/20 text-orange-600 border border-orange-500/30"
+                            : "gradient-bg text-primary-foreground"
+                        }`}
+                      >
+                        {feature.badge}
+                      </span>
+                    )}
                   </div>
+                  <p className="text-muted-foreground text-base md:text-lg max-w-lg">
+                    {feature.description}
+                  </p>
                 </div>
-              </ScrollStackItem>
-            ))}
-          </ScrollStack>
-        </div>
+              </div>
+            </ScrollStackItem>
+          ))}
+        </ScrollStack>
 
         {/* Stats */}
         <div className="py-20 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
