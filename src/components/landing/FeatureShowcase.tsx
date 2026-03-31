@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import TextType from "@/components/TextType";
 
 // Feature screenshots
 import scanDark from "@/assets/features/scan-dark.png";
@@ -214,18 +215,22 @@ export function FeatureShowcaseSection() {
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-20">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-border/50 mb-6">
-            <svg className="w-4 h-4 text-secondary" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-            </svg>
-            <span className="text-sm font-medium">Powerful Features</span>
-          </div>
-          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-            Everything You Need to <span className="gradient-text">Stay Safe</span>
+          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-2">
+            Everything You Need to
           </h2>
+          <div className="font-display text-4xl md:text-5xl lg:text-6xl font-bold gradient-text mb-6">
+            <TextType
+              text={["stay safe", "protect your family", "avoid scammers"]}
+              typingSpeed={45}
+              deletingSpeed={25}
+              pauseDuration={2000}
+              showCursor
+              cursorCharacter="_"
+            />
+          </div>
           <p className="text-lg text-muted-foreground">
-            Scamly combines cutting-edge AI with practical tools to protect you from the ever-evolving landscape of
-            online fraud.
+            Scamly combines cutting-edge AI with practical tools to protect you from the dynamic landscape of
+            online fraud and scams.
           </p>
         </div>
 
