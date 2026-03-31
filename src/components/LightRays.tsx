@@ -76,9 +76,9 @@ export function LightRays({
   style,
   count = 7,
   color = "rgba(86, 176, 255, 0.68)",
-  blur = 2,
+  blur = 28,
   speed = 28,
-  length = "60vh",
+  length = "50vh",
   ref,
   ...props
 }: LightRaysProps) {
