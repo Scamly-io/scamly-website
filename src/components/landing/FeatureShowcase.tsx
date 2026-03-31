@@ -114,10 +114,10 @@ export function FeatureShowcaseSection() {
         {/* Stats */}
         <div className="mt-32 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
           {[
-            { value: 95, suffix: "%", label: "Detection Accuracy", duration: 1.5 },
-            { value: 500, suffix: "k+", label: "Scan Tokens Used", duration: 2 },
+            { value: 95, suffix: "%", label: "Detection Accuracy", duration: 1 },
+            { value: 500, suffix: "k+", label: "Scan Tokens Used", duration: 1.5 },
             { value: 24, suffix: "/7", label: "AI Protection", duration: 1 },
-            { value: 170, suffix: "+", label: "Countries Covered", duration: 2 },
+            { value: 170, suffix: "+", label: "Countries Covered", duration: 1.5 },
           ].map((stat, index) => (
             <div key={stat.label} className="text-center group">
               <p className="font-display text-3xl md:text-4xl font-bold gradient-text mb-1 transition-transform duration-300 group-hover:scale-110">
