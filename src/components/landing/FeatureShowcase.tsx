@@ -28,24 +28,24 @@ export function FeatureShowcaseSection() {
           </p>
         </div>
 
-        {/* ScrollStack Features - simplified for testing */}
-        <div className="h-[1000px]">
+        {/* ScrollStack Features */}
+        <div className="h-96">
           <ScrollStack>
-            <ScrollStackItem>
+            <ScrollStackItem itemClassName="bg-background/60 border border-border/50 backdrop-blur-xl !rounded-3xl !shadow-lg">
               <h3 className="font-display text-2xl font-bold mb-2">AI Scam Scanner</h3>
-              <p className="text-muted-foreground">Upload screenshots of suspicious messages for instant risk assessments.</p>
+              <p className="text-muted-foreground">Upload screenshots of suspicious messages for instant risk assessments powered by advanced AI analysis.</p>
             </ScrollStackItem>  
-            <ScrollStackItem>
+            <ScrollStackItem itemClassName="bg-background/60 border border-border/50 backdrop-blur-xl !rounded-3xl !shadow-lg">
               <h3 className="font-display text-2xl font-bold mb-2">AI Chat Assistant</h3>
-              <p className="text-muted-foreground">Have natural conversations about scams, fraud, and cybersecurity.</p>
+              <p className="text-muted-foreground">Have natural conversations about scams, fraud, and cybersecurity with our intelligent assistant.</p>
             </ScrollStackItem>  
-            <ScrollStackItem>
+            <ScrollStackItem itemClassName="bg-background/60 border border-border/50 backdrop-blur-xl !rounded-3xl !shadow-lg">
               <h3 className="font-display text-2xl font-bold mb-2">Contact Search</h3>
-              <p className="text-muted-foreground">Find legitimate contact information for any company worldwide.</p>
+              <p className="text-muted-foreground">Find legitimate contact information for any company worldwide to verify authenticity.</p>
             </ScrollStackItem>
-            <ScrollStackItem>
+            <ScrollStackItem itemClassName="bg-background/60 border border-border/50 backdrop-blur-xl !rounded-3xl !shadow-lg">
               <h3 className="font-display text-2xl font-bold mb-2">Learning Library</h3>
-              <p className="text-muted-foreground">Access articles, guides, and tips about scam prevention.</p>
+              <p className="text-muted-foreground">Access articles, guides, and tips about scam prevention to stay informed.</p>
             </ScrollStackItem>
           </ScrollStack>
         </div>
