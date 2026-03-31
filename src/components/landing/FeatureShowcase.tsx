@@ -68,7 +68,7 @@ export function FeatureShowcaseSection() {
           <GridPattern width={40} height={40} className="opacity-40" />
 
           <div className="relative z-10 p-8 md:p-12">
-            <Carousel opts={{ loop: true }} className="w-full max-w-4xl mx-auto">
+            <Carousel opts={{ loop: true }} className="w-full max-w-4xl mx-auto px-8">
               <CarouselContent>
                 {features.map((feature) => (
                   <CarouselItem key={feature.title}>
@@ -104,8 +104,8 @@ export function FeatureShowcaseSection() {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="left-2 top-1/2 -translate-y-1/2 md:left-3 lg:-left-12" />
-              <CarouselNext className="right-2 top-1/2 -translate-y-1/2 md:right-3 lg:-right-12" />
+              <CarouselPrevious />
+              <CarouselNext />
             </Carousel>
           </div>
         </div>
