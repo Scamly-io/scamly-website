@@ -60,7 +60,7 @@ function FeatureCard({
 }) {
   return (
     <div className="absolute inset-0 flex items-center justify-center px-4 py-16 md:py-24">
-      <div className="glass border border-border/50 rounded-3xl px-6 py-5 md:px-10 md:py-6 max-w-4xl w-full shadow-2xl relative">
+      <div className="glass border border-border/50 rounded-3xl px-6 py-5 md:px-10 md:py-6 max-w-4xl w-full shadow-2xl relative my-24">
         <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-12">
           {/* Screenshot — oversized to stick out */}
           <div className="flex-shrink-0 -my-16 md:-my-20">
