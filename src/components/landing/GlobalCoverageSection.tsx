@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import WorldMap from "@/components/ui/world-map";
-import { ShieldCheck } from "lucide-react";
+import { Globe, ShieldCheck } from "lucide-react";
 import Threads from "@/components/Threads";
 import CountUp from "@/components/CountUp";
 
@@ -33,15 +33,15 @@ const mapDots = [
 
 export function GlobalCoverageSection() {
   const mapRef = useRef<HTMLDivElement>(null);
-  const [animateMap, setAnimateMap] = useState(false);
+  const [showMap, setShowMap] = useState(false);
 
   useEffect(() => {
     const el = mapRef.current;
-    if (!el || animateMap) return;
+    if (!el || showMap) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setAnimateMap(true);
+          setShowMap(true);
           observer.disconnect();
         }
       },
@@ -49,14 +49,14 @@ export function GlobalCoverageSection() {
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [animateMap]);
+  }, [showMap]);
 
   return (
-    <section className="py-24 relative overflow-hidden" style={{ backgroundColor: "rgb(13, 23, 48)" }}>
+    <section className="relative overflow-hidden" style={{ backgroundColor: "rgb(13, 23, 48)" }}>
       <div className="container mx-auto px-4">
         <div className="border-x border-white/10 overflow-hidden">
           {/* World map area */}
-          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16 p-8 md:p-12">
+          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16 px-8 pt-32 pb-8 md:px-12 md:pt-36 md:pb-12">
             {/* Left – Text */}
             <div className="lg:w-5/12 text-center lg:text-left">
               <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
@@ -79,7 +79,7 @@ export function GlobalCoverageSection() {
 
             {/* Right – World Map */}
             <div ref={mapRef} className="lg:w-7/12 w-full min-h-[200px] lg:min-h-[320px]">
-              <WorldMap dots={mapDots} lineColor="#f59e0b" animate={animateMap} />
+              {showMap && <WorldMap dots={mapDots} lineColor="#f59e0b" />}
             </div>
           </div>
 
@@ -87,7 +87,7 @@ export function GlobalCoverageSection() {
           <div className="border-t border-white/10" />
 
           {/* Stats Container */}
-          <div className="relative overflow-hidden" style={{ minHeight: "340px" }}>
+          <div className="relative overflow-hidden pb-32" style={{ minHeight: "340px" }}>
             {/* Threads animated background */}
             <div className="absolute inset-0">
               <Threads
