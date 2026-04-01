@@ -52,11 +52,11 @@ export function GlobalCoverageSection() {
   }, [animateMap]);
 
   return (
-    <section className="py-24 relative overflow-hidden" style={{ backgroundColor: "rgb(13, 23, 48)" }}>
+    <section className="relative overflow-hidden" style={{ backgroundColor: "rgb(13, 23, 48)" }}>
       <div className="container mx-auto px-4">
         <div className="border-x border-white/10 overflow-hidden">
           {/* World map area */}
-          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16 p-8 md:p-12">
+          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16 px-8 pb-8 pt-32 md:px-12 md:pb-12 md:pt-36">
             {/* Left – Text */}
             <div className="lg:w-5/12 text-center lg:text-left">
               <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
@@ -87,7 +87,7 @@ export function GlobalCoverageSection() {
           <div className="border-t border-white/10" />
 
           {/* Stats Container */}
-          <div className="relative overflow-hidden" style={{ minHeight: "340px" }}>
+          <div className="relative overflow-hidden pb-32" style={{ minHeight: "340px" }}>
             {/* Threads animated background */}
             <div className="absolute inset-0">
               <Threads
