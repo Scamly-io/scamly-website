@@ -62,13 +62,13 @@ export function GlobalCoverageSection() {
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16 p-8 md:p-12">
             {/* Left – Text */}
             <div className="lg:w-5/12 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-sky-300 text-sm font-medium mb-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-amber-500 text-sm font-medium mb-6">
                 <Globe className="w-4 h-4" />
                 Global Protection
               </div>
               <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
                 Scam Protection That Works{" "}
-                <span className="text-sky-400">Everywhere</span>
+                <span className="text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(135deg, rgb(242, 166, 162), rgb(231, 115, 201), rgb(162, 162, 248))' }}>Everywhere</span>
               </h2>
               <p className="text-lg text-slate-300 mb-8 leading-relaxed">
                 Scams don't respect borders — and neither does Scamly. Our AI is
@@ -93,7 +93,7 @@ export function GlobalCoverageSection() {
 
             {/* Right – World Map */}
             <div ref={mapRef} className="lg:w-7/12 w-full min-h-[320px]">
-              {showMap && <WorldMap dots={mapDots} lineColor="#38bdf8" />}
+              {showMap && <WorldMap dots={mapDots} lineColor="#f59e0b" />}
             </div>
           </div>
 
@@ -105,7 +105,7 @@ export function GlobalCoverageSection() {
             {/* Threads animated background */}
             <div className="absolute inset-0">
               <Threads
-                colors={[[1, 0.5, 0], [0.7, 0.2, 0.9], [0.5, 0.2, 1]]}
+                colors={[[0.96, 0.62, 0.04], [0.7, 0.2, 0.9], [0.5, 0.2, 1]]}
                 amplitude={0.8}
                 distance={0.3}
                 enableMouseInteraction
