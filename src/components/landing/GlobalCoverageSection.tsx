@@ -68,7 +68,7 @@ export function GlobalCoverageSection() {
               </div>
               <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
                 Scam Protection That Works{" "}
-                <span className="text-sky-400">Everywhere</span>
+                <span className="text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(135deg, rgb(242, 166, 162), rgb(231, 115, 201), rgb(162, 162, 248))' }}>Everywhere</span>
               </h2>
               <p className="text-lg text-slate-300 mb-8 leading-relaxed">
                 Scams don't respect borders — and neither does Scamly. Our AI is
