@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Check, X, Sparkles } from "lucide-react";
 import { trackPricingViewed, trackSignupStarted } from "@/lib/analytics";
+import { BorderBeam } from "@/components/ui/border-beam";
 
 const plans = [
   {
@@ -47,20 +48,17 @@ export function PricingSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const hasTrackedView = useRef(false);
 
-  // Track when pricing section becomes visible using Intersection Observer
-  // This answers: "What percentage of visitors actually see our pricing?"
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          // Only track once when section becomes at least 30% visible
           if (entry.isIntersecting && !hasTrackedView.current) {
             hasTrackedView.current = true;
             trackPricingViewed();
           }
         });
       },
-      { threshold: 0.3 } // Trigger when 30% of section is visible
+      { threshold: 0.3 }
     );
 
     if (sectionRef.current) {
@@ -70,26 +68,22 @@ export function PricingSection() {
     return () => observer.disconnect();
   }, []);
 
-  // Handler for tracking signup CTA clicks from pricing section
   const handleSignupClick = (planName: string) => {
     trackSignupStarted(`pricing_${planName.toLowerCase()}`);
   };
 
   return (
-    <section ref={sectionRef} id="pricing" className="py-24 bg-muted/50 relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-3xl" />
-
+    <section ref={sectionRef} id="pricing" className="py-24 relative overflow-hidden">
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-border/50 mb-6">
-            <Sparkles className="w-4 h-4 text-secondary" />
+            <Sparkles className="w-4 h-4" style={{ color: '#5022f6' }} />
             <span className="text-sm font-medium">Simple Pricing</span>
           </div>
           <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-            Choose Your <span className="gradient-text">Protection Level</span>
+            Pricing To Suit{" "}
+            <span style={{ color: '#5022f6' }}>Everyone</span>
           </h2>
           <p className="text-lg text-muted-foreground">
             Start free and upgrade when you need unlimited access to all features.
@@ -101,14 +95,34 @@ export function PricingSection() {
           {plans.map((plan) => (
             <div
               key={plan.name}
-              className={`relative rounded-3xl p-8 ${
-                plan.popular ? "glass border-2 border-primary shadow-xl" : "bg-card border border-border"
+              className={`relative rounded-3xl p-8 overflow-hidden ${
+                plan.popular
+                  ? "bg-card border border-border shadow-xl"
+                  : "bg-card border border-border shadow-lg"
               }`}
             >
+              {/* Animated border for Premium */}
+              {plan.popular && (
+                <>
+                  <BorderBeam
+                    duration={6}
+                    size={400}
+                    className="from-transparent via-amber-500 to-transparent"
+                  />
+                  <BorderBeam
+                    duration={6}
+                    delay={3}
+                    size={400}
+                    borderWidth={2}
+                    className="from-transparent via-purple-500 to-transparent"
+                  />
+                </>
+              )}
+
               {/* Popular Badge */}
               {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                   <span className="px-4 py-1.5 rounded-full gradient-bg text-sm font-semibold text-primary-foreground shadow-lg">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
+                   <span className="px-4 py-1.5 rounded-full text-sm font-semibold text-white shadow-lg" style={{ backgroundColor: '#5022f6' }}>
                      7-Day Free Trial
                   </span>
                 </div>
