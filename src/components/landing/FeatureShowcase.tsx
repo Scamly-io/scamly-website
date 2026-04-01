@@ -1,7 +1,7 @@
 import TextType from "@/components/TextType";
 import { GridPattern } from "@/components/GridPattern";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import CountUp from "@/components/CountUp";
+
 
 import scanLight from "@/assets/features/scan-light.png";
 import chatLight from "@/assets/features/chat-light.png";
