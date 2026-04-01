@@ -108,7 +108,7 @@ export function GlobalCoverageSection() {
           </div>
 
           {/* Stats content */}
-          <div className="relative z-10 flex items-end h-full min-h-[280px] p-8 md:p-12">
+          <div className="relative z-10 flex items-end h-full min-h-[340px] px-8 md:px-12 pb-10">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 w-full">
               {[
                 { value: 95, suffix: "%", label: "Detection Accuracy", duration: 1 },
@@ -118,7 +118,7 @@ export function GlobalCoverageSection() {
               ].map((stat, index) => (
                 <div key={stat.label} className="text-center group">
                   <p className="font-display text-3xl md:text-4xl font-bold text-transparent bg-clip-text mb-1 transition-transform duration-300 group-hover:scale-110"
-                     style={{ backgroundImage: 'linear-gradient(135deg, hsl(258 91% 56%), hsl(285 100% 71%))' }}>
+                     style={{ backgroundImage: 'linear-gradient(135deg, rgb(242, 166, 162), rgb(231, 115, 201), rgb(162, 162, 248))' }}>
                     <CountUp
                       from={0}
                       to={stat.value}
