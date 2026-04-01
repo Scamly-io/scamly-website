@@ -5,7 +5,7 @@ import googlePlayBadge from "../../assets/badge-google-play.png";
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-[90vh] py-28 md:py-32 lg:py-36 bg-zinc-50 overflow-hidden">
+    <section className="relative min-h-[90vh] py-28 md:py-32 lg:py-36 overflow-hidden">
       {/* Soft animated gradient glow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
