@@ -96,7 +96,7 @@ export function GlobalCoverageSection() {
         </div>
 
         {/* Stats Container */}
-        <div className="mt-16 relative rounded-lg border border-white/10 overflow-hidden" style={{ minHeight: '280px' }}>
+        <div className="mt-16 relative rounded-lg border border-white/10 overflow-hidden" style={{ minHeight: '340px' }}>
           {/* Threads animated background */}
           <div className="absolute inset-0">
             <Threads
