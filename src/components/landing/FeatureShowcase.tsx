@@ -43,7 +43,7 @@ export function FeatureShowcaseSection() {
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-2">Everything You Need to</h2>
+          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-2">Everything you need to</h2>
           <div className="font-display text-4xl md:text-5xl lg:text-6xl font-bold gradient-text mb-6">
             <TextType
               text={["stay safe", "protect your family", "avoid scammers"]}
