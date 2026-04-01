@@ -30,6 +30,25 @@ const mapDots = [
 ];
 
 export function GlobalCoverageSection() {
+  const mapRef = useRef<HTMLDivElement>(null);
+  const [showMap, setShowMap] = useState(false);
+
+  useEffect(() => {
+    const el = mapRef.current;
+    if (!el || showMap) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShowMap(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.25, rootMargin: "0px 0px -10% 0px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [showMap]);
+
   return (
     <section
       className="py-24 relative overflow-hidden"
