@@ -105,7 +105,7 @@ export function GlobalCoverageSection() {
             {/* Threads animated background */}
             <div className="absolute inset-0">
               <Threads
-                colors={[[1, 0.5, 0], [0.7, 0.2, 0.9], [0.5, 0.2, 1]]}
+                colors={[[0.96, 0.62, 0.04], [0.7, 0.2, 0.9], [0.5, 0.2, 1]]}
                 amplitude={0.8}
                 distance={0.3}
                 enableMouseInteraction
