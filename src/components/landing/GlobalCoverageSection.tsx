@@ -33,15 +33,15 @@ const mapDots = [
 
 export function GlobalCoverageSection() {
   const mapRef = useRef<HTMLDivElement>(null);
-  const [showMap, setShowMap] = useState(false);
+  const [animateMap, setAnimateMap] = useState(false);
 
   useEffect(() => {
     const el = mapRef.current;
-    if (!el || showMap) return;
+    if (!el || animateMap) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setShowMap(true);
+          setAnimateMap(true);
           observer.disconnect();
         }
       },
@@ -49,14 +49,14 @@ export function GlobalCoverageSection() {
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [showMap]);
+  }, [animateMap]);
 
   return (
-    <section className="relative overflow-hidden" style={{ backgroundColor: "rgb(13, 23, 48)" }}>
+    <section className="py-24 relative overflow-hidden" style={{ backgroundColor: "rgb(13, 23, 48)" }}>
       <div className="container mx-auto px-4">
         <div className="border-x border-white/10 overflow-hidden">
           {/* World map area */}
-          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16 px-8 pt-32 pb-8 md:px-12 md:pt-36 md:pb-12">
+          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16 p-8 md:p-12">
             {/* Left – Text */}
             <div className="lg:w-5/12 text-center lg:text-left">
               <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
@@ -79,7 +79,7 @@ export function GlobalCoverageSection() {
 
             {/* Right – World Map */}
             <div ref={mapRef} className="lg:w-7/12 w-full min-h-[200px] lg:min-h-[320px]">
-              {showMap && <WorldMap dots={mapDots} lineColor="#f59e0b" />}
+              <WorldMap dots={mapDots} lineColor="#f59e0b" animate={animateMap} />
             </div>
           </div>
 
@@ -87,7 +87,7 @@ export function GlobalCoverageSection() {
           <div className="border-t border-white/10" />
 
           {/* Stats Container */}
-          <div className="relative overflow-hidden pb-32" style={{ minHeight: "340px" }}>
+          <div className="relative overflow-hidden" style={{ minHeight: "340px" }}>
             {/* Threads animated background */}
             <div className="absolute inset-0">
               <Threads
@@ -103,7 +103,7 @@ export function GlobalCoverageSection() {
             </div>
 
             {/* Stats content */}
-            <div className="relative z-10 flex items-end h-full min-h-[340px] px-8 md:px-12">
+            <div className="relative z-10 flex items-end h-full min-h-[340px] px-8 md:px-12 pb-10">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8 w-full">
                 {[
                   { value: 95, suffix: "%", label: "Detection Accuracy", duration: 1 },
