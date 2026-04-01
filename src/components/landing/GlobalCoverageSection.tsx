@@ -96,8 +96,8 @@ export function GlobalCoverageSection() {
                   [0.7, 0.2, 0.9],
                   [0.5, 0.2, 1],
                 ]}
-                amplitude={0.8}
-                distance={0.3}
+                amplitude={1}
+                distance={0.5}
                 enableMouseInteraction
               />
             </div>
