@@ -75,20 +75,10 @@ export function GlobalCoverageSection() {
                 Scams don't respect borders — and neither does Scamly. Our AI is trained on global fraud patterns, so
                 whether you're in Sydney, London, or São Paulo, you get the same powerful protection.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <div className="flex items-center gap-3">
-                  <ShieldCheck className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                  <span className="text-slate-200 text-sm">170+ countries covered</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <ShieldCheck className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                  <span className="text-slate-200 text-sm">Multilingual scam detection</span>
-                </div>
-              </div>
             </div>
 
             {/* Right – World Map */}
-            <div ref={mapRef} className="lg:w-7/12 w-full min-h-[320px]">
+            <div ref={mapRef} className="lg:w-7/12 w-full min-h-[200px] lg:min-h-[320px]">
               {showMap && <WorldMap dots={mapDots} lineColor="#f59e0b" />}
             </div>
           </div>
