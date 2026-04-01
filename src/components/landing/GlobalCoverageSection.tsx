@@ -7,11 +7,11 @@ import CountUp from "@/components/CountUp";
 const mapDots = [
   {
     start: { lat: -45.8688, lng: 142.2093 }, // Sydney
-    end: { lat: 51.0074, lng: -0.3278 }, // London
+    end: { lat: 50.0074, lng: -0.6278 }, // London
   },
   {
-    start: { lat: 51.0074, lng: -0.3278 }, // London
-    end: { lat: 40.7128, lng: -74.006 }, // New York
+    start: { lat: 50.0074, lng: -0.6278 }, // London
+    end: { lat: 30.7128, lng: -84.006 }, // New York
   },
   {
     start: { lat: 35.6762, lng: 139.6503 }, // Tokyo
@@ -23,7 +23,7 @@ const mapDots = [
   },
   {
     start: { lat: -25.7975, lng: -60.8919 }, // Brasília
-    end: { lat: 51.0074, lng: -0.3278 }, // London
+    end: { lat: 50.0074, lng: -0.6278 }, // London
   },
   {
     start: { lat: 1.3521, lng: 103.8198 }, // Singapore
