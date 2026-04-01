@@ -33,15 +33,15 @@ const mapDots = [
 
 export function GlobalCoverageSection() {
   const mapRef = useRef<HTMLDivElement>(null);
-  const [showMap, setShowMap] = useState(false);
+  const [animateMap, setAnimateMap] = useState(false);
 
   useEffect(() => {
     const el = mapRef.current;
-    if (!el || showMap) return;
+    if (!el || animateMap) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setShowMap(true);
+          setAnimateMap(true);
           observer.disconnect();
         }
       },
@@ -49,7 +49,7 @@ export function GlobalCoverageSection() {
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [showMap]);
+  }, [animateMap]);
 
   return (
     <section className="py-24 relative overflow-hidden" style={{ backgroundColor: "rgb(13, 23, 48)" }}>
@@ -79,7 +79,7 @@ export function GlobalCoverageSection() {
 
             {/* Right – World Map */}
             <div ref={mapRef} className="lg:w-7/12 w-full min-h-[200px] lg:min-h-[320px]">
-              {showMap && <WorldMap dots={mapDots} lineColor="#f59e0b" />}
+              <WorldMap dots={mapDots} lineColor="#f59e0b" animate={animateMap} />
             </div>
           </div>
 
