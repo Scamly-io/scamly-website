@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import WorldMap from "@/components/ui/world-map";
 import { Globe, ShieldCheck } from "lucide-react";
+import Threads from "@/components/Threads";
+import CountUp from "@/components/CountUp";
 
 const mapDots = [
   {
@@ -90,6 +92,47 @@ export function GlobalCoverageSection() {
           {/* Right – World Map */}
           <div ref={mapRef} className="lg:w-7/12 w-full min-h-[320px]">
             {showMap && <WorldMap dots={mapDots} lineColor="#38bdf8" />}
+          </div>
+        </div>
+
+        {/* Stats Container */}
+        <div className="mt-16 relative rounded-lg border border-white/10 overflow-hidden" style={{ minHeight: '280px' }}>
+          {/* Threads animated background */}
+          <div className="absolute inset-0">
+            <Threads
+              colors={[[1, 0.5, 0], [0.7, 0.2, 0.9], [0.5, 0.2, 1]]}
+              amplitude={0.8}
+              distance={0.3}
+              enableMouseInteraction
+            />
+          </div>
+
+          {/* Stats content */}
+          <div className="relative z-10 flex items-end h-full min-h-[280px] p-8 md:p-12">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 w-full">
+              {[
+                { value: 95, suffix: "%", label: "Detection Accuracy", duration: 1 },
+                { value: 500, suffix: "k+", label: "Scan Tokens Used", duration: 1.5 },
+                { value: 24, suffix: "/7", label: "AI Protection", duration: 1 },
+                { value: 170, suffix: "+", label: "Countries Covered", duration: 1.5 },
+              ].map((stat, index) => (
+                <div key={stat.label} className="text-center group">
+                  <p className="font-display text-3xl md:text-4xl font-bold text-transparent bg-clip-text mb-1 transition-transform duration-300 group-hover:scale-110"
+                     style={{ backgroundImage: 'linear-gradient(135deg, hsl(258 91% 56%), hsl(285 100% 71%))' }}>
+                    <CountUp
+                      from={0}
+                      to={stat.value}
+                      direction="up"
+                      duration={stat.duration}
+                      delay={index * 0.15}
+                      separator=","
+                    />
+                    {stat.suffix}
+                  </p>
+                  <p className="text-sm text-slate-400">{stat.label}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import TextType from "@/components/TextType";
 import { GridPattern } from "@/components/GridPattern";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import CountUp from "@/components/CountUp";
+
 
 import scanLight from "@/assets/features/scan-light.png";
 import chatLight from "@/assets/features/chat-light.png";
@@ -110,30 +110,6 @@ export function FeatureShowcaseSection() {
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="mt-32 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-          {[
-            { value: 95, suffix: "%", label: "Detection Accuracy", duration: 1 },
-            { value: 500, suffix: "k+", label: "Scan Tokens Used", duration: 1.5 },
-            { value: 24, suffix: "/7", label: "AI Protection", duration: 1 },
-            { value: 170, suffix: "+", label: "Countries Covered", duration: 1.5 },
-          ].map((stat, index) => (
-            <div key={stat.label} className="text-center group">
-              <p className="font-display text-3xl md:text-4xl font-bold gradient-text mb-1 transition-transform duration-300 group-hover:scale-110">
-                <CountUp
-                  from={0}
-                  to={stat.value}
-                  direction="up"
-                  duration={stat.duration}
-                  delay={index * 0.15}
-                  separator=","
-                />
-                {stat.suffix}
-              </p>
-              <p className="text-sm text-muted-foreground">{stat.label}</p>
-            </div>
-          ))}
-        </div>
       </div>
     </section>
   );
