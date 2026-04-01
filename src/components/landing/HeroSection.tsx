@@ -25,7 +25,7 @@ export function HeroSection() {
         <div
           className="absolute -top-1/4 right-1/4 w-[80%] h-[50%] rounded-full opacity-65 blur-3xl"
           style={{
-            background: "radial-gradient(ellipse at 50% 40%, #ecfdf5 0%, #e0f2fe 50%, #faf5ff 100%)",
+            background: "radial-gradient(ellipse at 50% 40%, #fdf2f8 0%, #f5f3ff 50%, #fff7ed 100%)",
             animation: "heroGlow 12s ease-in-out 8s infinite alternate",
           }}
         />
