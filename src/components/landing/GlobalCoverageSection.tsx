@@ -103,7 +103,7 @@ export function GlobalCoverageSection() {
             </div>
 
             {/* Stats content */}
-            <div className="relative z-10 flex items-end h-full min-h-[340px] px-8 md:px-12 pb-10">
+            <div className="relative z-10 flex items-end h-full min-h-[340px] px-8 md:px-12">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8 w-full">
                 {[
                   { value: 95, suffix: "%", label: "Detection Accuracy", duration: 1 },
