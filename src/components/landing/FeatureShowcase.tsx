@@ -2,7 +2,6 @@ import TextType from "@/components/TextType";
 import { GridPattern } from "@/components/GridPattern";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
-
 import scanLight from "@/assets/features/scan-light.png";
 import chatLight from "@/assets/features/chat-light.png";
 import searchLight from "@/assets/features/search-light.png";
@@ -63,7 +62,7 @@ export function FeatureShowcaseSection() {
         {/* Feature Carousel Box */}
         <div className="relative max-w-5xl mx-auto rounded-2xl border border-border bg-card overflow-hidden">
           {/* Soft corner colors */}
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-amber-100 rounded-full blur-3xl opacity-70 -translate-x-1/4 translate-y-1/4 pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-orange-100 rounded-full blur-3xl opacity-70 -translate-x-1/4 translate-y-1/4 pointer-events-none" />
           <div className="absolute top-0 right-0 w-96 h-96 bg-purple-100 rounded-full blur-3xl opacity-70 translate-x-1/4 -translate-y-1/4 pointer-events-none" />
           <GridPattern width={40} height={40} className="opacity-40" />
 
@@ -109,7 +108,6 @@ export function FeatureShowcaseSection() {
             </Carousel>
           </div>
         </div>
-
       </div>
     </section>
   );
