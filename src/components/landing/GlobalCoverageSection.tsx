@@ -6,7 +6,7 @@ import CountUp from "@/components/CountUp";
 
 const mapDots = [
   {
-    start: { lat: -36.8688, lng: 151.2093 }, // Sydney
+    start: { lat: -50.8688, lng: 140.2093 }, // Sydney
     end: { lat: 51.5074, lng: -0.1278 }, // London
   },
   {
@@ -22,12 +22,12 @@ const mapDots = [
     end: { lat: -1.2921, lng: 36.8219 }, // Nairobi
   },
   {
-    start: { lat: -17.7975, lng: -49.8919 }, // Brasília
+    start: { lat: -25.7975, lng: -60.8919 }, // Brasília
     end: { lat: 38.7223, lng: -9.1393 }, // Lisbon
   },
   {
     start: { lat: 1.3521, lng: 103.8198 }, // Singapore
-    end: { lat: -36.8688, lng: 151.2093 }, // Sydney
+    end: { lat: -50.8688, lng: 140.2093 }, // Sydney
   },
 ];
 
