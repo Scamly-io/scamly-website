@@ -6,7 +6,8 @@ import { LightRays } from "@/components/LightRays";
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-[90vh] py-28 md:py-32 lg:py-36 overflow-hidden">
+    <section className="relative min-h-[90vh] py-28 md:py-32 lg:py-36 bg-zinc-50 overflow-hidden">
+      <LightRays />
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left side — Text content */}

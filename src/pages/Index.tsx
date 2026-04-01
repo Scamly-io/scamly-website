@@ -14,7 +14,6 @@ import { CTASection } from '@/components/landing/CTASection';
 import { RegisterInterestSection } from '@/components/landing/RegisterInterestSection';
 import { trackPageVisited } from '@/lib/analytics';
 import { isTestSubdomain } from '@/lib/subdomain';
-import { LightRays } from '@/components/LightRays';
 
 const Index = () => {
   useEffect(() => {
@@ -22,8 +21,7 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-zinc-50 to-sky-50">
-      <LightRays />
+    <div className="min-h-screen bg-gradient-to-b from-zinc-50 to-sky-50">
       <Navbar />
       <AnnouncementBanner />
       <main>
