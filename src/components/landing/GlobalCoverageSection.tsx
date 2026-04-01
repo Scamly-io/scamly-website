@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import WorldMap from "@/components/ui/world-map";
 import { Globe, ShieldCheck } from "lucide-react";
 
@@ -29,6 +30,25 @@ const mapDots = [
 ];
 
 export function GlobalCoverageSection() {
+  const mapRef = useRef<HTMLDivElement>(null);
+  const [showMap, setShowMap] = useState(false);
+
+  useEffect(() => {
+    const el = mapRef.current;
+    if (!el || showMap) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShowMap(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.25, rootMargin: "0px 0px -10% 0px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [showMap]);
+
   return (
     <section
       className="py-24 relative overflow-hidden"
@@ -68,8 +88,8 @@ export function GlobalCoverageSection() {
           </div>
 
           {/* Right – World Map */}
-          <div className="lg:w-7/12 w-full">
-            <WorldMap dots={mapDots} lineColor="#38bdf8" />
+          <div ref={mapRef} className="lg:w-7/12 w-full min-h-[320px]">
+            {showMap && <WorldMap dots={mapDots} lineColor="#38bdf8" />}
           </div>
         </div>
       </div>
