@@ -69,7 +69,7 @@ export default function WorldMap({
                 stroke="url(#path-gradient)"
                 strokeWidth="1"
                 initial={{ pathLength: 0 }}
-                animate={{ pathLength: 1 }}
+                animate={animate ? { pathLength: 1 } : { pathLength: 0 }}
                 transition={{
                   duration: 1,
                   delay: 0.5 * i,
