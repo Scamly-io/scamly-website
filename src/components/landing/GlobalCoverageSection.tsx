@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import WorldMap from "@/components/ui/world-map";
-import { Globe, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import Threads from "@/components/Threads";
 import CountUp from "@/components/CountUp";
 
