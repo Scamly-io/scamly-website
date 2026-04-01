@@ -5,30 +5,26 @@ import Threads from "@/components/Threads";
 import CountUp from "@/components/CountUp";
 
 const mapDots = [
-  {
-    start: { lat: -33.8688, lng: 151.2093 }, // Sydney
-    end: { lat: 51.5074, lng: -0.1278 }, // London
-  },
-  {
-    start: { lat: 51.5074, lng: -0.1278 }, // London
-    end: { lat: 40.7128, lng: -74.006 }, // New York
-  },
-  {
-    start: { lat: 35.6762, lng: 139.6503 }, // Tokyo
-    end: { lat: 28.6139, lng: 77.209 }, // New Delhi
-  },
-  {
-    start: { lat: 28.6139, lng: 77.209 }, // New Delhi
-    end: { lat: -1.2921, lng: 36.8219 }, // Nairobi
-  },
-  {
-    start: { lat: -15.7975, lng: -47.8919 }, // Brasília
-    end: { lat: 38.7223, lng: -9.1393 }, // Lisbon
-  },
-  {
-    start: { lat: 1.3521, lng: 103.8198 }, // Singapore
-    end: { lat: -33.8688, lng: 151.2093 }, // Sydney
-  },
+  // Europe → North America
+  { start: { lat: 50, lng: 10 }, end: { lat: 40, lng: -100 } },
+  // North America → South America
+  { start: { lat: 40, lng: -100 }, end: { lat: -15, lng: -60 } },
+  // Europe → Africa
+  { start: { lat: 50, lng: 10 }, end: { lat: 5, lng: 20 } },
+  // Africa → Asia
+  { start: { lat: 5, lng: 20 }, end: { lat: 35, lng: 90 } },
+  // Asia → Singapore
+  { start: { lat: 35, lng: 90 }, end: { lat: 1.35, lng: 103.82 } },
+  // Singapore → Australia
+  { start: { lat: 1.35, lng: 103.82 }, end: { lat: -25, lng: 135 } },
+  // Australia → New Zealand
+  { start: { lat: -25, lng: 135 }, end: { lat: -41, lng: 174 } },
+  // New Zealand → South America
+  { start: { lat: -41, lng: 174 }, end: { lat: -15, lng: -60 } },
+  // Europe → Singapore
+  { start: { lat: 50, lng: 10 }, end: { lat: 1.35, lng: 103.82 } },
+  // North America → Asia
+  { start: { lat: 40, lng: -100 }, end: { lat: 35, lng: 90 } },
 ];
 
 export function GlobalCoverageSection() {
