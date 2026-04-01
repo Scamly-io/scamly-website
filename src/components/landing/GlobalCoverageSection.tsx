@@ -45,48 +45,48 @@ export function GlobalCoverageSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.25, rootMargin: "0px 0px -10% 0px" }
+      { threshold: 0.25, rootMargin: "0px 0px -10% 0px" },
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, [showMap]);
 
   return (
-    <section
-      className="py-24 relative overflow-hidden"
-      style={{ backgroundColor: "rgb(13, 23, 48)" }}
-    >
+    <section className="py-24 relative overflow-hidden" style={{ backgroundColor: "rgb(13, 23, 48)" }}>
       <div className="container mx-auto px-4">
         <div className="border-x border-white/10 overflow-hidden">
           {/* World map area */}
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16 p-8 md:p-12">
             {/* Left – Text */}
             <div className="lg:w-5/12 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-amber-500 text-sm font-medium mb-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-[#e965c1] text-sm font-medium mb-6">
                 <Globe className="w-4 h-4" />
                 Global Protection
               </div>
               <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
                 Scam Protection That Works{" "}
-                <span className="text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(135deg, rgb(242, 166, 162), rgb(231, 115, 201), rgb(162, 162, 248))' }}>Everywhere</span>
+                <span
+                  className="text-transparent bg-clip-text"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(135deg, rgb(242, 166, 162), rgb(231, 115, 201), rgb(162, 162, 248))",
+                  }}
+                >
+                  Everywhere
+                </span>
               </h2>
               <p className="text-lg text-slate-300 mb-8 leading-relaxed">
-                Scams don't respect borders — and neither does Scamly. Our AI is
-                trained on global fraud patterns, so whether you're in Sydney,
-                London, or São Paulo, you get the same powerful protection.
+                Scams don't respect borders — and neither does Scamly. Our AI is trained on global fraud patterns, so
+                whether you're in Sydney, London, or São Paulo, you get the same powerful protection.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <div className="flex items-center gap-3">
                   <ShieldCheck className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                  <span className="text-slate-200 text-sm">
-                    170+ countries covered
-                  </span>
+                  <span className="text-slate-200 text-sm">170+ countries covered</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <ShieldCheck className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                  <span className="text-slate-200 text-sm">
-                    Multilingual scam detection
-                  </span>
+                  <span className="text-slate-200 text-sm">Multilingual scam detection</span>
                 </div>
               </div>
             </div>
@@ -101,11 +101,15 @@ export function GlobalCoverageSection() {
           <div className="border-t border-white/10" />
 
           {/* Stats Container */}
-          <div className="relative overflow-hidden" style={{ minHeight: '340px' }}>
+          <div className="relative overflow-hidden" style={{ minHeight: "340px" }}>
             {/* Threads animated background */}
             <div className="absolute inset-0">
               <Threads
-                colors={[[0.96, 0.62, 0.04], [0.7, 0.2, 0.9], [0.5, 0.2, 1]]}
+                colors={[
+                  [0.96, 0.62, 0.04],
+                  [0.7, 0.2, 0.9],
+                  [0.5, 0.2, 1],
+                ]}
                 amplitude={0.8}
                 distance={0.3}
                 enableMouseInteraction
@@ -122,8 +126,13 @@ export function GlobalCoverageSection() {
                   { value: 170, suffix: "+", label: "Countries Covered", duration: 1.5 },
                 ].map((stat, index) => (
                   <div key={stat.label} className="text-center group">
-                    <p className="font-display text-3xl md:text-4xl font-bold text-transparent bg-clip-text mb-1 transition-transform duration-300 group-hover:scale-110"
-                       style={{ backgroundImage: 'linear-gradient(135deg, rgb(242, 166, 162), rgb(231, 115, 201), rgb(162, 162, 248))' }}>
+                    <p
+                      className="font-display text-3xl md:text-4xl font-bold text-transparent bg-clip-text mb-1 transition-transform duration-300 group-hover:scale-110"
+                      style={{
+                        backgroundImage:
+                          "linear-gradient(135deg, rgb(242, 166, 162), rgb(231, 115, 201), rgb(162, 162, 248))",
+                      }}
+                    >
                       <CountUp
                         from={0}
                         to={stat.value}
