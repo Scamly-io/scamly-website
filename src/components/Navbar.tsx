@@ -98,7 +98,7 @@ export function Navbar() {
                     <Button variant="outline" asChild className="w-full">
                       <Link to="/auth">Sign In</Link>
                     </Button>
-                    <Button variant="gradient" asChild className="w-full" onClick={() => trackSignupStarted('navbar_mobile')}>
+                    <Button asChild className="w-full bg-[#5022f6] text-primary-foreground hover:bg-[#5022f6]/90" onClick={() => trackSignupStarted('navbar_mobile')}>
                       <Link to="/auth?mode=signup">Get Started</Link>
                     </Button>
                   </>
