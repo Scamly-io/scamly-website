@@ -10,6 +10,7 @@ interface MapProps {
     end: { lat: number; lng: number; label?: string };
   }>;
   lineColor?: string;
+  animate?: boolean;
 }
 
 export default function WorldMap({
