@@ -93,7 +93,7 @@ export function GlobalCoverageSection() {
 
             {/* Right – World Map */}
             <div ref={mapRef} className="lg:w-7/12 w-full min-h-[320px]">
-              {showMap && <WorldMap dots={mapDots} lineColor="#38bdf8" />}
+              {showMap && <WorldMap dots={mapDots} lineColor="#f59e0b" />}
             </div>
           </div>
 
