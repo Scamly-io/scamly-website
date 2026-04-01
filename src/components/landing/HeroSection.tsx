@@ -2,12 +2,34 @@ import { Sparkles } from "lucide-react";
 import phoneMockup from "../../assets/3d-phone-mockup.png";
 import appStoreBadge from "../../assets/badge-app-store.png";
 import googlePlayBadge from "../../assets/badge-google-play.png";
-import { LightRays } from "@/components/LightRays";
 
 export function HeroSection() {
   return (
     <section className="relative min-h-[90vh] py-28 md:py-32 lg:py-36 bg-zinc-50 overflow-hidden">
-      <LightRays />
+      {/* Soft animated gradient glow */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div
+          className="absolute -top-1/3 left-1/2 -translate-x-1/2 w-[140%] h-[80%] rounded-full opacity-60 blur-3xl"
+          style={{
+            background: "radial-gradient(ellipse at 30% 20%, #faf5ff 0%, #e0f2fe 35%, #ecfdf5 65%, transparent 100%)",
+            animation: "heroGlow 12s ease-in-out infinite alternate",
+          }}
+        />
+        <div
+          className="absolute -top-1/4 left-1/3 w-[100%] h-[60%] rounded-full opacity-40 blur-3xl"
+          style={{
+            background: "radial-gradient(ellipse at 70% 30%, #e0f2fe 0%, #faf5ff 40%, #ecfdf5 80%, transparent 100%)",
+            animation: "heroGlow 12s ease-in-out 4s infinite alternate-reverse",
+          }}
+        />
+        <div
+          className="absolute -top-1/4 right-1/4 w-[80%] h-[50%] rounded-full opacity-35 blur-3xl"
+          style={{
+            background: "radial-gradient(ellipse at 50% 40%, #ecfdf5 0%, #e0f2fe 50%, #faf5ff 100%)",
+            animation: "heroGlow 12s ease-in-out 8s infinite alternate",
+          }}
+        />
+      </div>
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left side — Text content */}
