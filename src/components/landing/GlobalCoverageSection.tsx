@@ -62,7 +62,7 @@ export function GlobalCoverageSection() {
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16 p-8 md:p-12">
             {/* Left – Text */}
             <div className="lg:w-5/12 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-sky-300 text-sm font-medium mb-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-amber-500 text-sm font-medium mb-6">
                 <Globe className="w-4 h-4" />
                 Global Protection
               </div>
