@@ -4,8 +4,6 @@ import { useRef } from "react";
 import { motion } from "motion/react";
 import DottedMap from "dotted-map";
 
-import { useTheme } from "next-themes";
-
 interface MapProps {
   dots?: Array<{
     start: { lat: number; lng: number; label?: string };
@@ -21,13 +19,11 @@ export default function WorldMap({
   const svgRef = useRef<SVGSVGElement>(null);
   const map = new DottedMap({ height: 100, grid: "diagonal" });
 
-  const { theme } = useTheme();
-
   const svgMap = map.getSVG({
     radius: 0.22,
-    color: theme === "dark" ? "#FFFFFF40" : "#00000040",
+    color: "#FFFFFF40",
     shape: "circle",
-    backgroundColor: theme === "dark" ? "black" : "white",
+    backgroundColor: "transparent",
   });
 
   const projectPoint = (lat: number, lng: number) => {
@@ -46,7 +42,7 @@ export default function WorldMap({
   };
 
   return (
-    <div className="w-full aspect-[2/1] dark:bg-black bg-white rounded-lg  relative font-sans">
+    <div className="w-full aspect-[2/1] rounded-lg relative font-sans">
       <img
         src={`data:image/svg+xml;utf8,${encodeURIComponent(svgMap)}`}
         className="h-full w-full [mask-image:linear-gradient(to_bottom,transparent,white_10%,white_90%,transparent)] pointer-events-none select-none"
@@ -70,19 +66,14 @@ export default function WorldMap({
                 fill="none"
                 stroke="url(#path-gradient)"
                 strokeWidth="1"
-                initial={{
-                  pathLength: 0,
-                }}
-                animate={{
-                  pathLength: 1,
-                }}
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
                 transition={{
                   duration: 1,
                   delay: 0.5 * i,
                   ease: "easeOut",
                 }}
-                key={`start-upper-${i}`}
-              ></motion.path>
+              />
             </g>
           );
         })}
@@ -112,22 +103,8 @@ export default function WorldMap({
                 fill={lineColor}
                 opacity="0.5"
               >
-                <animate
-                  attributeName="r"
-                  from="2"
-                  to="8"
-                  dur="1.5s"
-                  begin="0s"
-                  repeatCount="indefinite"
-                />
-                <animate
-                  attributeName="opacity"
-                  from="0.5"
-                  to="0"
-                  dur="1.5s"
-                  begin="0s"
-                  repeatCount="indefinite"
-                />
+                <animate attributeName="r" from="2" to="8" dur="1.5s" begin="0s" repeatCount="indefinite" />
+                <animate attributeName="opacity" from="0.5" to="0" dur="1.5s" begin="0s" repeatCount="indefinite" />
               </circle>
             </g>
             <g key={`end-${i}`}>
@@ -144,22 +121,8 @@ export default function WorldMap({
                 fill={lineColor}
                 opacity="0.5"
               >
-                <animate
-                  attributeName="r"
-                  from="2"
-                  to="8"
-                  dur="1.5s"
-                  begin="0s"
-                  repeatCount="indefinite"
-                />
-                <animate
-                  attributeName="opacity"
-                  from="0.5"
-                  to="0"
-                  dur="1.5s"
-                  begin="0s"
-                  repeatCount="indefinite"
-                />
+                <animate attributeName="r" from="2" to="8" dur="1.5s" begin="0s" repeatCount="indefinite" />
+                <animate attributeName="opacity" from="0.5" to="0" dur="1.5s" begin="0s" repeatCount="indefinite" />
               </circle>
             </g>
           </g>
