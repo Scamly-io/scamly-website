@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Check, X, Sparkles } from "lucide-react";
 import { trackPricingViewed, trackSignupStarted } from "@/lib/analytics";
-import { BorderBeam } from "@/components/ui/border-beam";
 
 const plans = [
   {
