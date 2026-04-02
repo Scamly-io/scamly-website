@@ -44,13 +44,28 @@ export function PricingSection() {
   };
 
   return (
-    <div ref={sectionRef} id="pricing" className="py-24 relative overflow-hidden px-8 md:px-12">
+    <div ref={sectionRef} id="pricing" className="py-24 relative overflow-hidden px-4 sm:px-8 md:px-12">
+      {/* Particles - behind content on mobile/tablet, side-by-side on desktop */}
+      <div className="absolute inset-0 lg:hidden">
+        <Particles
+          particleColors={["#a855f7"]}
+          particleCount={200}
+          particleSpread={10}
+          speed={0.1}
+          particleBaseSize={100}
+          moveParticlesOnHover
+          alphaParticles={false}
+          disableRotation={false}
+          pixelRatio={1}
+        />
+      </div>
+
       <div className="relative z-10 max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left Side - Content */}
           <div>
             {/* Header */}
-            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-white leading-tight">
+            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-white leading-tight break-words">
               Eye watering{" "}
               <span
                 className="bg-clip-text text-transparent"
@@ -63,15 +78,15 @@ export function PricingSection() {
               </span>
               , not prices.
             </h2>
-            <p className="text-lg text-slate-400 mb-12 max-w-lg">
+            <p className="text-base sm:text-lg text-slate-400 mb-8 sm:mb-12 max-w-lg">
               Scamly premium offers the worlds most advanced protection from scams without the price tag – Free for your
               first week.
             </p>
 
             {/* Prices */}
-            <div className="flex items-start gap-0 mb-10">
-              <div className="pr-8 border-r border-white/20">
-                <div className="font-display text-4xl md:text-5xl font-bold">
+            <div className="flex items-start gap-0 mb-8 sm:mb-10">
+              <div className="pr-6 sm:pr-8 border-r border-white/20">
+                <div className="font-display text-3xl sm:text-4xl md:text-5xl font-bold">
                   <span
                     className="bg-clip-text text-transparent"
                     style={{
@@ -83,8 +98,8 @@ export function PricingSection() {
                 </div>
                 <span className="text-slate-400 text-sm mt-1 block">Annually</span>
               </div>
-              <div className="pl-8">
-                <div className="font-display text-4xl md:text-5xl font-bold">
+              <div className="pl-6 sm:pl-8">
+                <div className="font-display text-3xl sm:text-4xl md:text-5xl font-bold">
                   <span
                     className="bg-clip-text text-transparent"
                     style={{
@@ -99,7 +114,7 @@ export function PricingSection() {
             </div>
 
             {/* Features */}
-            <ul className="space-y-3 mb-10">
+            <ul className="space-y-3 mb-8 sm:mb-10">
               {features.map((feature) => (
                 <li key={feature} className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0">
@@ -122,8 +137,8 @@ export function PricingSection() {
             <p className="text-sm text-slate-500 mt-3">No credit card charged until trial ends. Cancel anytime.</p>
           </div>
 
-          {/* Right Side - Particles */}
-          <div className="relative h-[500px] lg:h-[500px] w-full">
+          {/* Right Side - Particles (desktop only) */}
+          <div className="relative h-[500px] w-full hidden lg:block">
             <Particles
               particleColors={["#a855f7"]}
               particleCount={200}
