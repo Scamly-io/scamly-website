@@ -1,5 +1,5 @@
 import { Sparkles } from "lucide-react";
-import phoneMockup from "../../assets/3d-phone-mockup.png";
+import phoneMockup from "../../assets/3d-phone-mockup-dark.png";
 import appStoreBadge from "../../assets/badge-app-store.png";
 import googlePlayBadge from "../../assets/badge-google-play.png";
 
@@ -39,7 +39,7 @@ export function HeroSection() {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/60 bg-background/60 backdrop-blur-sm mb-8 opacity-0 animate-fade-up"
               style={{ animationDelay: "0.1s" }}
             >
-              <Sparkles className="w-4 h-4" style={{ color: '#5022f6' }} />
+              <Sparkles className="w-4 h-4" style={{ color: "#5022f6" }} />
               <span className="text-sm font-medium text-muted-foreground">AI-powered scam protection</span>
             </div>
 
