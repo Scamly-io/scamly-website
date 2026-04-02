@@ -29,7 +29,7 @@ const Index = () => {
         <HeroSection />
         <FeatureShowcaseSection />
         <GlobalCoverageSection />
-        <PricingSection />
+        
         <AboutSection />
         <CTASection />
       </main>

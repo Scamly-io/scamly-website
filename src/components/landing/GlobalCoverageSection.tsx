@@ -138,6 +138,12 @@ export function GlobalCoverageSection() {
               </div>
             </div>
           </div>
+
+          {/* Divider */}
+          <div className="border-t border-white/10" />
+
+          {/* Pricing */}
+          <PricingSection />
         </div>
       </div>
     </section>
