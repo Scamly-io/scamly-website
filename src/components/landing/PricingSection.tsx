@@ -94,22 +94,10 @@ export function PricingSection() {
             <div
               key={plan.name}
               className={`relative rounded-3xl p-8 ${
-                plan.popular ? "bg-card border border-border shadow-xl" : "bg-card border border-border shadow-lg"
+                plan.popular ? "bg-card shadow-xl" : "bg-card border border-border shadow-lg"
               }`}
+              style={plan.popular ? { border: '2px solid #5022f6' } : undefined}
             >
-              {/* Animated border for Premium */}
-              {plan.popular && (
-                <>
-                  <BorderBeam duration={6} size={400} className="from-transparent via-amber-500 to-transparent" />
-                  <BorderBeam
-                    duration={6}
-                    delay={3}
-                    size={400}
-                    borderWidth={2}
-                    className="from-transparent via-purple-500 to-transparent"
-                  />
-                </>
-              )}
 
               {/* Popular Badge */}
               {plan.popular && (
