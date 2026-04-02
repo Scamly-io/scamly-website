@@ -72,18 +72,18 @@ export function PricingSection() {
   };
 
   return (
-    <section ref={sectionRef} id="pricing" className="py-24 relative overflow-hidden">
-      <div className="container mx-auto px-4 relative z-10">
+    <div ref={sectionRef} id="pricing" className="py-24 relative overflow-hidden px-8 md:px-12">
+      <div className="relative z-10">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-border/50 mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 mb-6">
             <Sparkles className="w-4 h-4" style={{ color: "#5022f6" }} />
-            <span className="text-sm font-medium">Simple Pricing</span>
+            <span className="text-sm font-medium text-white">Simple Pricing</span>
           </div>
-          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
+          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-white">
             Pricing To Suit <span style={{ color: "#5022f6" }}>Everyone</span>
           </h2>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-lg text-slate-300">
             Start free and upgrade when you need unlimited access to all features.
           </p>
         </div>
