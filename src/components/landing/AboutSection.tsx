@@ -9,7 +9,7 @@ export function AboutSection() {
           <div>
             <h2 className="font-display text-3xl md:text-4xl font-bold mb-6">
               Built by Experts,{' '}
-              <span className="gradient-text">For Everyone</span>
+              <span style={{ color: '#5022f6' }}>For Everyone</span>
             </h2>
             
             <div className="space-y-4 text-muted-foreground">
