@@ -1,11 +1,10 @@
-import { useEffect, useRef, lazy, Suspense } from "react";
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { trackPricingViewed, trackSignupStarted } from "@/lib/analytics";
 import CountUp from "@/components/CountUp";
-
-const Antigravity = lazy(() => import("@/components/Antigravity"));
+import Particles from "@/components/Particles";
 
 const features = [
   "Unlimited scans",
