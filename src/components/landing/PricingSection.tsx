@@ -44,7 +44,7 @@ const plans = [
 ];
 
 export function PricingSection() {
-  const sectionRef = useRef<HTMLElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
   const hasTrackedView = useRef(false);
 
   useEffect(() => {
