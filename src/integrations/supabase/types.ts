@@ -166,17 +166,17 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "feature_votes_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "feedback_likes_feedback_id_fkey"
             columns: ["feedback_id"]
             isOneToOne: false
             referencedRelation: "feedback_wall"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -253,7 +253,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "feature_wall_user_id_fkey"
+            foreignKeyName: "feedback_wall_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"

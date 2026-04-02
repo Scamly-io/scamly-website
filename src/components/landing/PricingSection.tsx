@@ -154,9 +154,9 @@ export function PricingSection() {
 
               {/* CTA */}
               <Button
-                variant={plan.variant}
                 size="lg"
-                className="w-full"
+                className={`w-full ${plan.popular ? "bg-[#5022f6] text-white hover:bg-[#5022f6]/90" : ""}`}
+                variant={plan.popular ? "default" : "outline"}
                 asChild
                 onClick={() => handleSignupClick(plan.name)}
               >
