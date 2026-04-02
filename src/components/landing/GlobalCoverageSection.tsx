@@ -3,6 +3,7 @@ import WorldMap from "@/components/ui/world-map";
 import { Globe, ShieldCheck } from "lucide-react";
 import Threads from "@/components/Threads";
 import CountUp from "@/components/CountUp";
+import { PricingSection } from "@/components/landing/PricingSection";
 
 const mapDots = [
   {
@@ -134,6 +135,12 @@ export function GlobalCoverageSection() {
               </div>
             </div>
           </div>
+
+          {/* Divider */}
+          <div className="border-t border-white/10" />
+
+          {/* Pricing */}
+          <PricingSection />
         </div>
       </div>
     </section>
