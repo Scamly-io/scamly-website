@@ -55,7 +55,8 @@ export function PricingSection() {
               <span
                 className="bg-clip-text text-transparent"
                 style={{
-                  backgroundImage: "linear-gradient(135deg, rgb(242, 166, 162), rgb(231, 115, 201), rgb(162, 162, 248))",
+                  backgroundImage:
+                    "linear-gradient(135deg, rgb(242, 166, 162), rgb(231, 115, 201), rgb(162, 162, 248))",
                 }}
               >
                 protection
@@ -63,8 +64,8 @@ export function PricingSection() {
               , not prices.
             </h2>
             <p className="text-lg text-slate-400 mb-12 max-w-lg">
-              Scamly premium offers the worlds most advanced protection from scams
-              without the price tag – Free for your first week.
+              Scamly premium offers the worlds most advanced protection from scams without the price tag – Free for your
+              first week.
             </p>
 
             {/* Prices */}
@@ -77,7 +78,7 @@ export function PricingSection() {
                       backgroundImage: "linear-gradient(135deg, rgb(242, 166, 162), rgb(231, 115, 201))",
                     }}
                   >
-                    $<CountUp to={49.99} duration={2.5} separator="," />
+                    $<CountUp to={49.99} duration={1} separator="," />
                   </span>
                 </div>
                 <span className="text-slate-400 text-sm mt-1 block">Annually</span>
@@ -90,7 +91,7 @@ export function PricingSection() {
                       backgroundImage: "linear-gradient(135deg, rgb(231, 115, 201), rgb(162, 162, 248))",
                     }}
                   >
-                    $<CountUp to={4.99} duration={2.5} />
+                    $<CountUp to={4.99} duration={0.9} />
                   </span>
                 </div>
                 <span className="text-slate-400 text-sm mt-1 block">Monthly</span>
@@ -118,9 +119,7 @@ export function PricingSection() {
             >
               <Link to="/auth?mode=signup">Start 7-Day Free Trial</Link>
             </Button>
-            <p className="text-sm text-slate-500 mt-3">
-              No credit card charged until trial ends. Cancel anytime.
-            </p>
+            <p className="text-sm text-slate-500 mt-3">No credit card charged until trial ends. Cancel anytime.</p>
           </div>
 
           {/* Right Side - Particles */}
