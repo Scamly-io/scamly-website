@@ -28,7 +28,7 @@ export function CTASection() {
                 size="xl"
                 variant="outline"
                 asChild
-                className="border-white/20 text-white hover:bg-white/10 rounded-full"
+                className="border-white bg-[hsl(220,40%,13%)] text-white hover:bg-white/10 rounded-full"
               >
                 <a href="#pricing">View Pricing</a>
               </Button>
