@@ -8,7 +8,7 @@ export function CTASection() {
     <section className="relative overflow-hidden bg-[hsl(220,40%,13%)] px-8 py-16 sm:px-12 sm:py-20 md:px-16 md:py-24">
       <BackgroundBeams />
 
-      <div className="relative z-10 container mx-auto max-w-5xl">
+      <div className="relative z-10 <div className="relative z-10 container mx-auto">">
         <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-normal text-white mb-8">
           Ready to stay scam free?
         </h2>
