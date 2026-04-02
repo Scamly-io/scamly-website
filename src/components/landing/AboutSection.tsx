@@ -50,7 +50,7 @@ export function AboutSection() {
                 description: "Whether you're tech-savvy or not, Scamly is designed to be simple, fast, and effective.",
               },
             ].map((value) => (
-              <div key={value.title} className="feature-card flex gap-4 align-center">
+              <div key={value.title} className="feature-card flex gap-4 items-center">
                 <div className="w-12 h-12 rounded-xl bg-[#5022f6] flex items-center justify-center shrink-0">
                   <value.icon className="w-6 h-6 text-primary-foreground" />
                 </div>
