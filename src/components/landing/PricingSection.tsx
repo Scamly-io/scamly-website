@@ -58,7 +58,7 @@ export function PricingSection() {
           }
         });
       },
-      { threshold: 0.3 }
+      { threshold: 0.3 },
     );
 
     if (sectionRef.current) {
@@ -78,12 +78,11 @@ export function PricingSection() {
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-border/50 mb-6">
-            <Sparkles className="w-4 h-4" style={{ color: '#5022f6' }} />
+            <Sparkles className="w-4 h-4" style={{ color: "#5022f6" }} />
             <span className="text-sm font-medium">Simple Pricing</span>
           </div>
           <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-            Pricing To Suit{" "}
-            <span style={{ color: '#5022f6' }}>Everyone</span>
+            Pricing To Suit <span style={{ color: "#5022f6" }}>Everyone</span>
           </h2>
           <p className="text-lg text-muted-foreground">
             Start free and upgrade when you need unlimited access to all features.
@@ -95,20 +94,14 @@ export function PricingSection() {
           {plans.map((plan) => (
             <div
               key={plan.name}
-              className={`relative rounded-3xl p-8 overflow-hidden ${
-                plan.popular
-                  ? "bg-card border border-border shadow-xl"
-                  : "bg-card border border-border shadow-lg"
+              className={`relative rounded-3xl p-8 ${
+                plan.popular ? "bg-card border border-border shadow-xl" : "bg-card border border-border shadow-lg"
               }`}
             >
               {/* Animated border for Premium */}
               {plan.popular && (
                 <>
-                  <BorderBeam
-                    duration={6}
-                    size={400}
-                    className="from-transparent via-amber-500 to-transparent"
-                  />
+                  <BorderBeam duration={6} size={400} className="from-transparent via-amber-500 to-transparent" />
                   <BorderBeam
                     duration={6}
                     delay={3}
@@ -122,8 +115,11 @@ export function PricingSection() {
               {/* Popular Badge */}
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
-                   <span className="px-4 py-1.5 rounded-full text-sm font-semibold text-white shadow-lg" style={{ backgroundColor: '#5022f6' }}>
-                     7-Day Free Trial
+                  <span
+                    className="px-4 py-1.5 rounded-full text-sm font-semibold text-white shadow-lg"
+                    style={{ backgroundColor: "#5022f6" }}
+                  >
+                    7-Day Free Trial
                   </span>
                 </div>
               )}
@@ -145,8 +141,8 @@ export function PricingSection() {
                 )}
                 <p className="text-sm text-muted-foreground mt-2">{plan.description}</p>
                 {plan.popular && (
-                   <p className="text-sm text-green-600 dark:text-green-400 font-medium mt-2">
-                     ✓ Try free for 7 days, cancel anytime
+                  <p className="text-sm text-green-600 dark:text-green-400 font-medium mt-2">
+                    ✓ Try free for 7 days, cancel anytime
                   </p>
                 )}
               </div>
@@ -170,10 +166,10 @@ export function PricingSection() {
               </ul>
 
               {/* CTA */}
-              <Button 
-                variant={plan.variant} 
-                size="lg" 
-                className="w-full" 
+              <Button
+                variant={plan.variant}
+                size="lg"
+                className="w-full"
                 asChild
                 onClick={() => handleSignupClick(plan.name)}
               >
