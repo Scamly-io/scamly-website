@@ -3,6 +3,10 @@ import WorldMap from "@/components/ui/world-map";
 import { Globe, ShieldCheck } from "lucide-react";
 import Threads from "@/components/Threads";
 import CountUp from "@/components/CountUp";
+import { PricingSection } from "@/components/landing/PricingSection";
+import { Globe, ShieldCheck } from "lucide-react";
+import Threads from "@/components/Threads";
+import CountUp from "@/components/CountUp";
 
 const mapDots = [
   {
