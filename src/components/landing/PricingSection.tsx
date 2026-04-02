@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Check, X, Sparkles } from "lucide-react";
 import { trackPricingViewed, trackSignupStarted } from "@/lib/analytics";
-import { BorderBeam } from "@/components/ui/border-beam";
 
 const plans = [
   {
@@ -95,22 +94,10 @@ export function PricingSection() {
             <div
               key={plan.name}
               className={`relative rounded-3xl p-8 ${
-                plan.popular ? "bg-card border border-border shadow-xl" : "bg-card border border-border shadow-lg"
+                plan.popular ? "bg-card shadow-xl" : "bg-card border border-border shadow-lg"
               }`}
+              style={plan.popular ? { border: '2px solid #5022f6' } : undefined}
             >
-              {/* Animated border for Premium */}
-              {plan.popular && (
-                <>
-                  <BorderBeam duration={6} size={400} className="from-transparent via-amber-500 to-transparent" />
-                  <BorderBeam
-                    duration={6}
-                    delay={3}
-                    size={400}
-                    borderWidth={2}
-                    className="from-transparent via-purple-500 to-transparent"
-                  />
-                </>
-              )}
 
               {/* Popular Badge */}
               {plan.popular && (
@@ -167,9 +154,9 @@ export function PricingSection() {
 
               {/* CTA */}
               <Button
-                variant={plan.variant}
                 size="lg"
-                className="w-full"
+                className={`w-full ${plan.popular ? "bg-[#5022f6] text-white hover:bg-[#5022f6]/90" : ""}`}
+                variant={plan.popular ? "default" : "outline"}
                 asChild
                 onClick={() => handleSignupClick(plan.name)}
               >
