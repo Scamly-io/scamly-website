@@ -123,27 +123,19 @@ export function PricingSection() {
             </p>
           </div>
 
-          {/* Right Side - Antigravity */}
+          {/* Right Side - Particles */}
           <div className="relative h-[400px] lg:h-[500px] w-full">
-            <Suspense fallback={<div className="w-full h-full" />}>
-              <Antigravity
-                count={300}
-                magnetRadius={6}
-                ringRadius={7}
-                waveSpeed={0.4}
-                waveAmplitude={1}
-                particleSize={1.5}
-                lerpSpeed={0.05}
-                color="#a855f7"
-                autoAnimate
-                particleVariance={1}
-                rotationSpeed={0}
-                depthFactor={1}
-                pulseSpeed={3}
-                particleShape="capsule"
-                fieldStrength={10}
-              />
-            </Suspense>
+            <Particles
+              particleColors={["#a855f7"]}
+              particleCount={200}
+              particleSpread={10}
+              speed={0.1}
+              particleBaseSize={100}
+              moveParticlesOnHover
+              alphaParticles={false}
+              disableRotation={false}
+              pixelRatio={1}
+            />
           </div>
         </div>
       </div>
