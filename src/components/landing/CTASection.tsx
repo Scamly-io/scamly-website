@@ -6,7 +6,7 @@ import { trackSignupStarted } from "@/lib/analytics";
 export function CTASection() {
   return (
     <section className="py-16 px-4">
-      <div className="container mx-auto max-w-5xl">
+      <div className="container mx-auto">
         <div className="relative overflow-hidden rounded-3xl bg-[hsl(220,40%,13%)] px-8 py-16 sm:px-12 sm:py-20 md:px-16 md:py-24">
           <BackgroundBeams />
 
