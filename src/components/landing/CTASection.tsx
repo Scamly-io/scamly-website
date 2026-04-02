@@ -11,7 +11,7 @@ export function CTASection() {
           <BackgroundBeams />
 
           <div className="relative z-10">
-            <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-8">
+            <h2 className="font-display text-3xl sm:text-4xl md:text-5xl text-white mb-8">
               Ready to stay scam free?
             </h2>
 
