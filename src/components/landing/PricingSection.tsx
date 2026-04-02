@@ -167,12 +167,12 @@ export function PricingSection() {
         </div>
 
         {/* Trust Note */}
-        <p className="text-center text-sm text-muted-foreground mt-8">
+        <p className="text-center text-sm text-slate-400 mt-8">
           Start with a 7-day free trial. No credit card charged until trial ends. Cancel anytime.
           <br />
           All prices displayed are in USD.
         </p>
       </div>
-    </section>
+    </div>
   );
 }
