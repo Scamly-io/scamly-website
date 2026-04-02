@@ -123,7 +123,7 @@ export function PricingSection() {
           </div>
 
           {/* Right Side - Particles */}
-          <div className="relative h-[400px] lg:h-[500px] w-full">
+          <div className="relative h-[500px] lg:h-[500px] w-full">
             <Particles
               particleColors={["#a855f7"]}
               particleCount={200}
