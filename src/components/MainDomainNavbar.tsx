@@ -1,14 +1,11 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useTheme } from '@/contexts/ThemeContext';
-import { Menu, X, Sun, Moon } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import logoLight from '@/assets/navbar-logo-light.png';
-import logoDark from '@/assets/navbar-logo-dark.png';
 
 export function MainDomainNavbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const { theme, toggleTheme } = useTheme();
 
   const navLinks = [
     { href: '/#features', label: 'Features' },
@@ -23,7 +20,7 @@ export function MainDomainNavbar() {
           {/* Logo */}
           <Link to="/" className="flex items-center group">
             <img 
-              src={theme === 'dark' ? logoDark : logoLight} 
+              src={logoLight} 
               alt="Scamly" 
               className="h-9 w-auto"
             />
@@ -42,36 +39,12 @@ export function MainDomainNavbar() {
             ))}
           </div>
 
-          {/* Right Section - Theme toggle only */}
+          {/* Right Section */}
           <div className="hidden md:flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              className="rounded-full"
-            >
-              {theme === 'dark' ? (
-                <Sun className="w-5 h-5" />
-              ) : (
-                <Moon className="w-5 h-5" />
-              )}
-            </Button>
           </div>
 
           {/* Mobile Menu Button */}
           <div className="flex md:hidden items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              className="rounded-full"
-            >
-              {theme === 'dark' ? (
-                <Sun className="w-5 h-5" />
-              ) : (
-                <Moon className="w-5 h-5" />
-              )}
-            </Button>
             <Button
               variant="ghost"
               size="icon"

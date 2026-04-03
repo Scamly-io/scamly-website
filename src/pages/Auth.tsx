@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import authLogo from "@/assets/auth-logo.png";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useTheme } from "@/contexts/ThemeContext";
+
 import { supabase } from "@/integrations/supabase/client";
 import { captureError } from "@/lib/sentry";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { BackgroundBeams } from "@/components/ui/beams";
 
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, User, Calendar, MapPin, Sun, Moon, ArrowLeft, Eye, EyeOff, Loader2, CheckCircle } from "lucide-react";
+import { Mail, Lock, User, Calendar, MapPin, ArrowLeft, Eye, EyeOff, Loader2, CheckCircle } from "lucide-react";
 import { z } from "zod";
 import { countries } from "@/constants/countries";
 import { trackSignupCompleted } from "@/lib/analytics";
@@ -58,7 +58,7 @@ export default function Auth() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, signIn, signUp, resetPassword } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  
   const { toast } = useToast();
 
   const [mode, setMode] = useState<"signin" | "signup" | "forgot">(searchParams.get("mode") === "signup" ? "signup" : "signin");
@@ -305,7 +305,7 @@ export default function Auth() {
       {/* Right Panel - Form */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 lg:p-6">
+        <div className="flex items-center p-4 lg:p-6">
           <Button 
             variant="ghost" 
             size="sm" 
@@ -314,10 +314,6 @@ export default function Auth() {
           >
             <ArrowLeft className="w-4 h-4" />
             Home
-          </Button>
-
-          <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
-            {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </Button>
         </div>
 

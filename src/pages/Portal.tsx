@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useTheme } from "@/contexts/ThemeContext";
+
 import { supabase } from "@/integrations/supabase/client";
 import { captureError } from "@/lib/sentry";
 import { Button } from "@/components/ui/button";
@@ -18,8 +18,6 @@ import {
   CreditCard,
   Settings,
   LogOut,
-  Sun,
-  Moon,
   Mail,
   Lock,
   Calendar,
@@ -45,7 +43,7 @@ export default function Portal() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, profile, loading, signOut, updateProfile, updateEmail, updatePassword, refreshProfile } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  
   const { toast } = useToast();
   
   // Policy compliance
@@ -281,13 +279,10 @@ export default function Portal() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="flex items-center">
-              <img src={theme === "dark" ? logoDark : logoLight} alt="Scamly" className="h-9 w-auto" />
+              <img src={logoLight} alt="Scamly" className="h-9 w-auto" />
             </Link>
 
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
-                {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </Button>
               <Button variant="ghost" onClick={handleSignOut}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
