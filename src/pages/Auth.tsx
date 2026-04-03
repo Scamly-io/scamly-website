@@ -58,7 +58,7 @@ export default function Auth() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, signIn, signUp, resetPassword } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  
   const { toast } = useToast();
 
   const [mode, setMode] = useState<"signin" | "signup" | "forgot">(searchParams.get("mode") === "signup" ? "signup" : "signin");
