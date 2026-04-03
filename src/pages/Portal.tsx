@@ -43,7 +43,7 @@ export default function Portal() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, profile, loading, signOut, updateProfile, updateEmail, updatePassword, refreshProfile } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  
   const { toast } = useToast();
   
   // Policy compliance
