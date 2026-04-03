@@ -369,9 +369,9 @@ export default function Auth() {
             {/* Step Indicator (signup only) */}
             {mode === "signup" && (
               <div className="flex items-center justify-center gap-2 mb-8">
-                <div className={`w-3 h-3 rounded-full ${step >= 1 ? "gradient-bg" : "bg-muted"}`} />
-                <div className={`w-12 h-1 rounded-full ${step >= 2 ? "gradient-bg" : "bg-muted"}`} />
-                <div className={`w-3 h-3 rounded-full ${step >= 2 ? "gradient-bg" : "bg-muted"}`} />
+                <div className={`w-3 h-3 rounded-full ${step >= 1 ? "bg-primary" : "bg-muted"}`} />
+                <div className={`w-12 h-1 rounded-full ${step >= 2 ? "bg-primary" : "bg-muted"}`} />
+                <div className={`w-3 h-3 rounded-full ${step >= 2 ? "bg-primary" : "bg-muted"}`} />
               </div>
             )}
 
@@ -380,7 +380,7 @@ export default function Auth() {
               {/* Forgot Password - Email Sent Success */}
               {mode === "forgot" && forgotEmailSent && (
                 <div className="text-center py-8">
-                  <div className="w-16 h-16 rounded-full gradient-bg flex items-center justify-center mx-auto mb-6">
+                  <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center mx-auto mb-6">
                     <CheckCircle className="w-8 h-8 text-primary-foreground" />
                   </div>
                   <p className="text-muted-foreground mb-6">
@@ -418,7 +418,7 @@ export default function Auth() {
                   </div>
 
                   <Button
-                    variant="gradient"
+                    variant="default"
                     size="lg"
                     className="w-full mt-6"
                     onClick={handleForgotPassword}
@@ -604,7 +604,7 @@ export default function Auth() {
               {mode !== "forgot" && (
                 <>
                   <Button
-                    variant="gradient"
+                    variant="default"
                     size="lg"
                     className="w-full mt-6"
                     onClick={() => {
