@@ -305,7 +305,7 @@ export default function Auth() {
       {/* Right Panel - Form */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 lg:p-6">
+        <div className="flex items-center p-4 lg:p-6">
           <Button 
             variant="ghost" 
             size="sm" 
@@ -314,10 +314,6 @@ export default function Auth() {
           >
             <ArrowLeft className="w-4 h-4" />
             Home
-          </Button>
-
-          <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
-            {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </Button>
         </div>
 

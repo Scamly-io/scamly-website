@@ -283,9 +283,6 @@ export default function Portal() {
             </Link>
 
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
-                {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </Button>
               <Button variant="ghost" onClick={handleSignOut}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
