@@ -74,7 +74,7 @@ export function HeroSection() {
               style={{ animationDelay: "0.5s" }}
             >
               <a
-                href="https://apps.apple.com/app/scamly"
+                href="https://apps.apple.com/app/id6759246327"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="transition-transform hover:scale-105 active:scale-95"
@@ -82,7 +82,7 @@ export function HeroSection() {
                 <img src={appStoreBadge} alt="Download on the App Store" className="h-12 md:h-14 w-auto" />
               </a>
               <a
-                href="https://play.google.com/store/apps/details?id=com.scamly"
+                href="https://play.google.com/store/apps/details?id=io.scamly.app&hl=en"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="transition-transform hover:scale-105 active:scale-95"
