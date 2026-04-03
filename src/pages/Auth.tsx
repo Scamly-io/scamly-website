@@ -281,23 +281,22 @@ export default function Auth() {
   return (
     <div className="min-h-screen bg-background flex">
       {/* Left Panel - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 gradient-bg relative overflow-hidden">
-        <div className="absolute inset-0 bg-hero-pattern opacity-10" />
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-secondary/30 rounded-full blur-3xl" />
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden" style={{ backgroundColor: 'hsl(220, 40%, 13%)' }}>
+        <BackgroundBeams />
 
-        <div className="relative z-10 flex flex-col justify-between p-12 text-primary-foreground">
+        <div className="relative z-10 flex flex-col justify-between p-12 text-white">
           <Link to="/" className="flex items-center">
             <img src={authLogo} alt="Scamly" className="h-10 w-auto" />
           </Link>
 
           <div className="max-w-md">
             <h1 className="font-display text-4xl font-bold mb-4">World class fraud detection.</h1>
-            <p className="text-primary-foreground/80 text-lg">
+            <p className="text-white/80 text-lg">
               Join thousands of users who trust Scamly to keep them safe from fraud and phishing attempts.
             </p>
           </div>
 
-          <p className="text-sm text-primary-foreground/60">
+          <p className="text-sm text-white/60">
             © {new Date().getFullYear()} Scamly. All rights reserved.
           </p>
         </div>
