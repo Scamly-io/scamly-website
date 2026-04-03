@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { BackgroundBeams } from "@/components/ui/beams";
 
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, User, Calendar, MapPin, Sun, Moon, ArrowLeft, Eye, EyeOff, Loader2, CheckCircle } from "lucide-react";
+import { Mail, Lock, User, Calendar, MapPin, ArrowLeft, Eye, EyeOff, Loader2, CheckCircle } from "lucide-react";
 import { z } from "zod";
 import { countries } from "@/constants/countries";
 import { trackSignupCompleted } from "@/lib/analytics";
