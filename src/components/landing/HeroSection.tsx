@@ -74,7 +74,7 @@ export function HeroSection() {
               style={{ animationDelay: "0.5s" }}
             >
               <a
-                href="https://apps.apple.com/app/scamly"
+                href="https://apps.apple.com/app/id6759246327"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="transition-transform hover:scale-105 active:scale-95"
