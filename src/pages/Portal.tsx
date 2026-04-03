@@ -279,7 +279,7 @@ export default function Portal() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="flex items-center">
-              <img src={theme === "dark" ? logoDark : logoLight} alt="Scamly" className="h-9 w-auto" />
+              <img src={logoLight} alt="Scamly" className="h-9 w-auto" />
             </Link>
 
             <div className="flex items-center gap-3">
