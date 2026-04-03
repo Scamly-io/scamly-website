@@ -18,8 +18,6 @@ import {
   CreditCard,
   Settings,
   LogOut,
-  Sun,
-  Moon,
   Mail,
   Lock,
   Calendar,
