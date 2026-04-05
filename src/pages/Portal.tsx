@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { HeroGradientBackground } from "@/components/HeroGradientBackground";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
