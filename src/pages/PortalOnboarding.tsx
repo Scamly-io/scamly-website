@@ -45,7 +45,7 @@ const onboardingSchema = z.object({
 export default function PortalOnboarding() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { theme, toggleTheme } = useTheme();
+  
   const { toast } = useToast();
   const { updateProfile } = useAuth();
 

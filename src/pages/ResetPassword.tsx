@@ -1,15 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useTheme } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { captureError } from "@/lib/sentry";
-import { Lock, Sun, Moon, Eye, EyeOff, Loader2, CheckCircle } from "lucide-react";
+import { Lock, Eye, EyeOff, Loader2, CheckCircle } from "lucide-react";
 import { z } from "zod";
 import authLogo from "@/assets/auth-logo.png";
+import { BackgroundBeams } from "@/components/ui/beams";
+import { HeroGradientBackground } from "@/components/HeroGradientBackground";
 
 const passwordSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
@@ -22,7 +23,6 @@ const passwordSchema = z.object({
 export default function ResetPassword() {
   const navigate = useNavigate();
   const { updatePassword } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const { toast } = useToast();
 
   const [password, setPassword] = useState("");
@@ -78,50 +78,39 @@ export default function ResetPassword() {
     }
   };
 
+  const leftPanel = (
+    <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden" style={{ backgroundColor: 'hsl(220, 40%, 13%)' }}>
+      <BackgroundBeams className="absolute inset-0" />
+      <div className="relative z-10 flex flex-col justify-between p-12 text-white">
+        <Link to="/" className="flex items-center">
+          <img src={authLogo} alt="Scamly" className="h-10 w-auto" />
+        </Link>
+        <div className="max-w-md" />
+        <div className="flex items-center gap-4 text-sm text-white/60">
+          <Link to="/privacy" className="hover:text-white/80 transition-colors">Privacy</Link>
+          <Link to="/terms" className="hover:text-white/80 transition-colors">Terms</Link>
+          <span>© {new Date().getFullYear()} Scamly</span>
+        </div>
+      </div>
+    </div>
+  );
+
   if (success) {
     return (
-      <div className="min-h-screen bg-background flex">
-        {/* Left Panel - Branding */}
-        <div className="hidden lg:flex lg:w-1/2 gradient-bg relative overflow-hidden">
-          <div className="absolute inset-0 bg-hero-pattern opacity-10" />
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-secondary/30 rounded-full blur-3xl" />
-
-          <div className="relative z-10 flex flex-col justify-between p-12 text-primary-foreground">
-            <Link to="/" className="flex items-center">
-              <img src={authLogo} alt="Scamly" className="h-10 w-auto" />
-            </Link>
-
-            <div className="max-w-md">
-              <h1 className="font-display text-4xl font-bold mb-4">World class fraud detection.</h1>
-              <p className="text-primary-foreground/80 text-lg">
-                Join thousands of users who trust Scamly to keep them safe from fraud and phishing attempts.
-              </p>
-            </div>
-
-            <p className="text-sm text-primary-foreground/60">
-              © {new Date().getFullYear()} Scamly. All rights reserved.
-            </p>
-          </div>
-        </div>
-
-        {/* Right Panel - Success */}
-        <div className="flex-1 flex flex-col">
-          <div className="flex items-center justify-end p-4 lg:p-6">
-            <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
-              {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </Button>
-          </div>
-
-          <div className="flex-1 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-zinc-50 flex">
+        {leftPanel}
+        <div className="relative flex-1 flex flex-col">
+          <HeroGradientBackground />
+          <div className="relative z-10 flex-1 flex items-center justify-center p-6">
             <div className="w-full max-w-md text-center">
-              <div className="w-16 h-16 rounded-full gradient-bg flex items-center justify-center mx-auto mb-6">
-                <CheckCircle className="w-8 h-8 text-primary-foreground" />
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6" style={{ backgroundColor: '#5022f6' }}>
+                <CheckCircle className="w-8 h-8 text-white" />
               </div>
               <h2 className="font-display text-2xl font-bold mb-2">Password Reset Complete</h2>
               <p className="text-muted-foreground mb-8">
                 Your password has been successfully updated. You can now sign in with your new password.
               </p>
-              <Button variant="gradient" size="lg" onClick={() => navigate("/auth")}>
+              <Button size="lg" className="text-white" style={{ backgroundColor: '#5022f6' }} onClick={() => navigate("/auth")}>
                 Go to Sign In
               </Button>
             </div>
@@ -132,39 +121,11 @@ export default function ResetPassword() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex">
-      {/* Left Panel - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 gradient-bg relative overflow-hidden">
-        <div className="absolute inset-0 bg-hero-pattern opacity-10" />
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-secondary/30 rounded-full blur-3xl" />
-
-        <div className="relative z-10 flex flex-col justify-between p-12 text-primary-foreground">
-          <Link to="/" className="flex items-center">
-            <img src={authLogo} alt="Scamly" className="h-10 w-auto" />
-          </Link>
-
-          <div className="max-w-md">
-            <h1 className="font-display text-4xl font-bold mb-4">World class fraud detection.</h1>
-            <p className="text-primary-foreground/80 text-lg">
-              Join thousands of users who trust Scamly to keep them safe from fraud and phishing attempts.
-            </p>
-          </div>
-
-          <p className="text-sm text-primary-foreground/60">
-            © {new Date().getFullYear()} Scamly. All rights reserved.
-          </p>
-        </div>
-      </div>
-
-      {/* Right Panel - Form */}
-      <div className="flex-1 flex flex-col">
-        <div className="flex items-center justify-end p-4 lg:p-6">
-          <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
-            {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-          </Button>
-        </div>
-
-        <div className="flex-1 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-zinc-50 flex">
+      {leftPanel}
+      <div className="relative flex-1 flex flex-col">
+        <HeroGradientBackground />
+        <div className="relative z-10 flex-1 flex items-center justify-center p-6">
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
               <h2 className="font-display text-2xl font-bold mb-2">Set new password</h2>
@@ -223,9 +184,9 @@ export default function ResetPassword() {
               </div>
 
               <Button
-                variant="gradient"
                 size="lg"
-                className="w-full mt-6"
+                className="w-full mt-6 text-white"
+                style={{ backgroundColor: '#5022f6' }}
                 onClick={handleSubmit}
                 disabled={loading}
               >
