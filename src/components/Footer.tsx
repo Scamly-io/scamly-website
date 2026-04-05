@@ -1,19 +1,16 @@
 import { Link } from 'react-router-dom';
 import { Twitter, Facebook, Instagram } from 'lucide-react';
-import { useTheme } from '@/contexts/ThemeContext';
 import logoLight from '@/assets/navbar-logo-light.png';
-import logoDark from '@/assets/navbar-logo-dark.png';
+import appStoreBadge from '@/assets/badge-app-store.png';
+import googlePlayBadge from '@/assets/badge-google-play.png';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
-  const { theme } = useTheme();
 
   const footerLinks = {
     product: [
       { label: 'Features', href: '/#features' },
       { label: 'Pricing', href: '/#pricing' },
-      { label: 'Download from App Store', href: 'https://apps.apple.com/app/id6759246327', external: true },
-      { label: 'Download from Play Store', href: 'https://play.google.com/store/apps/details?id=io.scamly.app&hl=en', external: true },
     ],
     support: [
       { label: 'Contact', href: '/contact' },
@@ -30,7 +27,7 @@ export function Footer() {
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center mb-4">
               <img 
-                src={theme === 'dark' ? logoDark : logoLight} 
+                src={logoLight} 
                 alt="Scamly" 
                 className="h-9 w-auto"
               />
@@ -38,7 +35,7 @@ export function Footer() {
             <p className="text-muted-foreground text-sm max-w-xs mb-6">
               Protecting you from scams with AI-powered detection. Stay safe in the digital world.
             </p>
-            <div className="flex gap-4">
+            <div className="flex gap-4 mb-6">
               <a href="https://x.com/scamly_io" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
                 <Twitter className="w-5 h-5" />
               </a>
@@ -47,6 +44,14 @@ export function Footer() {
               </a>
               <a href="https://www.instagram.com/scamly.io/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
                 <Instagram className="w-5 h-5" />
+              </a>
+            </div>
+            <div className="flex gap-3">
+              <a href="https://apps.apple.com/app/id6759246327" target="_blank" rel="noopener noreferrer">
+                <img src={appStoreBadge} alt="Download on the App Store" className="h-10 w-auto" />
+              </a>
+              <a href="https://play.google.com/store/apps/details?id=io.scamly.app&hl=en" target="_blank" rel="noopener noreferrer">
+                <img src={googlePlayBadge} alt="Get it on Google Play" className="h-10 w-auto" />
               </a>
             </div>
           </div>
@@ -59,8 +64,6 @@ export function Footer() {
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    target={link.external ? '_blank' : undefined}
-                    rel={link.external ? 'noopener noreferrer' : undefined}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {link.label}
