@@ -409,7 +409,7 @@ export default function Portal() {
                 </div>
 
                 <div className="flex justify-end">
-                  <Button variant="gradient" onClick={handleUpdateProfile} disabled={saving}>
+                  <Button onClick={handleUpdateProfile} disabled={saving} className="text-white" style={{ backgroundColor: '#5022f6' }}>
                     {saving && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                     Save Changes
                   </Button>
@@ -441,7 +441,7 @@ export default function Portal() {
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-muted-foreground">Current Plan</span>
                     {isPremium ? (
-                      <span className="px-2 py-0.5 rounded-full gradient-bg text-xs font-semibold text-primary-foreground">
+                      <span className="px-2 py-0.5 rounded-full text-xs font-semibold text-white" style={{ backgroundColor: '#5022f6' }}>
                         {isTrialing ? "Free Trial" : "Premium"}
                       </span>
                     ) : isCancelling ? (
