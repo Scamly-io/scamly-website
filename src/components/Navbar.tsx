@@ -47,7 +47,7 @@ export function Navbar() {
           {/* Right Section */}
           <div className="hidden md:flex items-center gap-3">
             {user ? (
-              <Button variant="gradient" size="sm" asChild>
+              <Button size="sm" asChild className="bg-[#5022f6] text-primary-foreground hover:bg-[#5022f6]/90">
                 <Link to="/portal">My Account</Link>
               </Button>
             ) : (
@@ -90,7 +90,7 @@ export function Navbar() {
               ))}
               <div className="pt-4 flex flex-col gap-2">
                 {user ? (
-                  <Button variant="gradient" asChild className="w-full">
+                  <Button asChild className="w-full bg-[#5022f6] text-primary-foreground hover:bg-[#5022f6]/90">
                     <Link to="/portal">My Account</Link>
                   </Button>
                 ) : (
