@@ -6,6 +6,9 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PolicyContentBlock } from "@/types/policy";
 import { PolicyContentRenderer } from "@/components/PolicyContentRenderer";
+import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
+import { HeroGradientBackground } from "@/components/HeroGradientBackground";
 
 export default function Terms() {
   const [content, setContent] = useState<PolicyContentBlock[] | null>(null);
@@ -32,36 +35,41 @@ export default function Terms() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-zinc-50 flex flex-col">
+      <Navbar />
       <Helmet>
         <title>Terms &amp; Conditions | Scamly</title>
         <link rel="canonical" href="https://scamly.io/terms" />
       </Helmet>
-      <div className="container max-w-4xl mx-auto px-4 py-12">
-        <Link to="/">
-          <Button variant="ghost" className="mb-8">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
-          </Button>
-        </Link>
+      <main className="relative flex-1 pt-24 pb-16">
+        <HeroGradientBackground />
+        <div className="relative z-10 container max-w-4xl mx-auto px-4">
+          <Link to="/">
+            <Button variant="ghost" className="mb-8">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Home
+            </Button>
+          </Link>
 
-        <h1 className="font-display text-4xl font-bold mb-8">Terms &amp; Conditions of Use</h1>
+          <h1 className="font-display text-4xl font-bold mb-8">Terms &amp; Conditions of Use</h1>
 
-        {isLoading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-          </div>
-        ) : content ? (
-          <div className="prose prose-lg dark:prose-invert max-w-none space-y-8">
-            {version && (
-              <p className="text-muted-foreground">Version: {version}</p>
-            )}
-            <PolicyContentRenderer content={content} />
-          </div>
-        ) : (
-          <p className="text-muted-foreground">Unable to load terms and conditions.</p>
-        )}
-      </div>
+          {isLoading ? (
+            <div className="flex justify-center py-20">
+              <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : content ? (
+            <div className="prose prose-lg max-w-none space-y-8">
+              {version && (
+                <p className="text-muted-foreground">Version: {version}</p>
+              )}
+              <PolicyContentRenderer content={content} />
+            </div>
+          ) : (
+            <p className="text-muted-foreground">Unable to load terms and conditions.</p>
+          )}
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }
