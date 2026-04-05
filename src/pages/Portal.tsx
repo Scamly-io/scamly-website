@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { HeroGradientBackground } from "@/components/HeroGradientBackground";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -12,7 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { PolicyAcceptanceModal } from "@/components/policy";
 import { usePolicyCompliance } from "@/hooks/usePolicyCompliance";
 import logoLight from "@/assets/navbar-logo-light.png";
-import logoDark from "@/assets/navbar-logo-dark.png";
+
 import {
   User,
   CreditCard,
@@ -251,7 +252,7 @@ export default function Portal() {
 
   if (loading || (user && !profile)) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-zinc-50 flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
@@ -264,7 +265,8 @@ export default function Portal() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen bg-zinc-50">
+      <HeroGradientBackground />
       {/* Policy Acceptance Modal - blocks UI until policies are accepted */}
       <PolicyAcceptanceModal
         isOpen={!policyLoading && !isPolicyCompliant && pendingPolicies.length > 0}
@@ -275,11 +277,11 @@ export default function Portal() {
         isLoading={policyLoading}
       />
       {/* Header */}
-      <header className="border-b border-border bg-card">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
+      <nav className="fixed top-4 left-4 right-4 z-50 mx-auto max-w-6xl rounded-2xl bg-background/70 backdrop-blur-xl border border-border/50 shadow-sm">
+        <div className="px-6">
+          <div className="flex items-center justify-between h-14">
             <Link to="/" className="flex items-center">
-              <img src={logoLight} alt="Scamly" className="h-9 w-auto" />
+              <img src={logoLight} alt="Scamly" className="h-8 w-auto" />
             </Link>
 
             <div className="flex items-center gap-3">
@@ -290,9 +292,9 @@ export default function Portal() {
             </div>
           </div>
         </div>
-      </header>
+      </nav>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="relative z-10 container mx-auto px-4 py-8 pt-24">
         <div className="max-w-4xl mx-auto">
           {/* Welcome */}
           <div className="mb-8">
@@ -632,3 +634,5 @@ export default function Portal() {
     </div>
   );
 }
+
+

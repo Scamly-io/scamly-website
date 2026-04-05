@@ -1,52 +1,44 @@
 import { Link } from "react-router-dom";
-import { useTheme } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
-import { Mail, Sun, Moon, CheckCircle } from "lucide-react";
+import { Mail, CheckCircle } from "lucide-react";
 import authLogo from "@/assets/auth-logo.png";
+import { BackgroundBeams } from "@/components/ui/beams";
+import { HeroGradientBackground } from "@/components/HeroGradientBackground";
 
 export default function CheckEmail() {
-  const { theme, toggleTheme } = useTheme();
-
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-zinc-50 flex">
       {/* Left Panel - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 gradient-bg relative overflow-hidden">
-        <div className="absolute inset-0 bg-hero-pattern opacity-10" />
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-secondary/30 rounded-full blur-3xl" />
-
-        <div className="relative z-10 flex flex-col justify-between p-12 text-primary-foreground">
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden" style={{ backgroundColor: 'hsl(220, 40%, 13%)' }}>
+        <BackgroundBeams className="absolute inset-0" />
+        <div className="relative z-10 flex flex-col justify-between p-12 text-white">
           <Link to="/" className="flex items-center">
             <img src={authLogo} alt="Scamly" className="h-10 w-auto" />
           </Link>
 
           <div className="max-w-md">
             <h1 className="font-display text-4xl font-bold mb-4">You're almost there!</h1>
-            <p className="text-primary-foreground/80 text-lg">
+            <p className="text-white/80 text-lg">
               Just one more step to start protecting yourself from fraud and phishing attempts.
             </p>
           </div>
 
-          <p className="text-sm text-primary-foreground/60">
+          <p className="text-sm text-white/60">
             © {new Date().getFullYear()} Scamly. All rights reserved.
           </p>
         </div>
       </div>
 
       {/* Right Panel - Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-end p-4 lg:p-6">
-          <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
-            {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-          </Button>
-        </div>
+      <div className="relative flex-1 flex flex-col">
+        <HeroGradientBackground />
 
         {/* Content */}
-        <div className="flex-1 flex items-center justify-center p-6">
+        <div className="relative z-10 flex-1 flex items-center justify-center p-6">
           <div className="w-full max-w-md text-center">
             {/* Success Icon */}
-            <div className="w-20 h-20 rounded-full gradient-bg flex items-center justify-center mx-auto mb-8">
-              <Mail className="w-10 h-10 text-primary-foreground" />
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-8" style={{ backgroundColor: '#5022f6' }}>
+              <Mail className="w-10 h-10 text-white" />
             </div>
 
             {/* Heading */}

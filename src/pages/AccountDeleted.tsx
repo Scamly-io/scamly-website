@@ -1,25 +1,23 @@
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { useTheme } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, ArrowLeft } from "lucide-react";
 import logoLight from "@/assets/navbar-logo-light.png";
-import logoDark from "@/assets/navbar-logo-dark.png";
+import { HeroGradientBackground } from "@/components/HeroGradientBackground";
 
 export default function AccountDeleted() {
-  const { theme } = useTheme();
-
   return (
     <>
       <Helmet>
         <meta name="robots" content="noindex, nofollow" />
         <title>Account Deleted | Scamly</title>
       </Helmet>
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
-        <div className="max-w-md w-full text-center space-y-6">
+      <div className="relative min-h-screen bg-zinc-50 flex flex-col items-center justify-center px-4">
+        <HeroGradientBackground />
+        <div className="relative z-10 max-w-md w-full text-center space-y-6">
           <Link to="/" className="inline-block mb-4">
             <img
-              src={theme === "dark" ? logoDark : logoLight}
+              src={logoLight}
               alt="Scamly"
               className="h-10 w-auto mx-auto"
             />
@@ -39,7 +37,7 @@ export default function AccountDeleted() {
             </p>
           </div>
 
-          <Button asChild variant="gradient" size="lg" className="mt-4">
+          <Button asChild size="lg" className="mt-4 text-white" style={{ backgroundColor: '#5022f6' }}>
             <Link to="/">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Return to Home

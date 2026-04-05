@@ -1,26 +1,24 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useTheme } from "@/contexts/ThemeContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Loader2, Sun, Moon, LogOut, Send } from "lucide-react";
+import { ArrowLeft, Loader2, LogOut, Send } from "lucide-react";
 import logoLight from "@/assets/navbar-logo-light.png";
-import logoDark from "@/assets/navbar-logo-dark.png";
+import { HeroGradientBackground } from "@/components/HeroGradientBackground";
 
 export default function PortalFeedback() {
   const navigate = useNavigate();
   const { user, loading, signOut } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const { toast } = useToast();
   const [feedback, setFeedback] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-zinc-50 flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
@@ -60,7 +58,6 @@ export default function PortalFeedback() {
         throw new Error(error.message || "Something went wrong.");
       }
 
-      // Edge function returns non-2xx as data with error field
       if (data?.error) {
         toast({
           title: "Unable to submit",
@@ -87,18 +84,16 @@ export default function PortalFeedback() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen bg-zinc-50">
+      <HeroGradientBackground />
       {/* Header */}
-      <header className="border-b border-border bg-card">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
+      <nav className="fixed top-4 left-4 right-4 z-50 mx-auto max-w-6xl rounded-2xl bg-background/70 backdrop-blur-xl border border-border/50 shadow-sm">
+        <div className="px-6">
+          <div className="flex items-center justify-between h-14">
             <Link to="/" className="flex items-center">
-              <img src={theme === "dark" ? logoDark : logoLight} alt="Scamly" className="h-9 w-auto" />
+              <img src={logoLight} alt="Scamly" className="h-8 w-auto" />
             </Link>
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
-                {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </Button>
               <Button variant="ghost" onClick={() => { signOut(); navigate("/"); }}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
@@ -106,9 +101,9 @@ export default function PortalFeedback() {
             </div>
           </div>
         </div>
-      </header>
+      </nav>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="relative z-10 container mx-auto px-4 py-8 pt-24">
         <div className="max-w-2xl mx-auto">
           <Button
             variant="ghost"
@@ -140,7 +135,8 @@ export default function PortalFeedback() {
                   {feedback.length}/5000 characters
                 </p>
                 <Button
-                  variant="gradient"
+                  className="text-white"
+                  style={{ backgroundColor: '#5022f6' }}
                   onClick={handleSubmit}
                   disabled={submitting || !feedback.trim()}
                 >

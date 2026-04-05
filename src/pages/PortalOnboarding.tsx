@@ -1,19 +1,18 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useTheme } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { User, Calendar, MapPin, Sun, Moon, Loader2 } from "lucide-react";
+import { User, Calendar, MapPin, Loader2 } from "lucide-react";
 import { z } from "zod";
 import { countries } from "@/constants/countries";
 import logoLight from "@/assets/navbar-logo-light.png";
-import logoDark from "@/assets/navbar-logo-dark.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { CountryWhyCollected } from "@/components/CountryWhyCollected";
 import { getBrowserMetadata } from "@/lib/browser-metadata";
+import { HeroGradientBackground } from "@/components/HeroGradientBackground";
 
 const genders = ["Male", "Female", "Prefer not to say"];
 
@@ -46,7 +45,7 @@ const onboardingSchema = z.object({
 export default function PortalOnboarding() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { theme, toggleTheme } = useTheme();
+  
   const { toast } = useToast();
   const { updateProfile } = useAuth();
 
@@ -188,21 +187,20 @@ export default function PortalOnboarding() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="relative min-h-screen bg-zinc-50 flex flex-col">
+      <HeroGradientBackground />
       {/* Header */}
-      <header className="border-b border-border bg-card">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <img src={theme === "dark" ? logoDark : logoLight} alt="Scamly" className="h-9 w-auto" />
-            <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
-              {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </Button>
+      <nav className="fixed top-4 left-4 right-4 z-50 mx-auto max-w-6xl rounded-2xl bg-background/70 backdrop-blur-xl border border-border/50 shadow-sm">
+        <div className="px-6">
+          <div className="flex items-center justify-between h-14">
+            <img src={logoLight} alt="Scamly" className="h-8 w-auto" />
+            <div />
           </div>
         </div>
-      </header>
+      </nav>
 
       {/* Form */}
-      <div className="flex-1 flex items-center justify-center p-6">
+      <div className="relative z-10 flex-1 flex items-center justify-center p-6 pt-24">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <h2 className="font-display text-2xl font-bold mb-2">Complete your profile</h2>
