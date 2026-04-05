@@ -1,30 +1,35 @@
-import { Helmet } from 'react-helmet-async';
-import { Mail, MapPin, UserX } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { MainDomainNavbar } from '@/components/MainDomainNavbar';
-import { MainDomainFooter } from '@/components/MainDomainFooter';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Helmet } from "react-helmet-async";
+import { Mail, MapPin, UserX } from "lucide-react";
+import { Link } from "react-router-dom";
+import { MainDomainNavbar } from "@/components/MainDomainNavbar";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Footer } from "@/components/Footer";
 
 const faqs = [
   {
     question: "What do I do if I've forgotten my password?",
-    answer: "You can reset your password through the Scamly website on the sign in page. This will send a password reset link to your email. If you created your account using Apple or Google, you will need to reset your password through their system.",
+    answer:
+      "You can reset your password through the Scamly website on the sign in page. This will send a password reset link to your email. If you created your account using Apple or Google, you will need to reset your password through their system.",
   },
   {
     question: "How do I change my email address associated with my Scamly account?",
-    answer: "You can change your email address by logging into the Scamly account portal and selecting the security tab. You will need to have access to both the old and new email address you wish to change to.",
+    answer:
+      "You can change your email address by logging into the Scamly account portal and selecting the security tab. You will need to have access to both the old and new email address you wish to change to.",
   },
   {
     question: "How do I sign up to Scamly Premium?",
-    answer: "You can sign up to Scamly Premium by logging into the Scamly account portal and selecting the subscription tab.",
+    answer:
+      "You can sign up to Scamly Premium by logging into the Scamly account portal and selecting the subscription tab.",
   },
   {
     question: "How do I cancel my Scamly Premium subscription or update my billing information?",
-    answer: "You can manage your subscription by logging into the Scamly account portal and selecting the subscription tab and selecting either the Manage Billing or Cancel Subscription buttons.",
+    answer:
+      "You can manage your subscription by logging into the Scamly account portal and selecting the subscription tab and selecting either the Manage Billing or Cancel Subscription buttons.",
   },
   {
     question: "How do I get a refund?",
-    answer: "Unfortunately, we do not offer refunds for Scamly Premium subscriptions unless in extenuating circumstances. Please contact support@scamly.io for enquiries.",
+    answer:
+      "Unfortunately, we do not offer refunds for Scamly Premium subscriptions unless in extenuating circumstances. Please contact support@scamly.io for enquiries.",
   },
 ];
 
@@ -33,7 +38,10 @@ export default function Contact() {
     <>
       <Helmet>
         <title>Contact & Support | Scamly</title>
-        <meta name="description" content="Get in touch with the Scamly support team. Find answers to frequently asked questions or reach us via email." />
+        <meta
+          name="description"
+          content="Get in touch with the Scamly support team. Find answers to frequently asked questions or reach us via email."
+        />
         <link rel="canonical" href="https://scamly.io/contact" />
       </Helmet>
 
@@ -62,8 +70,10 @@ export default function Contact() {
               <div>
                 <h3 className="font-semibold mb-1">Mailing Address</h3>
                 <p className="text-sm text-muted-foreground">
-                  81-83 Campbell Street<br />
-                  Surry Hills, 2010<br />
+                  81-83 Campbell Street
+                  <br />
+                  Surry Hills, 2010
+                  <br />
                   NSW, Australia
                 </p>
               </div>
@@ -77,19 +87,33 @@ export default function Contact() {
               <div className="space-y-3">
                 <h2 className="text-xl font-display font-semibold">Account Deletion</h2>
                 <p className="text-sm text-muted-foreground">
-                  You have the right to request your Scamly account be deleted and all personal information removed from our systems, in accordance with our{' '}
-                  <Link to="/privacy" className="text-primary underline hover:text-primary/80 transition-colors">Privacy Policy</Link>.
+                  You have the right to request your Scamly account be deleted and all personal information removed from
+                  our systems, in accordance with our{" "}
+                  <Link to="/privacy" className="text-primary underline hover:text-primary/80 transition-colors">
+                    Privacy Policy
+                  </Link>
+                  .
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  You can delete your account directly through the Scamly app by navigating to the <strong className="text-foreground">Profile</strong> tab in your account portal and selecting <strong className="text-foreground">Delete Account</strong>. This will immediately and permanently delete your account, cancel any active subscriptions, and remove your personal data.
+                  You can delete your account directly through the Scamly app by navigating to the{" "}
+                  <strong className="text-foreground">Profile</strong> tab in your account portal and selecting{" "}
+                  <strong className="text-foreground">Delete Account</strong>. This will immediately and permanently
+                  delete your account, cancel any active subscriptions, and remove your personal data.
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  If you have been locked out of your account and would like to delete it, you can email{' '}
-                  <a href="mailto:support@scamly.io" className="text-primary underline hover:text-primary/80 transition-colors">support@scamly.io</a>{' '}
-                  to request deletion. Please note that additional verification checks will be required in order to process the deletion.
+                  If you have been locked out of your account and would like to delete it, you can email{" "}
+                  <a
+                    href="mailto:support@scamly.io"
+                    className="text-primary underline hover:text-primary/80 transition-colors"
+                  >
+                    support@scamly.io
+                  </a>{" "}
+                  to request deletion. Please note that additional verification checks will be required in order to
+                  process the deletion.
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Please note that information Scamly Pty Ltd is required to retain to meet legal obligations will not be deleted from the Scamly system.
+                  Please note that information Scamly Pty Ltd is required to retain to meet legal obligations will not
+                  be deleted from the Scamly system.
                 </p>
               </div>
             </div>
@@ -108,7 +132,7 @@ export default function Contact() {
         </div>
       </main>
 
-      <MainDomainFooter />
+      <Footer />
     </>
   );
 }
