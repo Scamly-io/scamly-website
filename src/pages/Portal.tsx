@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { PolicyAcceptanceModal } from "@/components/policy";
 import { usePolicyCompliance } from "@/hooks/usePolicyCompliance";
 import logoLight from "@/assets/navbar-logo-light.png";
-import logoDark from "@/assets/navbar-logo-dark.png";
+
 import {
   User,
   CreditCard,
