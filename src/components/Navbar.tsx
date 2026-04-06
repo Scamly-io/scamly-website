@@ -43,7 +43,7 @@ export function Navbar() {
           {/* Right Section */}
           <div className="hidden md:flex items-center gap-3">
             {user ? (
-              <Button variant="gradient" size="sm" asChild>
+              <Button className="bg-[#5022f6] text-primary-foreground hover:bg-[#5022f6]/90" size="sm" asChild>
                 <Link to="/portal">My Account</Link>
               </Button>
             ) : (
