@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { HeroGradientBackground } from "@/components/HeroGradientBackground";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -252,7 +251,7 @@ export default function Portal() {
 
   if (loading || (user && !profile)) {
     return (
-      <div className="min-h-screen bg-zinc-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
@@ -265,8 +264,7 @@ export default function Portal() {
   ];
 
   return (
-    <div className="relative min-h-screen bg-zinc-50">
-      <HeroGradientBackground />
+    <div className="relative min-h-screen">
       {/* Policy Acceptance Modal - blocks UI until policies are accepted */}
       <PolicyAcceptanceModal
         isOpen={!policyLoading && !isPolicyCompliant && pendingPolicies.length > 0}

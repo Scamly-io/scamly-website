@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Footer } from "@/components/Footer";
-import { HeroGradientBackground } from "@/components/HeroGradientBackground";
 
 const faqs = [
   {
@@ -48,9 +47,8 @@ export default function Contact() {
 
       <Navbar />
 
-      <main className="relative min-h-screen bg-zinc-50 pt-24 pb-16">
-        <HeroGradientBackground />
-        <div className="relative z-10 container mx-auto px-4 max-w-3xl">
+      <main className="relative min-h-screen pt-24 pb-16">
+        <div className="container mx-auto px-4 max-w-3xl">
           <h1 className="text-4xl font-display font-bold mb-2">Contact & Support</h1>
           <p className="text-muted-foreground mb-12">Need help? Reach out to us or check our FAQs below.</p>
 

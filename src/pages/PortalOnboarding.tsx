@@ -12,7 +12,6 @@ import logoLight from "@/assets/navbar-logo-light.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { CountryWhyCollected } from "@/components/CountryWhyCollected";
 import { getBrowserMetadata } from "@/lib/browser-metadata";
-import { HeroGradientBackground } from "@/components/HeroGradientBackground";
 
 const genders = ["Male", "Female", "Prefer not to say"];
 
@@ -180,15 +179,14 @@ export default function PortalOnboarding() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="relative min-h-screen bg-zinc-50 flex flex-col">
-      <HeroGradientBackground />
+    <div className="relative min-h-screen flex flex-col">
       {/* Header */}
       <nav className="fixed top-4 left-4 right-4 z-50 mx-auto max-w-6xl rounded-2xl bg-background/70 backdrop-blur-xl border border-border/50 shadow-sm">
         <div className="px-6">

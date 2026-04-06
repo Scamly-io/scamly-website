@@ -5,7 +5,6 @@ import { Loader2, Calendar, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { HeroGradientBackground } from "@/components/HeroGradientBackground";
 import { format } from "date-fns";
 
 interface BlogPost {
@@ -45,7 +44,7 @@ export default function Blog() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50">
+    <div className="min-h-screen">
       <Helmet>
         <title>Scamly Blog – Stay Safe from Scams</title>
         <meta name="description" content="Read about the current scam landscape and how to stay safe in our blog." />
@@ -54,15 +53,12 @@ export default function Blog() {
       <Navbar />
 
       <main className="pt-28 pb-16">
-        <HeroGradientBackground
-          className="mb-16"
-          contentClassName="container mx-auto px-4 py-6 text-center md:py-10"
-        >
+        <div className="container mx-auto px-4 py-6 text-center md:py-10 mb-16">
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-4">Scamly Blog</h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Read about the current scam landscape and how to stay safe in our blog
           </p>
-        </HeroGradientBackground>
+        </div>
 
         <div className="container mx-auto px-4 max-w-4xl">
           {isLoading ? (

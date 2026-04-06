@@ -5,7 +5,6 @@ import { Loader2, ArrowLeft, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { HeroGradientBackground } from "@/components/HeroGradientBackground";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 
@@ -76,7 +75,7 @@ export default function BlogPostPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-zinc-50">
+      <div className="min-h-screen">
         <Navbar />
         <div className="flex justify-center items-center pt-40">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -87,7 +86,7 @@ export default function BlogPostPage() {
 
   if (notFound || !post) {
     return (
-      <div className="min-h-screen bg-zinc-50">
+      <div className="min-h-screen">
         <Navbar />
         <div className="flex flex-col items-center pt-40 gap-4">
           <h1 className="text-2xl font-bold">Post not found</h1>
@@ -101,7 +100,7 @@ export default function BlogPostPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50">
+    <div className="min-h-screen">
       <Helmet>
         <title>{post.title ? `${post.title} – Scamly Blog` : "Scamly Blog"}</title>
         <meta name="description" content={getDescription(post.content)} />
@@ -122,7 +121,7 @@ export default function BlogPostPage() {
       <Navbar />
 
       <main className="pt-28 pb-16">
-        <HeroGradientBackground contentClassName="container mx-auto px-4 max-w-3xl">
+        <div className="container mx-auto px-4 max-w-3xl">
           <Button asChild variant="ghost" size="sm" className="mb-6">
             <Link to="/blog" className="gap-2">
               <ArrowLeft className="h-4 w-4" /> Back to Blog
@@ -144,7 +143,7 @@ export default function BlogPostPage() {
               dangerouslySetInnerHTML={{ __html: renderMarkdown(post.content || "") }}
             />
           </article>
-        </HeroGradientBackground>
+        </div>
       </main>
 
       <Footer />

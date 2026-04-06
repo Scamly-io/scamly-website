@@ -6,30 +6,6 @@ import googlePlayBadge from "../../assets/badge-google-play.png";
 export function HeroSection() {
   return (
     <section className="relative min-h-[90vh] py-28 md:py-32 lg:py-36 overflow-hidden">
-      {/* Soft animated gradient glow */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div
-          className="absolute -top-1/3 left-1/2 -translate-x-1/2 w-[140%] h-[80%] rounded-full blur-3xl"
-          style={{
-            background: "radial-gradient(ellipse at 30% 20%, #fff7ed 0%, #fef3c7 35%, #f5f3ff 65%, transparent 100%)",
-            animation: "heroGlow 12s ease-in-out infinite alternate",
-          }}
-        />
-        <div
-          className="absolute -top-1/4 left-1/3 w-[100%] h-[60%] rounded-full opacity-80 blur-3xl"
-          style={{
-            background: "radial-gradient(ellipse at 70% 30%, #f5f3ff 0%, #fdf2f8 40%, #fff7ed 80%, transparent 100%)",
-            animation: "heroGlow 12s ease-in-out 4s infinite alternate-reverse",
-          }}
-        />
-        <div
-          className="absolute -top-1/4 right-1/4 w-[80%] h-[50%] rounded-full opacity-65 blur-3xl"
-          style={{
-            background: "radial-gradient(ellipse at 50% 40%, #fdf2f8 0%, #f5f3ff 50%, #fff7ed 100%)",
-            animation: "heroGlow 12s ease-in-out 8s infinite alternate",
-          }}
-        />
-      </div>
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left side — Text content */}

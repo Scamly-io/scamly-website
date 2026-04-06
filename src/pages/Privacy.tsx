@@ -8,7 +8,6 @@ import { PolicyContentBlock } from "@/types/policy";
 import { PolicyContentRenderer } from "@/components/PolicyContentRenderer";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { HeroGradientBackground } from "@/components/HeroGradientBackground";
 
 export default function Privacy() {
   const [content, setContent] = useState<PolicyContentBlock[] | null>(null);
@@ -35,15 +34,14 @@ export default function Privacy() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex flex-col">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
       <Helmet>
         <title>Privacy Policy | Scamly</title>
         <link rel="canonical" href="https://scamly.io/privacy" />
       </Helmet>
       <main className="relative flex-1 pt-24 pb-16">
-        <HeroGradientBackground />
-        <div className="relative z-10 container max-w-4xl mx-auto px-4">
+        <div className="container max-w-4xl mx-auto px-4">
           <Link to="/">
             <Button variant="ghost" className="mb-8">
               <ArrowLeft className="w-4 h-4 mr-2" />

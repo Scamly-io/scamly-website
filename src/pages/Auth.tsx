@@ -279,7 +279,7 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen flex">
       {/* Left Panel - Branding */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden" style={{ backgroundColor: 'hsl(220, 40%, 13%)' }}>
         <BackgroundBeams />

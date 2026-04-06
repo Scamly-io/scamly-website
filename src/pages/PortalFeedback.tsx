@@ -7,7 +7,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Loader2, LogOut, Send } from "lucide-react";
 import logoLight from "@/assets/navbar-logo-light.png";
-import { HeroGradientBackground } from "@/components/HeroGradientBackground";
 
 export default function PortalFeedback() {
   const navigate = useNavigate();
@@ -18,7 +17,7 @@ export default function PortalFeedback() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-zinc-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
@@ -84,8 +83,7 @@ export default function PortalFeedback() {
   };
 
   return (
-    <div className="relative min-h-screen bg-zinc-50">
-      <HeroGradientBackground />
+    <div className="relative min-h-screen">
       {/* Header */}
       <nav className="fixed top-4 left-4 right-4 z-50 mx-auto max-w-6xl rounded-2xl bg-background/70 backdrop-blur-xl border border-border/50 shadow-sm">
         <div className="px-6">

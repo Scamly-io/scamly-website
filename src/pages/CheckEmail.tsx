@@ -3,11 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Mail, CheckCircle } from "lucide-react";
 import authLogo from "@/assets/auth-logo.png";
 import { BackgroundBeams } from "@/components/ui/beams";
-import { HeroGradientBackground } from "@/components/HeroGradientBackground";
 
 export default function CheckEmail() {
   return (
-    <div className="min-h-screen bg-zinc-50 flex">
+    <div className="min-h-screen flex">
       {/* Left Panel - Branding */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden" style={{ backgroundColor: 'hsl(220, 40%, 13%)' }}>
         <BackgroundBeams className="absolute inset-0" />
@@ -31,8 +30,6 @@ export default function CheckEmail() {
 
       {/* Right Panel - Content */}
       <div className="relative flex-1 flex flex-col">
-        <HeroGradientBackground />
-
         {/* Content */}
         <div className="relative z-10 flex-1 flex items-center justify-center p-6">
           <div className="w-full max-w-md text-center">

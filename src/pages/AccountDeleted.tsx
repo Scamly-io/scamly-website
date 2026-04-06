@@ -3,7 +3,6 @@ import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, ArrowLeft } from "lucide-react";
 import logoLight from "@/assets/navbar-logo-light.png";
-import { HeroGradientBackground } from "@/components/HeroGradientBackground";
 
 export default function AccountDeleted() {
   return (
@@ -12,8 +11,7 @@ export default function AccountDeleted() {
         <meta name="robots" content="noindex, nofollow" />
         <title>Account Deleted | Scamly</title>
       </Helmet>
-      <div className="relative min-h-screen bg-zinc-50 flex flex-col items-center justify-center px-4">
-        <HeroGradientBackground />
+      <div className="relative min-h-screen flex flex-col items-center justify-center px-4">
         <div className="relative z-10 max-w-md w-full text-center space-y-6">
           <Link to="/" className="inline-block mb-4">
             <img

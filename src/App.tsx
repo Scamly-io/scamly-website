@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { PageLayout } from "@/components/PageLayout";
 
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import Index from "./pages/Index";
@@ -30,21 +31,23 @@ const queryClient = new QueryClient();
 const TestSubdomainApp = () => (
   <BrowserRouter>
     <Routes>
-      <Route path="/" element={<Index />} />
-      <Route path="/auth" element={<Auth />} />
-      <Route path="/check-email" element={<CheckEmail />} />
-      <Route path="/portal/onboarding" element={<PortalOnboarding />} />
-      <Route path="/portal/onboarding-complete" element={<PortalOnboardingComplete />} />
-      <Route path="/portal/feedback" element={<PortalFeedback />} />
-      <Route path="/portal" element={<Portal />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/terms" element={<Terms />} />
-      <Route path="/privacy" element={<Privacy />} />
-      <Route path="/contact" element={<Contact />} />
-      <Route path="/account-deleted" element={<AccountDeleted />} />
-      <Route path="/blog" element={<Blog />} />
-      <Route path="/blog/:slug" element={<BlogPost />} />
-      <Route path="*" element={<NotFound />} />
+      <Route element={<PageLayout />}>
+        <Route path="/" element={<Index />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/check-email" element={<CheckEmail />} />
+        <Route path="/portal/onboarding" element={<PortalOnboarding />} />
+        <Route path="/portal/onboarding-complete" element={<PortalOnboardingComplete />} />
+        <Route path="/portal/feedback" element={<PortalFeedback />} />
+        <Route path="/portal" element={<Portal />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/account-deleted" element={<AccountDeleted />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:slug" element={<BlogPost />} />
+        <Route path="*" element={<NotFound />} />
+      </Route>
     </Routes>
   </BrowserRouter>
 );
@@ -53,12 +56,12 @@ const TestSubdomainApp = () => (
 const MainDomainApp = () => (
   <BrowserRouter>
     <Routes>
-      <Route path="/" element={<Index />} />
-      <Route path="/privacy" element={<Privacy />} />
-      <Route path="/contact" element={<Contact />} />
-      
-      {/* All other routes redirect to home */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route element={<PageLayout />}>
+        <Route path="/" element={<Index />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Route>
     </Routes>
   </BrowserRouter>
 );

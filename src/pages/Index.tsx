@@ -22,7 +22,7 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-zinc-50">
+    <div className="min-h-screen">
       <Navbar />
       <AnnouncementBanner />
       <main>

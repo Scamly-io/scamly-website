@@ -10,7 +10,6 @@ import { Lock, Eye, EyeOff, Loader2, CheckCircle } from "lucide-react";
 import { z } from "zod";
 import authLogo from "@/assets/auth-logo.png";
 import { BackgroundBeams } from "@/components/ui/beams";
-import { HeroGradientBackground } from "@/components/HeroGradientBackground";
 
 const passwordSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
@@ -97,11 +96,10 @@ export default function ResetPassword() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-zinc-50 flex">
+      <div className="min-h-screen flex">
         {leftPanel}
         <div className="relative flex-1 flex flex-col">
-          <HeroGradientBackground />
-          <div className="relative z-10 flex-1 flex items-center justify-center p-6">
+          <div className="flex-1 flex items-center justify-center p-6">
             <div className="w-full max-w-md text-center">
               <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6" style={{ backgroundColor: '#5022f6' }}>
                 <CheckCircle className="w-8 h-8 text-white" />
@@ -121,11 +119,10 @@ export default function ResetPassword() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex">
+    <div className="min-h-screen flex">
       {leftPanel}
       <div className="relative flex-1 flex flex-col">
-        <HeroGradientBackground />
-        <div className="relative z-10 flex-1 flex items-center justify-center p-6">
+        <div className="flex-1 flex items-center justify-center p-6">
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
               <h2 className="font-display text-2xl font-bold mb-2">Set new password</h2>
