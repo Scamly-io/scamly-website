@@ -37,12 +37,16 @@ export default function Blog() {
 
   const getExcerpt = (content: string | null, maxLength = 160) => {
     if (!content) return "";
-    const plain = content.replace(/[#*_\[\]()>`~-]/g, "").replace(/\n+/g, " ").trim();
+    const plain = content
+      .replace(/[#*_\[\]()>`~-]/g, "")
+      .replace(/\n+/g, " ")
+      .trim();
     return plain.length > maxLength ? plain.slice(0, maxLength) + "…" : plain;
   };
 
   return (
     <div className="min-h-screen bg-zinc-50">
+      <HeroGradientBackground />
       <Helmet>
         <title>Scamly Blog – Stay Safe from Scams</title>
         <meta name="description" content="Read about the current scam landscape and how to stay safe in our blog." />
@@ -52,11 +56,8 @@ export default function Blog() {
 
       <main className="pt-28 pb-16">
         <div className="relative">
-          <HeroGradientBackground />
           <div className="relative container mx-auto px-4 text-center mb-16">
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-4">
-              Scamly Blog
-            </h1>
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-4">Scamly Blog</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Read about the current scam landscape and how to stay safe in our blog
             </p>
@@ -81,16 +82,12 @@ export default function Blog() {
                   <article>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
                       <Calendar className="h-4 w-4" />
-                      <time dateTime={post.created_at}>
-                        {format(new Date(post.created_at), "MMMM d, yyyy")}
-                      </time>
+                      <time dateTime={post.created_at}>{format(new Date(post.created_at), "MMMM d, yyyy")}</time>
                     </div>
                     <h2 className="text-xl md:text-2xl font-semibold text-foreground group-hover:text-[#5022f6] transition-colors mb-2">
                       {post.title}
                     </h2>
-                    <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                      {getExcerpt(post.content)}
-                    </p>
+                    <p className="text-muted-foreground text-sm leading-relaxed mb-4">{getExcerpt(post.content)}</p>
                     <span className="inline-flex items-center gap-1 text-sm font-medium text-[#5022f6]">
                       Read more <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                     </span>
