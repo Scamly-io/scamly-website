@@ -115,7 +115,23 @@ export default function BlogPostPage() {
               {post.title}
             </h1>
             <div className="prose prose-zinc max-w-none">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  h1: ({ children }) => (
+                    <h1 className="text-3xl font-bold mb-4 text-foreground">{children}</h1>
+                  ),
+                  p: ({ children }) => (
+                    <p className="text-muted-foreground leading-relaxed mb-3">{children}</p>
+                  ),
+                  a: ({ href, children }) => (
+                    <a href={href} className="text-primary underline">{children}</a>
+                  ),
+                  ul: ({ children }) => (
+                    <ul className="list-disc ml-6 mb-4">{children}</ul>
+                  ),
+                }}
+              >
                 {post.content || ""}
               </ReactMarkdown>
             </div>
