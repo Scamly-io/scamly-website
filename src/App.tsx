@@ -19,6 +19,8 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Contact from "./pages/Contact";
 import AccountDeleted from "./pages/AccountDeleted";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 
 import NotFound from "./pages/NotFound";
 
@@ -40,6 +42,8 @@ const TestSubdomainApp = () => (
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/account-deleted" element={<AccountDeleted />} />
+      <Route path="/blog" element={<Blog />} />
+      <Route path="/blog/:slug" element={<BlogPost />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </BrowserRouter>
