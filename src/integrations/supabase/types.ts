@@ -68,6 +68,30 @@ export type Database = {
         }
         Relationships: []
       }
+      blogs: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          slug: string | null
+          title: string | null
+        }
+        Insert: {
+          content?: string | null
+          created_at: string
+          id?: string
+          slug?: string | null
+          title?: string | null
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          slug?: string | null
+          title?: string | null
+        }
+        Relationships: []
+      }
       chats: {
         Row: {
           created_at: string
