@@ -54,15 +54,15 @@ export default function Blog() {
       <Navbar />
 
       <main className="pt-28 pb-16">
-        <div className="relative">
-          <HeroGradientBackground />
-          <div className="relative container mx-auto px-4 text-center mb-16" style={{ zIndex: 1 }}>
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-4">Scamly Blog</h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Read about the current scam landscape and how to stay safe in our blog
-            </p>
-          </div>
-        </div>
+        <HeroGradientBackground
+          className="mb-16"
+          contentClassName="container mx-auto px-4 py-6 text-center md:py-10"
+        >
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-4">Scamly Blog</h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Read about the current scam landscape and how to stay safe in our blog
+          </p>
+        </HeroGradientBackground>
 
         <div className="container mx-auto px-4 max-w-4xl">
           {isLoading ? (

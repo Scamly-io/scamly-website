@@ -1,27 +1,59 @@
-export function HeroGradientBackground() {
+import type { ReactNode } from "react";
+
+interface HeroGradientBackgroundProps {
+  children?: ReactNode;
+  className?: string;
+  contentClassName?: string;
+}
+
+const warmGlowOne = "radial-gradient(ellipse at 30% 20%, hsl(27 100% 95%) 0%, hsl(48 96% 89%) 35%, hsl(270 100% 98%) 65%, transparent 100%)";
+const warmGlowTwo = "radial-gradient(ellipse at 70% 30%, hsl(270 100% 98%) 0%, hsl(327 73% 97%) 40%, hsl(27 100% 95%) 80%, transparent 100%)";
+const warmGlowThree = "radial-gradient(ellipse at 50% 40%, hsl(327 73% 97%) 0%, hsl(270 100% 98%) 50%, hsl(27 100% 95%) 100%)";
+
+export function HeroGradientBackground({
+  children,
+  className = "",
+  contentClassName = "",
+}: HeroGradientBackgroundProps) {
+  const containerClassName = ["relative isolate w-full", className].filter(Boolean).join(" ");
+  const innerContentClassName = ["relative z-10", contentClassName].filter(Boolean).join(" ");
+
+  const gradient = (
+    <div aria-hidden="true" className="absolute inset-x-0 top-0 h-[500px] pointer-events-none">
+      <div className="absolute inset-0 overflow-hidden">
+        <div
+          className="absolute -top-1/3 left-1/2 h-[80%] w-[140%] -translate-x-1/2 rounded-full blur-3xl"
+          style={{
+            background: warmGlowOne,
+            animation: "heroGlow 12s ease-in-out infinite alternate",
+          }}
+        />
+        <div
+          className="absolute -top-1/4 left-1/3 h-[60%] w-[100%] rounded-full opacity-80 blur-3xl"
+          style={{
+            background: warmGlowTwo,
+            animation: "heroGlow 12s ease-in-out 4s infinite alternate-reverse",
+          }}
+        />
+        <div
+          className="absolute -top-1/4 right-1/4 h-[50%] w-[80%] rounded-full opacity-65 blur-3xl"
+          style={{
+            background: warmGlowThree,
+            animation: "heroGlow 12s ease-in-out 8s infinite alternate",
+          }}
+        />
+      </div>
+    </div>
+  );
+
+  if (!children) {
+    return <div className={containerClassName}>{gradient}</div>;
+  }
+
   return (
-    <div className="absolute inset-x-0 top-0 h-[500px] overflow-hidden pointer-events-none" style={{ zIndex: 0 }}>
-      <div
-        className="absolute -top-1/3 left-1/2 -translate-x-1/2 w-[140%] h-[80%] rounded-full blur-3xl"
-        style={{
-          background: "radial-gradient(ellipse at 30% 20%, #fff7ed 0%, #fef3c7 35%, #f5f3ff 65%, transparent 100%)",
-          animation: "heroGlow 12s ease-in-out infinite alternate",
-        }}
-      />
-      <div
-        className="absolute -top-1/4 left-1/3 w-[100%] h-[60%] rounded-full opacity-80 blur-3xl"
-        style={{
-          background: "radial-gradient(ellipse at 70% 30%, #f5f3ff 0%, #fdf2f8 40%, #fff7ed 80%, transparent 100%)",
-          animation: "heroGlow 12s ease-in-out 4s infinite alternate-reverse",
-        }}
-      />
-      <div
-        className="absolute -top-1/4 right-1/4 w-[80%] h-[50%] rounded-full opacity-65 blur-3xl"
-        style={{
-          background: "radial-gradient(ellipse at 50% 40%, #fdf2f8 0%, #f5f3ff 50%, #fff7ed 100%)",
-          animation: "heroGlow 12s ease-in-out 8s infinite alternate",
-        }}
-      />
+    <div className={[containerClassName, "overflow-hidden"].join(" ")}>
+      {gradient}
+      <div className={innerContentClassName}>{children}</div>
     </div>
   );
 }

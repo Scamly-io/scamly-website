@@ -122,32 +122,29 @@ export default function BlogPostPage() {
       <Navbar />
 
       <main className="pt-28 pb-16">
-        <div className="relative">
-          <HeroGradientBackground />
-          <div className="relative container mx-auto px-4 max-w-3xl" style={{ zIndex: 1 }}>
-            <Button asChild variant="ghost" size="sm" className="mb-6">
-              <Link to="/blog" className="gap-2">
-                <ArrowLeft className="h-4 w-4" /> Back to Blog
-              </Link>
-            </Button>
+        <HeroGradientBackground contentClassName="container mx-auto px-4 max-w-3xl">
+          <Button asChild variant="ghost" size="sm" className="mb-6">
+            <Link to="/blog" className="gap-2">
+              <ArrowLeft className="h-4 w-4" /> Back to Blog
+            </Link>
+          </Button>
 
-            <article className="bg-background rounded-2xl border border-border/50 p-6 md:p-10 shadow-sm">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-                <Calendar className="h-4 w-4" />
-                <time dateTime={post.created_at}>
-                  {format(new Date(post.created_at), "MMMM d, yyyy")}
-                </time>
-              </div>
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
-                {post.title}
-              </h1>
-              <div
-                className="prose prose-zinc max-w-none"
-                dangerouslySetInnerHTML={{ __html: renderMarkdown(post.content || "") }}
-              />
-            </article>
-          </div>
-        </div>
+          <article className="bg-background rounded-2xl border border-border/50 p-6 md:p-10 shadow-sm">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+              <Calendar className="h-4 w-4" />
+              <time dateTime={post.created_at}>
+                {format(new Date(post.created_at), "MMMM d, yyyy")}
+              </time>
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
+              {post.title}
+            </h1>
+            <div
+              className="prose prose-zinc max-w-none"
+              dangerouslySetInnerHTML={{ __html: renderMarkdown(post.content || "") }}
+            />
+          </article>
+        </HeroGradientBackground>
       </main>
 
       <Footer />
