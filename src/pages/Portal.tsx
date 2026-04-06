@@ -301,7 +301,7 @@ export default function Portal() {
           </div>
 
           {/* Tabs */}
-          <div className="grid grid-cols-2 md:flex gap-1 p-1 rounded-xl bg-muted mb-8">
+          <div className="grid grid-cols-2 md:flex gap-1 p-1 rounded-xl bg-muted mb-8 shadow">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
