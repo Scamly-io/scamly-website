@@ -7,6 +7,8 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface BlogPost {
   id: string;
@@ -14,34 +16,6 @@ interface BlogPost {
   slug: string | null;
   content: string | null;
   created_at: string;
-}
-
-function renderMarkdown(md: string): string {
-  let html = md
-    // Headings
-    .replace(/^### (.+)$/gm, '<h3 class="text-xl font-semibold mt-8 mb-3 text-foreground">$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2 class="text-2xl font-bold mt-10 mb-4 text-foreground">$1</h2>')
-    .replace(/^# (.+)$/gm, '<h2 class="text-3xl font-bold mt-10 mb-4 text-foreground">$1</h2>')
-    // Horizontal rule
-    .replace(/^\s*---\s*$/gm, '<hr class="mt-8 border-t border-border/50" />')
-    // Bold & italic
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    // Links
-    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-[#5022f6] underline hover:opacity-80" target="_blank" rel="noopener noreferrer">$1</a>')
-    // Unordered lists
-    .replace(/^[*-] (.+)$/gm, '<li class="ml-4 list-disc">$1</li>')
-    // Paragraphs
-    .replace(/\n{2,}/g, '</p><p class="text-muted-foreground leading-relaxed mb-4">')
-    .replace(/\n/g, '<br />');
-
-  html = '<p class="text-muted-foreground leading-relaxed mb-4">' + html + '</p>';
-  // Wrap consecutive <li> in <ul>
-  html = html.replace(
-    /(<li[^>]*>.*?<\/li>(?:\s*<br\s*\/?>)?)+/g,
-    (match) => '<ul class="my-4 space-y-1">' + match.replace(/<br\s*\/?>/g, '') + '</ul>'
-  );
-  return html;
 }
 
 export default function BlogPostPage() {
@@ -140,10 +114,11 @@ export default function BlogPostPage() {
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
               {post.title}
             </h1>
-            <div
-              className="prose prose-zinc max-w-none"
-              dangerouslySetInnerHTML={{ __html: renderMarkdown(post.content || "") }}
-            />
+            <div className="prose prose-zinc max-w-none">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {post.content || ""}
+              </ReactMarkdown>
+            </div>
           </article>
         </div>
       </main>
