@@ -124,7 +124,7 @@ export default function BlogPostPage() {
       <main className="pt-28 pb-16">
         <div className="relative">
           <HeroGradientBackground />
-          <div className="relative container mx-auto px-4 max-w-3xl">
+          <div className="relative container mx-auto px-4 max-w-3xl" style={{ zIndex: 1 }}>
             <Button asChild variant="ghost" size="sm" className="mb-6">
               <Link to="/blog" className="gap-2">
                 <ArrowLeft className="h-4 w-4" /> Back to Blog

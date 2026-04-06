@@ -1,6 +1,6 @@
 export function HeroGradientBackground() {
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none -z-999">
+    <div className="absolute inset-x-0 top-0 h-[500px] overflow-hidden pointer-events-none" style={{ zIndex: 0 }}>
       <div
         className="absolute -top-1/3 left-1/2 -translate-x-1/2 w-[140%] h-[80%] rounded-full blur-3xl"
         style={{

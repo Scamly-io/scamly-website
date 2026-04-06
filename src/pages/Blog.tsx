@@ -54,9 +54,9 @@ export default function Blog() {
       <Navbar />
 
       <main className="pt-28 pb-16">
-        <HeroGradientBackground />
         <div className="relative">
-          <div className="relative container mx-auto px-4 text-center mb-16">
+          <HeroGradientBackground />
+          <div className="relative container mx-auto px-4 text-center mb-16" style={{ zIndex: 1 }}>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-4">Scamly Blog</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Read about the current scam landscape and how to stay safe in our blog
