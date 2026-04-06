@@ -22,6 +22,8 @@ function renderMarkdown(md: string): string {
     .replace(/^### (.+)$/gm, '<h3 class="text-xl font-semibold mt-8 mb-3 text-foreground">$1</h3>')
     .replace(/^## (.+)$/gm, '<h2 class="text-2xl font-bold mt-10 mb-4 text-foreground">$1</h2>')
     .replace(/^# (.+)$/gm, '<h2 class="text-3xl font-bold mt-10 mb-4 text-foreground">$1</h2>')
+    // Horizontal rule
+    .replace(/^\s*---\s*$/gm, '<hr class="mt-8 border-t border-border/50" />')
     // Bold & italic
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
