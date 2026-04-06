@@ -134,7 +134,7 @@ export function PricingSection() {
             >
               <Link to="/auth?mode=signup">Start 7-Day Free Trial</Link>
             </Button>
-            <p className="text-sm text-slate-500 mt-3">No credit card charged until trial ends. Cancel anytime.</p>
+            <p className="text-sm text-slate-500 mt-3">No credit card charged until trial ends. Cancel anytime. All prices displayed are in USD.</p>
           </div>
 
           {/* Right Side - Particles (desktop only) */}
