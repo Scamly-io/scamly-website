@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Loader2, Calendar, ArrowRight } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { Calendar, ArrowRight } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { format } from "date-fns";
+import { blogPosts } from "@/constants/blog/posts";
 
 interface BlogPost {
   id: string;
@@ -16,23 +15,9 @@ interface BlogPost {
 }
 
 export default function Blog() {
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchPosts() {
-      const { data, error } = await supabase
-        .from("blogs")
-        .select("id, title, slug, content, created_at")
-        .order("created_at", { ascending: false });
-
-      if (!error && data) {
-        setPosts(data);
-      }
-      setIsLoading(false);
-    }
-    fetchPosts();
-  }, []);
+  const posts: BlogPost[] = [...blogPosts.articles].sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
 
   const getExcerpt = (content: string | null, maxLength = 160) => {
     if (!content) return "";
@@ -61,11 +46,7 @@ export default function Blog() {
         </div>
 
         <div className="container mx-auto px-4 max-w-4xl">
-          {isLoading ? (
-            <div className="flex justify-center py-20">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-          ) : posts.length === 0 ? (
+          {posts.length === 0 ? (
             <p className="text-center text-muted-foreground py-20">No blog posts yet. Check back soon!</p>
           ) : (
             <div className="grid gap-6">
