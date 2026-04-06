@@ -114,10 +114,11 @@ export default function BlogPostPage() {
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
               {post.title}
             </h1>
-            <div
-              className="prose prose-zinc max-w-none"
-              dangerouslySetInnerHTML={{ __html: renderMarkdown(post.content || "") }}
-            />
+            <div className="prose prose-zinc max-w-none">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {post.content || ""}
+              </ReactMarkdown>
+            </div>
           </article>
         </div>
       </main>
