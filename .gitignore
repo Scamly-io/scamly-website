@@ -31,3 +31,4 @@ supabase/.temp
 .next
 next-env.d.ts
 dist
+.vercel
