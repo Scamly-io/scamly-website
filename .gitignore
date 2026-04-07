@@ -25,6 +25,8 @@ dist-ssr
 
 supabase/.temp
 
+.env*
+
 # ...
 .next
 next-env.d.ts

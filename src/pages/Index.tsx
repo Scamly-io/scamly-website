@@ -22,7 +22,6 @@ const Index = () => {
         <HeroSection />
         <FeatureShowcaseSection />
         <GlobalCoverageSection />
-
         <AboutSection />
         <CTASection />
       </main>
