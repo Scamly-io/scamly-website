@@ -1,5 +1,7 @@
+'use client'
+
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import {
   Dialog,
   DialogContent,
@@ -33,7 +35,7 @@ export function CountryWhyCollected() {
               in Australia, this adds suspicion.
               <br /><br />
               All data collected is done so in line with our{" "}
-              <Link to="/privacy" className="text-primary hover:underline" onClick={() => setOpen(false)}>
+              <Link href="/privacy" className="text-primary hover:underline" onClick={() => setOpen(false)}>
                 privacy policy
               </Link>.
             </DialogDescription>

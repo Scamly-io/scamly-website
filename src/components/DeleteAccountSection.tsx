@@ -1,5 +1,7 @@
+'use client'
+
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { supabase } from "../integrations/supabase/client";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../hooks/use-toast";
@@ -31,7 +33,7 @@ export function DeleteAccountSection() {
   const [deletionError, setDeletionError] = useState<DeletionError | null>(null);
   const { signOut } = useAuth();
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const isConfirmed = confirmInput === CONFIRMATION_TEXT;
 
@@ -95,7 +97,7 @@ export function DeleteAccountSection() {
 
       resetUser();
       await signOut();
-      navigate("/account-deleted");
+      router.push("/account-deleted");
     } catch (err) {
       console.error("[DeleteAccount] Error:", err);
       setDeletionError({

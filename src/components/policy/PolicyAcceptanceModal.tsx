@@ -1,5 +1,7 @@
+'use client'
+
 import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import {
   Dialog,
   DialogContent,
@@ -144,7 +146,7 @@ export function PolicyAcceptanceModal({
                       </p>
                     )}
                     <Link
-                      to={getPolicyLink(policyType)}
+                      href={getPolicyLink(policyType)}
                       target="_blank"
                       className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
                     >

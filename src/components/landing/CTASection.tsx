@@ -1,4 +1,6 @@
-import { Link } from "react-router-dom";
+'use client'
+
+import Link from "next/link";
 import { Button } from "../ui/button";
 import { BackgroundBeams } from "../ui/beams";
 import { trackSignupStarted } from "../../lib/analytics";
@@ -20,7 +22,7 @@ export function CTASection() {
                 onClick={() => trackSignupStarted("cta")}
                 className="bg-white text-foreground hover:bg-white/90 rounded-full font-semibold"
               >
-                <Link to="/auth?mode=signup">Create free account</Link>
+                <Link href="/auth?mode=signup">Create free account</Link>
               </Button>
               <Button
                 size="xl"

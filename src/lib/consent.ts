@@ -16,9 +16,6 @@ declare global {
   interface WindowEventMap {
     cookieyes_consent_update: CustomEvent<Record<string, string>>;
   }
-  interface Window {
-    dataLayer: Record<string, unknown>[];
-  }
 }
 
 // ---------------------------------------------------------------------------

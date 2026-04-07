@@ -1,5 +1,7 @@
+'use client'
+
 import { useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { Button } from "../ui/button";
 import { Check } from "lucide-react";
 import { trackPricingViewed, trackSignupStarted } from "../../lib/analytics";
@@ -45,7 +47,6 @@ export function PricingSection() {
 
   return (
     <div ref={sectionRef} id="pricing" className="py-24 relative overflow-hidden px-4 sm:px-8 md:px-12">
-      {/* Particles - behind content on mobile/tablet, side-by-side on desktop */}
       <div className="absolute inset-0 lg:hidden">
         <Particles
           particleColors={["#a855f7"]}
@@ -62,9 +63,7 @@ export function PricingSection() {
 
       <div className="relative z-10 max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Left Side - Content */}
           <div>
-            {/* Header */}
             <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-white leading-tight break-words">
               Eye watering{" "}
               <span
@@ -83,7 +82,6 @@ export function PricingSection() {
               first week.
             </p>
 
-            {/* Prices */}
             <div className="flex items-start gap-0 mb-8 sm:mb-10">
               <div className="pr-6 sm:pr-8 border-r border-white/20">
                 <div className="font-display text-3xl sm:text-4xl md:text-5xl font-bold">
@@ -113,7 +111,6 @@ export function PricingSection() {
               </div>
             </div>
 
-            {/* Features */}
             <ul className="space-y-3 mb-8 sm:mb-10">
               {features.map((feature) => (
                 <li key={feature} className="flex items-center gap-3">
@@ -125,19 +122,17 @@ export function PricingSection() {
               ))}
             </ul>
 
-            {/* CTA */}
             <Button
               size="lg"
               className="bg-[#5022f6] text-white hover:bg-[#5022f6]/90"
               asChild
               onClick={handleSignupClick}
             >
-              <Link to="/auth?mode=signup">Start 7-Day Free Trial</Link>
+              <Link href="/auth?mode=signup">Start 7-Day Free Trial</Link>
             </Button>
             <p className="text-sm text-slate-500 mt-3">No credit card charged until trial ends. Cancel anytime. All prices displayed are in USD.</p>
           </div>
 
-          {/* Right Side - Particles (desktop only) */}
           <div className="relative h-[500px] w-full hidden lg:block">
             <Particles
               particleColors={["#a855f7"]}

@@ -1,3 +1,5 @@
+'use client'
+
 import TextType from "../TextType";
 import { GridPattern } from "../GridPattern";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../ui/carousel";

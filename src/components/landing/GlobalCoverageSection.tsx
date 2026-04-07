@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect, useRef, useState } from "react";
 import WorldMap from "../ui/world-map";
 import Threads from "../Threads";
@@ -6,28 +8,28 @@ import { PricingSection } from "./PricingSection";
 
 const mapDots = [
   {
-    start: { lat: -45.8688, lng: 142.2093 }, // Sydney
-    end: { lat: 50.0074, lng: -0.6278 }, // London
+    start: { lat: -45.8688, lng: 142.2093 },
+    end: { lat: 50.0074, lng: -0.6278 },
   },
   {
-    start: { lat: 50.0074, lng: -0.6278 }, // London
-    end: { lat: 30.7128, lng: -84.006 }, // New York
+    start: { lat: 50.0074, lng: -0.6278 },
+    end: { lat: 30.7128, lng: -84.006 },
   },
   {
-    start: { lat: 35.6762, lng: 139.6503 }, // Tokyo
-    end: { lat: 28.6139, lng: 77.209 }, // New Delhi
+    start: { lat: 35.6762, lng: 139.6503 },
+    end: { lat: 28.6139, lng: 77.209 },
   },
   {
-    start: { lat: 28.6139, lng: 77.209 }, // New Delhi
-    end: { lat: -1.2921, lng: 36.8219 }, // Nairobi
+    start: { lat: 28.6139, lng: 77.209 },
+    end: { lat: -1.2921, lng: 36.8219 },
   },
   {
-    start: { lat: -25.7975, lng: -60.8919 }, // Brasília
-    end: { lat: 50.0074, lng: -0.6278 }, // London
+    start: { lat: -25.7975, lng: -60.8919 },
+    end: { lat: 50.0074, lng: -0.6278 },
   },
   {
-    start: { lat: 1.3521, lng: 103.8198 }, // Singapore
-    end: { lat: -45.8688, lng: 142.2093 }, // Sydney
+    start: { lat: 1.3521, lng: 103.8198 },
+    end: { lat: -45.8688, lng: 142.2093 },
   },
 ];
 
@@ -55,9 +57,7 @@ export function GlobalCoverageSection() {
     <section className="relative overflow-hidden" style={{ backgroundColor: "rgb(13, 23, 48)" }}>
       <div className="container mx-auto px-4">
         <div className="border-x border-white/10 overflow-hidden">
-          {/* World map area */}
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16 px-8 pb-8 pt-32 md:px-12 md:pb-12 md:pt-36">
-            {/* Left – Text */}
             <div className="lg:w-5/12 text-center lg:text-left">
               <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
                 Scam Protection That Works{" "}
@@ -77,18 +77,14 @@ export function GlobalCoverageSection() {
               </p>
             </div>
 
-            {/* Right – World Map */}
             <div ref={mapRef} className="lg:w-7/12 w-full min-h-[200px] lg:min-h-[320px]">
               <WorldMap dots={mapDots} lineColor="#f59e0b" animate={animateMap} />
             </div>
           </div>
 
-          {/* Divider */}
           <div className="border-t border-white/10" />
 
-          {/* Stats Container */}
           <div className="relative overflow-hidden pb-32" style={{ minHeight: "340px" }}>
-            {/* Threads animated background */}
             <div className="absolute inset-0">
               <Threads
                 colors={[
@@ -101,7 +97,6 @@ export function GlobalCoverageSection() {
               />
             </div>
 
-            {/* Stats content */}
             <div className="relative z-10 flex items-end h-full min-h-[340px] px-8 md:px-12 pb-10">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8 w-full">
                 {[
@@ -135,10 +130,8 @@ export function GlobalCoverageSection() {
             </div>
           </div>
 
-          {/* Divider */}
           <div className="border-t border-white/10" />
 
-          {/* Pricing */}
           <PricingSection />
         </div>
       </div>
