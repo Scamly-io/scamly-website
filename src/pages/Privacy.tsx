@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Button } from "@/components/ui/button";
+import { Button } from "../components/ui/button";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { PolicyContentBlock } from "@/types/policy";
-import { PolicyContentRenderer } from "@/components/PolicyContentRenderer";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
+import { supabase } from "../integrations/supabase/client";
+import { PolicyContentBlock } from "../types/policy";
+import { PolicyContentRenderer } from "../components/PolicyContentRenderer";
+import { Navbar } from "../components/Navbar";
+import { Footer } from "../components/Footer";
 
 export default function Privacy() {
   const [content, setContent] = useState<PolicyContentBlock[] | null>(null);

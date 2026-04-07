@@ -16,8 +16,9 @@ import type { PostHog } from "posthog-js";
 // Configuration
 // ============================================================================
 
-const POSTHOG_API_KEY = import.meta.env.VITE_POSTHOG_API_KEY || "";
-const POSTHOG_HOST = import.meta.env.VITE_POSTHOG_HOST || "https://us.i.posthog.com";
+const POSTHOG_API_KEY = process.env.NEXT_PUBLIC_POSTHOG_API_KEY || "";
+const POSTHOG_HOST =
+  process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com";
 
 // Track PostHog instance after dynamic import
 let posthogInstance: PostHog | null = null;
@@ -97,7 +98,9 @@ export async function initAnalytics(): Promise<void> {
 
   // Guard: Require API key
   if (!POSTHOG_API_KEY) {
-    console.warn("[Analytics] VITE_POSTHOG_API_KEY not set, analytics disabled");
+    console.warn(
+      "[Analytics] NEXT_PUBLIC_POSTHOG_API_KEY not set, analytics disabled"
+    );
     return;
   }
 

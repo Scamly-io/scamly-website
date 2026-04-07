@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Check, X, Sparkles } from "lucide-react";
-import { trackPricingViewed } from "@/lib/analytics";
+import { trackPricingViewed } from "../../lib/analytics";
 
 const plans = [
   {

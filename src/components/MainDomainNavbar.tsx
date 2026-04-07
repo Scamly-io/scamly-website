@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from './ui/button';
 import { Menu, X } from 'lucide-react';
-import logoLight from '@/assets/navbar-logo-light.png';
+import logoLight from '../../public/navbar-logo-light.png';
 
 export function MainDomainNavbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -20,7 +20,7 @@ export function MainDomainNavbar() {
           {/* Logo */}
           <Link to="/" className="flex items-center group">
             <img 
-              src={logoLight} 
+              src={logoLight.src} 
               alt="Scamly" 
               className="h-9 w-auto"
             />

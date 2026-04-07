@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+import { supabase } from "../integrations/supabase/client";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { useToast } from "../hooks/use-toast";
 import { User, Calendar, MapPin, Loader2 } from "lucide-react";
 import { z } from "zod";
-import { countries } from "@/constants/countries";
-import logoLight from "@/assets/navbar-logo-light.png";
-import { useAuth } from "@/contexts/AuthContext";
-import { CountryWhyCollected } from "@/components/CountryWhyCollected";
-import { getBrowserMetadata } from "@/lib/browser-metadata";
+import { countries } from "../constants/countries";
+import logoLight from "../../public/navbar-logo-light.png";
+import { useAuth } from "../contexts/AuthContext";
+import { CountryWhyCollected } from "../components/CountryWhyCollected";
+import { getBrowserMetadata } from "../lib/browser-metadata";
 
 const genders = ["Male", "Female", "Prefer not to say"];
 
@@ -191,7 +191,7 @@ export default function PortalOnboarding() {
       <nav className="fixed top-4 left-4 right-4 z-50 mx-auto max-w-6xl rounded-2xl bg-background/70 backdrop-blur-xl border border-border/50 shadow-sm">
         <div className="px-6">
           <div className="flex items-center justify-between h-14">
-            <img src={logoLight} alt="Scamly" className="h-8 w-auto" />
+            <img src={logoLight.src} alt="Scamly" className="h-8 w-auto" />
             <div />
           </div>
         </div>

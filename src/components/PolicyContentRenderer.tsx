@@ -1,4 +1,4 @@
-import { PolicyContentBlock } from "@/types/policy";
+import { PolicyContentBlock } from "../types/policy";
 
 interface PolicyContentRendererProps {
   content: PolicyContentBlock[];

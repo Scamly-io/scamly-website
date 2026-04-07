@@ -1,22 +1,21 @@
 import { useState, useEffect } from "react";
-import authLogo from "@/assets/auth-logo.png";
+import authLogo from "../../public/auth-logo.png";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "../contexts/AuthContext";
 
-import { supabase } from "@/integrations/supabase/client";
-import { captureError } from "@/lib/sentry";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { BackgroundBeams } from "@/components/ui/beams";
-
-import { useToast } from "@/hooks/use-toast";
+import { supabase } from "../integrations/supabase/client";
+import { captureError } from "../lib/sentry";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { BackgroundBeams } from "../components/ui/beams";
+import { useToast } from "../hooks/use-toast";
 import { Mail, Lock, User, Calendar, MapPin, ArrowLeft, Eye, EyeOff, Loader2, CheckCircle } from "lucide-react";
 import { z } from "zod";
-import { countries } from "@/constants/countries";
-import { trackSignupCompleted } from "@/lib/analytics";
-import { CountryWhyCollected } from "@/components/CountryWhyCollected";
-import { getBrowserMetadata } from "@/lib/browser-metadata";
+import { countries } from "../constants/countries";
+import { trackSignupCompleted } from "../lib/analytics";
+import { CountryWhyCollected } from "../components/CountryWhyCollected";
+import { getBrowserMetadata } from "../lib/browser-metadata";
 
 const referralSourceOptions = [
   "Facebook",
@@ -286,7 +285,7 @@ export default function Auth() {
 
         <div className="relative z-10 flex flex-col justify-between p-12 text-white">
           <Link to="/" className="flex items-center">
-            <img src={authLogo} alt="Scamly" className="h-10 w-auto" />
+            <img src={authLogo.src} alt="Scamly" className="h-10 w-auto" />
           </Link>
 
           <div className="max-w-md" />

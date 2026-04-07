@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Policy, PolicyComplianceStatus, PolicyType } from '@/types/policy';
-import { useAuth } from '@/contexts/AuthContext';
-import { captureError } from '@/lib/sentry';
+import { supabase } from '../integrations/supabase/client';
+import { Policy, PolicyComplianceStatus, PolicyType } from '../types/policy';
+import { useAuth } from '../contexts/AuthContext';
+import { captureError } from '../lib/sentry';
 
 interface UsePolicyComplianceReturn {
   isLoading: boolean;

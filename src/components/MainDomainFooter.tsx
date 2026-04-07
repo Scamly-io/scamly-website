@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 import { Twitter, Facebook, Instagram } from 'lucide-react';
-import { useTheme } from '@/contexts/ThemeContext';
-import logoLight from '@/assets/navbar-logo-light.png';
-import logoDark from '@/assets/navbar-logo-dark.png';
+import { useTheme } from '../contexts/ThemeContext';
+import logoLight from '../../public/navbar-logo-light.png';
+import logoDark from '../../public/navbar-logo-dark.png';
 
 export function MainDomainFooter() {
   const currentYear = new Date().getFullYear();
@@ -27,7 +27,7 @@ export function MainDomainFooter() {
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center mb-4">
               <img 
-                src={theme === 'dark' ? logoDark : logoLight} 
+                src={theme === 'dark' ? logoDark.src : logoLight.src} 
                 alt="Scamly" 
                 className="h-9 w-auto"
               />

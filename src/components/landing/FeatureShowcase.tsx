@@ -1,11 +1,11 @@
-import TextType from "@/components/TextType";
-import { GridPattern } from "@/components/GridPattern";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import TextType from "../TextType";
+import { GridPattern } from "../GridPattern";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../ui/carousel";
 
-import scanLight from "@/assets/features/scan-light.png";
-import chatLight from "@/assets/features/chat-light.png";
-import searchLight from "@/assets/features/search-light.png";
-import libraryLight from "@/assets/features/library-light.png";
+import scanLight from "../../../public/features/scan-light.png";
+import chatLight from "../../../public/features/chat-light.png";
+import searchLight from "../../../public/features/search-light.png";
+import libraryLight from "../../../public/features/library-light.png";
 
 const features = [
   {
@@ -75,7 +75,7 @@ export function FeatureShowcaseSection() {
                       {/* Screenshot */}
                       <div className="flex-shrink-0">
                         <img
-                          src={feature.image}
+                          src={feature.image.src}
                           alt={feature.title}
                           className="w-[200px] sm:w-[240px] rounded-[40px] shadow-xl"
                         />

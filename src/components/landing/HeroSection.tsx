@@ -1,7 +1,7 @@
 import { Sparkles } from "lucide-react";
-import phoneMockup from "../../assets/3d-phone-mockup-dark.png";
-import appStoreBadge from "../../assets/badge-app-store.png";
-import googlePlayBadge from "../../assets/badge-google-play.png";
+import phoneMockup from "../../../public/3d-phone-mockup-dark.png";
+import appStoreBadge from "../../../public/badge-app-store.png";
+import googlePlayBadge from "../../../public/badge-google-play.png";
 
 export function HeroSection() {
   return (
@@ -55,7 +55,7 @@ export function HeroSection() {
                 rel="noopener noreferrer"
                 className="transition-transform hover:scale-105 active:scale-95"
               >
-                <img src={appStoreBadge} alt="Download on the App Store" className="h-12 md:h-14 w-auto" />
+                <img src={appStoreBadge.src} alt="Download on the App Store" className="h-12 md:h-14 w-auto" />
               </a>
               <a
                 href="https://play.google.com/store/apps/details?id=io.scamly.app&hl=en"
@@ -63,7 +63,7 @@ export function HeroSection() {
                 rel="noopener noreferrer"
                 className="transition-transform hover:scale-105 active:scale-95"
               >
-                <img src={googlePlayBadge} alt="Get it on Google Play" className="h-12 md:h-14 w-auto" />
+                <img src={googlePlayBadge.src} alt="Get it on Google Play" className="h-12 md:h-14 w-auto" />
               </a>
             </div>
           </div>
@@ -74,7 +74,7 @@ export function HeroSection() {
             style={{ animationDelay: "0.5s" }}
           >
             <img
-              src={phoneMockup}
+              src={phoneMockup.src}
               alt="Scamly app showing fraud detection features on mobile phones"
               className="max-w-[500px] lg:max-w-[600px] w-full h-auto drop-shadow-2xl"
               fetchPriority="high"

@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "../contexts/AuthContext";
+import { supabase } from "../integrations/supabase/client";
+import { Button } from "../components/ui/button";
+import { Textarea } from "../components/ui/textarea";
+import { useToast } from "../hooks/use-toast";
 import { ArrowLeft, Loader2, LogOut, Send } from "lucide-react";
-import logoLight from "@/assets/navbar-logo-light.png";
+import logoLight from "../../public/navbar-logo-light.png";
 
 export default function PortalFeedback() {
   const navigate = useNavigate();
@@ -89,7 +89,7 @@ export default function PortalFeedback() {
         <div className="px-6">
           <div className="flex items-center justify-between h-14">
             <Link to="/" className="flex items-center">
-              <img src={logoLight} alt="Scamly" className="h-8 w-auto" />
+              <img src={logoLight.src} alt="Scamly" className="h-8 w-auto" />
             </Link>
             <div className="flex items-center gap-3">
               <Button variant="ghost" onClick={() => { signOut(); navigate("/"); }}>

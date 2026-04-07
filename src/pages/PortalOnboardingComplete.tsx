@@ -1,6 +1,6 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Loader2, CheckCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "../components/ui/button";
 
 export default function PortalOnboardingComplete() {
   const [searchParams] = useSearchParams();

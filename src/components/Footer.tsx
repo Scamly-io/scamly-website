@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 import { Twitter, Facebook, Instagram } from 'lucide-react';
-import logoLight from '@/assets/navbar-logo-light.png';
-import appStoreBadge from '@/assets/badge-app-store.png';
-import googlePlayBadge from '@/assets/badge-google-play.png';
+import logoLight from '../../public/navbar-logo-light.png';
+import appStoreBadge from '../../public/badge-app-store.png';
+import googlePlayBadge from '../../public/badge-google-play.png';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -29,7 +29,7 @@ export function Footer() {
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center mb-4">
               <img 
-                src={logoLight} 
+                src={logoLight.src} 
                 alt="Scamly" 
                 className="h-9 w-auto"
               />
@@ -50,10 +50,10 @@ export function Footer() {
             </div>
             <div className="flex gap-3">
               <a href="https://apps.apple.com/app/id6759246327" target="_blank" rel="noopener noreferrer">
-                <img src={appStoreBadge} alt="Download on the App Store" className="h-10 w-auto" />
+                <img src={appStoreBadge.src} alt="Download on the App Store" className="h-10 w-auto" />
               </a>
               <a href="https://play.google.com/store/apps/details?id=io.scamly.app&hl=en" target="_blank" rel="noopener noreferrer">
-                <img src={googlePlayBadge} alt="Get it on Google Play" className="h-10 w-auto" />
+                <img src={googlePlayBadge.src} alt="Get it on Google Play" className="h-10 w-auto" />
               </a>
             </div>
           </div>

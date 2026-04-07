@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Button } from "../ui/button";
 import { Check } from "lucide-react";
-import { trackPricingViewed, trackSignupStarted } from "@/lib/analytics";
-import CountUp from "@/components/CountUp";
-import Particles from "@/components/Particles";
+import { trackPricingViewed, trackSignupStarted } from "../../lib/analytics";
+import CountUp from "../CountUp";
+import Particles from "../Particles";
 
 const features = [
   "Unlimited scans",

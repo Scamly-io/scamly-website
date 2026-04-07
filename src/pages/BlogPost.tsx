@@ -1,13 +1,13 @@
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { ArrowLeft, Calendar } from "lucide-react";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
-import { Button } from "@/components/ui/button";
+import { Navbar } from "../components/Navbar";
+import { Footer } from "../components/Footer";
+import { Button } from "../components/ui/button";
 import { format } from "date-fns";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { blogPosts } from "@/constants/blog/posts";
+import { blogPosts } from "../constants/blog/posts";
 
 interface BlogPost {
   id: string;

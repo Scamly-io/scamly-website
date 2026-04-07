@@ -1,9 +1,9 @@
 import { Helmet } from "react-helmet-async";
 import { Mail, MapPin, UserX } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Navbar } from "@/components/Navbar";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Footer } from "@/components/Footer";
+import { Navbar } from "../components/Navbar";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../components/ui/accordion";
+import { Footer } from "../components/Footer";
 
 const faqs = [
   {

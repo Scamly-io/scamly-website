@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Button } from "../components/ui/button";
 import { Mail, CheckCircle } from "lucide-react";
-import authLogo from "@/assets/auth-logo.png";
-import { BackgroundBeams } from "@/components/ui/beams";
+import authLogo from "../../public/auth-logo.png";
+import { BackgroundBeams } from "../components/ui/beams";
 
 export default function CheckEmail() {
   return (
@@ -12,7 +12,7 @@ export default function CheckEmail() {
         <BackgroundBeams className="absolute inset-0" />
         <div className="relative z-10 flex flex-col justify-between p-12 text-white">
           <Link to="/" className="flex items-center">
-            <img src={authLogo} alt="Scamly" className="h-10 w-auto" />
+            <img src={authLogo.src} alt="Scamly" className="h-10 w-auto" />
           </Link>
 
           <div className="max-w-md">

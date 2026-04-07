@@ -16,8 +16,8 @@ PostHog is used for product analytics, behavioral tracking, and conversion funne
 **File:** `src/lib/analytics.ts`
 
 **Environment Variables:**
-- `VITE_POSTHOG_API_KEY` — PostHog project API key
-- `VITE_POSTHOG_HOST` — PostHog host URL (default: `https://us.i.posthog.com`)
+- `NEXT_PUBLIC_POSTHOG_API_KEY` — PostHog project API key
+- `NEXT_PUBLIC_POSTHOG_HOST` — PostHog host URL (default: `https://us.i.posthog.com`)
 
 **Initialization:**
 - PostHog is dynamically imported in `initAnalytics()` to avoid React bundling conflicts
@@ -396,7 +396,7 @@ This ensures zero event loss during app startup.
 ## Troubleshooting
 
 ### Events Not Appearing
-1. Check that `VITE_POSTHOG_API_KEY` is set in `.env`
+1. Check that `NEXT_PUBLIC_POSTHOG_API_KEY` is set in `.env`
 2. Verify `initAnalytics()` is called in `src/main.tsx`
 3. Check browser console for `[Analytics]` log messages
 4. Ensure no ad-blocker is blocking PostHog requests

@@ -24,3 +24,8 @@ dist-ssr
 *.sw?
 
 supabase/.temp
+
+# ...
+.next
+next-env.d.ts
+dist

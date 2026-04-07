@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
-import { captureError } from "@/lib/sentry";
+import { useAuth } from "../contexts/AuthContext";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { useToast } from "../hooks/use-toast";
+import { captureError } from "../lib/sentry";
 import { Lock, Eye, EyeOff, Loader2, CheckCircle } from "lucide-react";
 import { z } from "zod";
-import authLogo from "@/assets/auth-logo.png";
-import { BackgroundBeams } from "@/components/ui/beams";
+import authLogo from "../../public/auth-logo.png";
+import { BackgroundBeams } from "../components/ui/beams";
 
 const passwordSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
@@ -82,7 +82,7 @@ export default function ResetPassword() {
       <BackgroundBeams className="absolute inset-0" />
       <div className="relative z-10 flex flex-col justify-between p-12 text-white">
         <Link to="/" className="flex items-center">
-          <img src={authLogo} alt="Scamly" className="h-10 w-auto" />
+          <img src={authLogo.src} alt="Scamly" className="h-10 w-auto" />
         </Link>
         <div className="max-w-md" />
         <div className="flex items-center gap-4 text-sm text-white/60">

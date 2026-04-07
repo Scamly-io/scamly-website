@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Button } from "@/components/ui/button";
+import { Button } from "../components/ui/button";
 import { CheckCircle2, ArrowLeft } from "lucide-react";
-import logoLight from "@/assets/navbar-logo-light.png";
+import logoLight from "../../public/navbar-logo-light.png";
 
 export default function AccountDeleted() {
   return (
@@ -15,7 +15,7 @@ export default function AccountDeleted() {
         <div className="relative z-10 max-w-md w-full text-center space-y-6">
           <Link to="/" className="inline-block mb-4">
             <img
-              src={logoLight}
+              src={logoLight.src}
               alt="Scamly"
               className="h-10 w-auto mx-auto"
             />

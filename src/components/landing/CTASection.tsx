@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { BackgroundBeams } from "@/components/ui/beams";
-import { trackSignupStarted } from "@/lib/analytics";
+import { Button } from "../ui/button";
+import { BackgroundBeams } from "../ui/beams";
+import { trackSignupStarted } from "../../lib/analytics";
 
 export function CTASection() {
   return (

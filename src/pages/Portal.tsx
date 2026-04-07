@@ -1,17 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
-
-import { supabase } from "@/integrations/supabase/client";
-import { captureError } from "@/lib/sentry";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { PolicyAcceptanceModal } from "@/components/policy";
-import { usePolicyCompliance } from "@/hooks/usePolicyCompliance";
-import logoLight from "@/assets/navbar-logo-light.png";
+import { useAuth } from "../contexts/AuthContext";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { useToast } from "../hooks/use-toast";
+import { PolicyAcceptanceModal } from "../components/policy";
+import { usePolicyCompliance } from "../hooks/usePolicyCompliance";
+import logoLight from "../../public/navbar-logo-light.png";
 
 import {
   User,
@@ -21,19 +17,16 @@ import {
   Mail,
   Lock,
   Calendar,
-  MapPin,
-  Crown,
-  Check,
   ExternalLink,
   Loader2,
 } from "lucide-react";
 import { z } from "zod";
-import { countries } from "@/constants/countries";
-import { DeleteAccountSection } from "@/components/DeleteAccountSection";
+import { countries } from "../constants/countries";
+import { DeleteAccountSection } from "../components/DeleteAccountSection";
 import {
   identifyUser,
   resetUser,
-} from "@/lib/analytics";
+} from "../lib/analytics";
 
 const genders = ["Male", "Female", "Prefer not to say"];
 
@@ -279,7 +272,7 @@ export default function Portal() {
         <div className="px-6">
           <div className="flex items-center justify-between h-14">
             <Link to="/" className="flex items-center">
-              <img src={logoLight} alt="Scamly" className="h-8 w-auto" />
+              <img src={logoLight.src} alt="Scamly" className="h-8 w-auto" />
             </Link>
 
             <div className="flex items-center gap-3">

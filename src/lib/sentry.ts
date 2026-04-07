@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/react";
 
-const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
+const SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN;
 
 /**
  * Initialize Sentry for frontend error tracking and performance monitoring.
@@ -19,7 +19,8 @@ export function initSentry() {
 
   Sentry.init({
     dsn: SENTRY_DSN,
-    environment: import.meta.env.PROD ? "production" : "development",
+    environment:
+      process.env.NODE_ENV === "production" ? "production" : "development",
     
     // Performance monitoring - conservative sampling
     tracesSampleRate: 0.1,

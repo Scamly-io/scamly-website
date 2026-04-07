@@ -7,8 +7,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+} from "./ui/dialog";
+import { Button } from "./ui/button";
 
 export function CountryWhyCollected() {
   const [open, setOpen] = useState(false);

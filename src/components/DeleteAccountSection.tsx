@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/hooks/use-toast";
-import { resetUser } from "@/lib/analytics";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { supabase } from "../integrations/supabase/client";
+import { useAuth } from "../contexts/AuthContext";
+import { useToast } from "../hooks/use-toast";
+import { resetUser } from "../lib/analytics";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +13,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "./ui/dialog";
 import { AlertTriangle, Trash2, Copy, Loader2, ShieldAlert, Mail } from "lucide-react";
 
 const CONFIRMATION_TEXT = "confirm deletion";

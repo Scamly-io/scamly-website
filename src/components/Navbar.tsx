@@ -1,15 +1,14 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "./ui/button";
+import { useAuth } from "../contexts/AuthContext";
 import { Menu, X } from "lucide-react";
-import { trackSignupStarted } from "@/lib/analytics";
-import logoLight from "@/assets/navbar-logo-light.png";
+import { trackSignupStarted } from "../lib/analytics";
+import logoLight from "../../public/navbar-logo-light.png";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useAuth();
-  const location = useLocation();
 
   const navLinks = [
     { href: "/#features", label: "Features" },
@@ -24,7 +23,7 @@ export function Navbar() {
         <div className="flex items-center justify-between h-14">
           {/* Logo */}
           <Link to="/" className="flex items-center group">
-            <img src={logoLight} alt="Scamly" className="h-8 w-auto" />
+            <img src={logoLight.src} alt="Scamly" className="h-8 w-auto" />
           </Link>
 
           {/* Desktop Navigation */}

@@ -6,12 +6,12 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
+} from '../ui/dialog';
+import { Button } from '../ui/button';
+import { Checkbox } from '../ui/checkbox';
+import { Label } from '../ui/label';
 import { Loader2, FileText, Shield, ExternalLink } from 'lucide-react';
-import { PolicyType, Policy, PolicyComplianceStatus } from '@/types/policy';
+import { PolicyType, Policy, PolicyComplianceStatus } from '../../types/policy';
 
 interface PolicyAcceptanceModalProps {
   isOpen: boolean;

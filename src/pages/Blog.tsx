@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Calendar, ArrowRight } from "lucide-react";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
+import { Navbar } from "../components/Navbar";
+import { Footer } from "../components/Footer";
 import { format } from "date-fns";
-import { blogPosts } from "@/constants/blog/posts";
+import { blogPosts } from "../constants/blog/posts";
 
 interface BlogPost {
   id: string;
