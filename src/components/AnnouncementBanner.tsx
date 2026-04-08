@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AlertTriangle, Info, OctagonAlert, X } from "lucide-react";
+import { supabase } from "../integrations/supabase/client";
 import { cn } from "../lib/utils";
 
 export type AnnouncementBannerData = {
@@ -30,8 +31,58 @@ const styleConfig = {
 /** Fixed slot height avoids layout shift when the message is dismissed (matches up to 2 lines of text). */
 const SLOT_MIN_HEIGHT = "min-h-[4rem]";
 
-export function AnnouncementBanner({ data }: { data: AnnouncementBannerData | null }) {
+function normalizeRow(row: {
+  style: string | null;
+  content: string | null;
+  is_active: boolean | null;
+}): AnnouncementBannerData | null {
+  if (!row.is_active) return null;
+  const content = row.content?.trim();
+  if (!content) return null;
+  const raw = row.style?.toLowerCase().trim();
+  const style: AnnouncementBannerData["style"] =
+    raw === "warning" || raw === "error" || raw === "info" ? raw : "info";
+  return { style, content };
+}
+
+type Props = {
+  /** Fired after each fetch completes: true if an active banner is shown (including after dismiss, while the slot remains). */
+  onFetchResolved?: (hasActiveBanner: boolean) => void;
+};
+
+export function AnnouncementBanner({ onFetchResolved }: Props) {
+  const [data, setData] = useState<AnnouncementBannerData | null>(null);
   const [dismissed, setDismissed] = useState(false);
+  const onResolvedRef = useRef(onFetchResolved);
+  onResolvedRef.current = onFetchResolved;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      const { data: rows, error } = await supabase
+        .from("announcement_banner")
+        .select("style, content, is_active")
+        .eq("is_active", true)
+        .limit(1);
+
+      if (cancelled) return;
+
+      if (error || !rows?.[0]) {
+        setData(null);
+        onResolvedRef.current?.(false);
+        return;
+      }
+
+      const next = normalizeRow(rows[0]);
+      setData(next);
+      onResolvedRef.current?.(next != null);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   if (!data) return null;
 
