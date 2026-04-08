@@ -1,11 +1,19 @@
 import { Sparkles } from "lucide-react";
+import { cn } from "../../lib/utils";
 import phoneMockup from "../../../public/3d-phone-mockup-dark.png";
 import appStoreBadge from "../../../public/badge-app-store.png";
 import googlePlayBadge from "../../../public/badge-google-play.png";
 
-export function HeroSection() {
+export function HeroSection({ tightTop = false }: { tightTop?: boolean }) {
   return (
-    <section className="relative min-h-[90vh] py-28 md:py-32 lg:py-36 overflow-hidden">
+    <section
+      className={cn(
+        "relative min-h-[90vh] overflow-hidden pb-28 md:pb-32 lg:pb-36",
+        tightTop
+          ? "pt-8 md:pt-10 lg:pt-12"
+          : "pt-28 md:pt-32 lg:pt-36",
+      )}
+    >
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left side — Text content */}

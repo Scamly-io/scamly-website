@@ -1,32 +1,72 @@
-'use client'
+"use client";
 
 import { useState } from "react";
-import { AlertTriangle, X } from "lucide-react";
+import { AlertTriangle, Info, OctagonAlert, X } from "lucide-react";
+import { cn } from "../lib/utils";
 
-// Toggle this to show/hide the banner site-wide
-const BANNER_ENABLED = false;
+export type AnnouncementBannerData = {
+  style: "info" | "warning" | "error";
+  content: string;
+};
 
-const BANNER_MESSAGE =
-  "Scamly is currently unavailable on the Google Play Store. We're working to resolve this as soon as possible. We apologise for the inconvenience.";
+const styleConfig = {
+  info: {
+    wrap: "border-sky-500/25 bg-sky-500/[0.08] text-sky-950 shadow-sm dark:text-sky-100",
+    iconWrap: "text-sky-600 dark:text-sky-400",
+    Icon: Info,
+  },
+  warning: {
+    wrap: "border-amber-500/30 bg-amber-500/[0.1] text-amber-950 shadow-sm dark:text-amber-100",
+    iconWrap: "text-amber-600 dark:text-amber-400",
+    Icon: AlertTriangle,
+  },
+  error: {
+    wrap: "border-red-500/25 bg-red-500/[0.1] text-red-950 shadow-sm dark:text-red-100",
+    iconWrap: "text-red-600 dark:text-red-400",
+    Icon: OctagonAlert,
+  },
+} as const;
 
-export function AnnouncementBanner() {
+/** Fixed slot height avoids layout shift when the message is dismissed (matches up to 2 lines of text). */
+const SLOT_MIN_HEIGHT = "min-h-[4rem]";
+
+export function AnnouncementBanner({ data }: { data: AnnouncementBannerData | null }) {
   const [dismissed, setDismissed] = useState(false);
 
-  if (!BANNER_ENABLED || dismissed) return null;
+  if (!data) return null;
+
+  const cfg = styleConfig[data.style];
+  const { Icon } = cfg;
 
   return (
-    <div className="relative z-40 bg-destructive/10 border-b border-destructive/20 text-destructive-foreground">
-      <div className="container mx-auto px-4 py-2.5 flex items-center justify-center gap-3 text-sm">
-        <AlertTriangle className="w-4 h-4 text-destructive shrink-0" />
-        <p className="text-center text-foreground/90 font-medium">{BANNER_MESSAGE}</p>
-        <button
-          onClick={() => setDismissed(true)}
-          className="shrink-0 p-1 rounded-full hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-foreground"
-          aria-label="Dismiss banner"
-        >
-          <X className="w-4 h-4" />
-        </button>
-      </div>
+    <div
+      className={cn(
+        "flex items-center rounded-2xl border backdrop-blur-md px-3 py-2 sm:px-4 sm:py-2.5 box-border transition-[background-color,border-color,box-shadow]",
+        SLOT_MIN_HEIGHT,
+        dismissed
+          ? "border-transparent bg-transparent shadow-none pointer-events-none"
+          : cfg.wrap,
+      )}
+    >
+      {!dismissed ? (
+        <div className="flex w-full items-center justify-center gap-2 sm:gap-3 text-sm">
+          <Icon className={cn("h-4 w-4 shrink-0 self-start mt-0.5", cfg.iconWrap)} aria-hidden />
+          <p className="min-w-0 flex-1 text-center text-pretty font-medium leading-snug line-clamp-2 [text-wrap:balance]">
+            {data.content}
+          </p>
+          <button
+            type="button"
+            onClick={() => setDismissed(true)}
+            className={cn(
+              "shrink-0 self-start rounded-full p-1 transition-colors -mr-0.5 mt-0.5",
+              "text-current/60 hover:text-current hover:bg-black/5",
+            )}
+            aria-label="Dismiss announcement"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }
