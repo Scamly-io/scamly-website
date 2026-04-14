@@ -185,7 +185,9 @@ async function formatPrompt(supabase: any, userId: string): Promise<string> {
     14. Weight factors appropriately: Contact details/links (highest), urgency/content/message history (medium), grammar/platform (low).
     15. Consider whether the request in the screenshot matches standard process (banks will never ask someone for login details as an example).
     16. Do not use factors such as a recipients name to determine the legitimacy of the message. For example, a european sounding name receiving a message from a chinese bank is not something that can be considered in the assessment.
-  
+    17. If a user provides a screenshot of a marketplace listing (facebook marketplace, ebay, craigs list, gumtree, etc), your analysis should be based on the listing, focusing on factors like the price and location to determine if the listing is plausable. For example, a car that may typically sell for $30,000 being listed as $15,000 is suspicious. It is unlikely that you will ever be able to set the risk level for this type of scam to high, so it should be set to medium for something that you think may be a scam, or low for something that you think is plausable.
+    18. If a user provides a screenshot of a conversation with a seller/buyer on a marketplace platform, then guideline 17 should NOT be the main method of legitimacy assessment. You can still consider the price of the listing and the item being sold if it is visible, however your primary assessment should be done using the other guidelines.
+
     It is possible that a user may provide an image that is in another language. This can still be analysed, but the response MUST be returned in english.
 
     ${profile.country ? `The user you are analysing is located in ${profile.country}. Use this for context when determining the legitimacy of the content. For example, if a user gets a message from a company in America, and they live in Australia, this adds to suspicion (but is not a guarantee of a scam, other factors must still be considered).` : ""}
@@ -477,7 +479,7 @@ serve(async (req) => {
 
       // OpenAI response
       const response = await openai.responses.create({
-        model: "gpt-5-mini",
+        model: "gpt-5.4-mini",
         tools: [{ type: "web_search"}],
         reasoning: { effort: "low" },
         instructions: systemPrompt,

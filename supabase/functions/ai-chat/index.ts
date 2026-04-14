@@ -606,7 +606,7 @@ async function handleGenerateResponse(
   // Generate AI response
   try {
     const response = await openai.responses.create({
-      model: "gpt-5-mini",
+      model: "gpt-5.4-mini",
       tools: [{ type: "web_search"}],
       input: [{ "role": "user", "content": content }],
       conversation: conversationId,
