@@ -23,6 +23,7 @@ declare global {
 // ---------------------------------------------------------------------------
 
 let analyticsInitialised = false;
+let consentListenerRegistered = false;
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -89,6 +90,19 @@ function maybeInitAnalytics(consent: Record<string, string>): void {
  * 2. Registers a listener for future consent updates from CookieYes.
  */
 export function setupConsentListener(): void {
+  // Next.js can execute imported modules on the server.
+  // Guard browser-only APIs to avoid "window/document is not defined".
+  if (typeof window === "undefined" || typeof document === "undefined") {
+    return;
+  }
+
+  // Avoid duplicate listeners when called more than once (e.g. during remounts).
+  if (consentListenerRegistered) {
+    return;
+  }
+
+  consentListenerRegistered = true;
+
   // 1. Check existing cookie (returning visitor who already consented)
   const existing = parseCookieYesConsent();
   if (Object.keys(existing).length > 0) {
@@ -98,7 +112,11 @@ export function setupConsentListener(): void {
 
   // 2. Listen for live consent updates (banner interaction)
   document.addEventListener("cookieyes_consent_update", (event) => {
-    const detail: Record<string, string> = (event as CustomEvent).detail || {};
+    const detailRaw = (event as CustomEvent<Record<string, string> | undefined>)
+      .detail;
+    const detail =
+      detailRaw && typeof detailRaw === "object" ? detailRaw : {};
+
     console.log("[Consent] cookieyes_consent_update received", detail);
 
     pushConsentToDataLayer(detail);
