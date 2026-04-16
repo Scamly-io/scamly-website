@@ -271,33 +271,33 @@ const META_API_VERSION = "v25.0";
 interface MetaCapiEventData {
   eventName: "Purchase" | "StartTrial";
   eventId: string;
-  actionSource: "app" | "system_generated";
+  actionSource: "app" | "system_generated" | "website";
   value?: number,
   originalEventData?: Record<string, unknown>,
-  contents: Record<string, unknown>,
+  contents: Record<string, unknown>[],
   contentType: "product",
-  customerSegmentation: "new_customer_to_business" | "existing_customer_to_business",
   em: string,
   country: string,
-  externalId: string,
-  ipAddress: string,
+  external_id: string,
+  client_ip_address: string,
   fbp?: string,
   fbc?: string,
-  userAgent?: string,
+  client_user_agent?: string,
 }
 
 interface MetaCapiUserData {
   em: string;
   country: string;
-  externalId: string;
-  ipAddress: string;
+  external_id: string;
+  client_ip_address: string;
   fbp?: string;
   fbc?: string;
-  userAgent?: string;
+  client_user_agent?: string;
 }
 
 interface MetaCapiCustomData {
-  customerSegmentation: "new_customer_to_business" | "existing_customer_to_business";
+  contents: Record<string, unknown>[];
+  content_type: "product";
   value?: number;
   currency?: "USD";
 }
@@ -306,7 +306,7 @@ interface MetaCapiCustomData {
  * Send an event to Meta Conversions API.
  * @param p - The event data of type MetaCapiEventData
  */
-const sendMetaConversionEvent = async (p: MetaCapiEventData) => {
+const sendMetaConversionEvent = async (p: MetaCapiEventData, testEvent: boolean = false) => {
   const metaToken = Deno.env.get("META_CONVERSIONS_API_TOKEN");
   if (!metaToken) {
     logWarn("META_CONVERSIONS_API_TOKEN not set, skipping Meta CAPI event");
@@ -319,26 +319,27 @@ const sendMetaConversionEvent = async (p: MetaCapiEventData) => {
     const [emHash, countryHash, externalIdHash] = await Promise.all([
       hashString(p.em),
       hashString(p.country),
-      hashString(p.externalId),
+      hashString(p.external_id),
     ]);
 
     const optFbp = nonEmptyString(p.fbp);
     const optFbc = nonEmptyString(p.fbc);
-    const optUa = nonEmptyString(p.userAgent);
+    const optUa = nonEmptyString(p.client_user_agent);
 
     const userData: MetaCapiUserData = {
       em: emHash,
       country: countryHash,
-      externalId: externalIdHash,
-      ipAddress: p.ipAddress,
+      external_id: externalIdHash,
+      client_ip_address: p.client_ip_address,
       ...(optFbp !== undefined && { fbp: optFbp }),
       ...(optFbc !== undefined && { fbc: optFbc }),
-      ...(optUa !== undefined && { userAgent: optUa }),
+      ...(optUa !== undefined && { client_user_agent: optUa }),
     };
 
     const customData: MetaCapiCustomData = {
-      customerSegmentation: p.customerSegmentation,
-      ...(p.value && { value: p.value, currency: "USD" }),
+      contents: p.contents,
+      content_type: p.contentType,
+      ...(p.value !== undefined && { value: p.value, currency: "USD" }),
     };
 
     const eventData: Record<string, unknown> = {
@@ -351,11 +352,16 @@ const sendMetaConversionEvent = async (p: MetaCapiEventData) => {
       ...(p.originalEventData !== undefined && {
         original_event_data: p.originalEventData,
       }),
-      ...(p.contents !== undefined && { contents: p.contents }),
-      content_type: p.contentType,
     };
 
-    const payload = { data: [eventData] };
+    let payload: Record<string, unknown>
+
+    if (testEvent) {
+      payload = { data: [eventData], test_event_code: "TEST8296" };
+    } else {
+      payload = { data: [eventData] };
+    }
+    console.log("META payload", payload);
 
     const url = `https://graph.facebook.com/${META_API_VERSION}/${META_PIXEL_ID}/events?access_token=${metaToken}`;
 
@@ -364,6 +370,9 @@ const sendMetaConversionEvent = async (p: MetaCapiEventData) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
+
+    const result = await response.json()
+    console.log("META response", result);
 
     if (!response.ok) {
       const errorBody = await response.text();
@@ -384,8 +393,7 @@ const PRODUCT_TO_PLAN: Record<string, string> = {
   scamly_premium_yearly: "premium-yearly",
 };
 
-function mapProductToPlan(productId: string | null): string {
-  if (!productId) return "free";
+function mapProductToPlan(productId: string): string {
   return PRODUCT_TO_PLAN[productId] || "premium-monthly";
 }
 
@@ -432,11 +440,42 @@ serve(async (req) => {
     const eventTime: number = event.event_timestamp_ms || Date.now()
     const eventId: string = event.id || `${eventType}_${Date.now()}`;
     const appUserId: string = event.app_user_id || event.original_app_user_id || "";
-    const productId: string | null = event.product_id || null;
+    const productId: string = event.product_id;
     const store: string | null = mapStore(event.store);
     const expirationAtMs: number | null = event.expiration_at_ms || null;
     const periodType: string | null = event.period_type || null;
-    const country: string = event.country
+    const country: string = event.country_code
+
+    // ── RevenueCat TEST event handling ───────────────────────────────────────
+    // RevenueCat can send `type: "TEST"` from the dashboard to validate a webhook
+    // endpoint. This event should always return a success response.
+    if (eventType === "TEST") {
+      logStep("Processing RevenueCat TEST event");
+
+      const forwardedFor = nonEmptyString(req.headers.get("x-forwarded-for"));
+      const ipAddress = (forwardedFor?.split(",")[0]?.trim()) || "127.0.0.1";
+      const userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36"
+      const testEvent = true;
+
+      await sendMetaConversionEvent({
+        eventName: "Purchase",
+        eventId,
+        actionSource: "website",
+        value: 4.99,
+        country: nonEmptyString(country) || "us",
+        em: event.subscriber_attributes?.$email?.value || "admin@scamly.io",
+        external_id: event.app_user_id || event.original_app_user_id || "",
+        client_ip_address: ipAddress,
+        client_user_agent: userAgent,
+        contents: [{ id: "revenuecat_test", quantity: 1 }],
+        contentType: "product",
+      }, testEvent);
+
+      return new Response(JSON.stringify({ received: true, test: true }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     if (!appUserId) {
       logError("No app_user_id in event", { event });
@@ -549,21 +588,20 @@ serve(async (req) => {
           const eventData: MetaCapiEventData = {
             eventName: isTrial ? "StartTrial" : "Purchase",
             eventId,
-            actionSource: "app",
+            actionSource: "website",
             value: price,
-            customerSegmentation: "new_customer_to_business",
             country,
             em: profileData.em,
-            externalId: appUserId,
-            ipAddress: profileData.ipAddress,
+            external_id: appUserId,
+            client_ip_address: profileData.ipAddress,
             ...(profileData.fbp !== undefined && { fbp: profileData.fbp }),
             ...(profileData.fbc !== undefined && { fbc: profileData.fbc }),
-            ...(profileData.userAgent !== undefined && { userAgent: profileData.userAgent }),
-            contents: {
+            ...(profileData.userAgent !== undefined && { client_user_agent: profileData.userAgent }),
+            contents: [{
               id: plan,
               quantity: 1,
-              item_price: price 
-            },
+              ...(price !== undefined && { item_price: price }),
+            }],
             contentType: "product",
           };
           await sendMetaConversionEvent(eventData);
@@ -620,16 +658,15 @@ serve(async (req) => {
           const eventData: MetaCapiEventData = {
             eventName: "Purchase",
             eventId,
-            actionSource: "app",
-            customerSegmentation: "existing_customer_to_business",
+            actionSource: "system_generated",
             country,
             value: price,
             em: profileData.em,
-            externalId: appUserId,
-            ipAddress: profileData.ipAddress,
+            external_id: appUserId,
+            client_ip_address: profileData.ipAddress,
             ...(profileData.fbp !== undefined && { fbp: profileData.fbp }),
             ...(profileData.fbc !== undefined && { fbc: profileData.fbc }),
-            ...(profileData.userAgent !== undefined && { userAgent: profileData.userAgent }),
+            ...(profileData.userAgent !== undefined && { client_user_agent: profileData.userAgent }),
             ...(originalEventResult.data && {
               originalEventData: {
                 event_id: originalEventResult.data.event_id,
@@ -637,11 +674,11 @@ serve(async (req) => {
                 event_time: originalEventResult.data.event_time,
               },
             }),
-            contents: {
+            contents: [{
               id: plan,
               quantity: 1,
-              item_price: price 
-            },
+              ...(price !== undefined && { item_price: price }),
+            }],
             contentType: "product",
           };
           await sendMetaConversionEvent(eventData);
