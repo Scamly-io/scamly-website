@@ -18,7 +18,7 @@ begin
     referral_source,
     onboarding_completed,
     fbp,
-    fbq,
+    fbc,
     ip_address,
     user_agent
   )
@@ -34,7 +34,7 @@ begin
       false
     ),
     new.raw_user_meta_data ->> 'fbp',
-    new.raw_user_meta_data ->> 'fbq',
+    new.raw_user_meta_data ->> 'fbc',
     new.raw_user_meta_data ->> 'ip_address',
     new.raw_user_meta_data ->> 'user_agent'
   );

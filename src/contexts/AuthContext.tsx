@@ -5,6 +5,7 @@ import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "../integrations/supabase/client";
 import { Profile } from "../types/profile";
 import { captureError } from "../lib/sentry";
+import { getBrowserMetadata } from "../lib/browser-metadata";
 
 interface AuthContextType {
   user: User | null;
@@ -67,12 +68,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (!error && data) {
       setProfile(data as Profile);
-      
-      // Backfill user_agent if missing
-      if (!data.user_agent) {
-        const ua = navigator.userAgent;
-        if (ua) {
-          supabase.from("profiles").update({ user_agent: ua }).eq("id", userId).then();
+
+      const isMissingFbp = data.fbp === null;
+      const isMissingFbc = data.fbc === null;
+      const isMissingIpAddress = data.ip_address === null;
+      const isMissingUserAgent = data.user_agent === null;
+      const hasMissingBrowserMetadata =
+        isMissingFbp || isMissingFbc || isMissingIpAddress || isMissingUserAgent;
+
+      // On sign in, only backfill null browser metadata fields.
+      if (hasMissingBrowserMetadata) {
+        const metadata = await getBrowserMetadata({
+          includeFbp: isMissingFbp,
+          includeFbc: isMissingFbc,
+          includeIpAddress: isMissingIpAddress,
+          includeUserAgent: isMissingUserAgent,
+        });
+
+        const metadataUpdate: Partial<Profile> = {
+          ...(isMissingFbp && metadata.fbp !== undefined && { fbp: metadata.fbp }),
+          ...(isMissingFbc && metadata.fbc !== undefined && { fbc: metadata.fbc }),
+          ...(isMissingIpAddress && metadata.ip_address !== undefined && { ip_address: metadata.ip_address }),
+          ...(isMissingUserAgent && metadata.user_agent !== undefined && { user_agent: metadata.user_agent }),
+        };
+
+        if (Object.keys(metadataUpdate).length > 0) {
+          await supabase.from("profiles").update(metadataUpdate).eq("id", userId);
         }
       }
 
@@ -144,7 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             referral_source: profileData.referral_source,
             onboarding_completed: true,
             fbp: profileData.fbp,
-            fbq: profileData.fbq,
+            fbc: profileData.fbc,
             ip_address: profileData.ip_address,
             user_agent: profileData.user_agent,
           },

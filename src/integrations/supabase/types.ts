@@ -462,7 +462,7 @@ export type Database = {
           data_sharing_consent: boolean
           dob: string | null
           fbp: string | null
-          fbq: string | null
+          fbc: string | null
           first_name: string | null
           gender: string | null
           id: string
@@ -488,7 +488,7 @@ export type Database = {
           data_sharing_consent?: boolean
           dob?: string | null
           fbp?: string | null
-          fbq?: string | null
+          fbc?: string | null
           first_name?: string | null
           gender?: string | null
           id: string
@@ -514,7 +514,7 @@ export type Database = {
           data_sharing_consent?: boolean
           dob?: string | null
           fbp?: string | null
-          fbq?: string | null
+          fbc?: string | null
           first_name?: string | null
           gender?: string | null
           id?: string

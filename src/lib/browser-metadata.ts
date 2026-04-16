@@ -21,24 +21,38 @@ async function getPublicIP(): Promise<string | null> {
 
 export interface BrowserMetadata {
   fbp?: string;
-  fbq?: string;
+  fbc?: string;
   ip_address?: string;
   user_agent?: string;
+}
+
+export interface BrowserMetadataOptions {
+  includeFbp?: boolean;
+  includeFbc?: boolean;
+  includeIpAddress?: boolean;
+  includeUserAgent?: boolean;
 }
 
 /**
  * Gathers optional browser metadata: Meta pixel cookies, public IP, and user agent.
  * Safe to call in any context — returns only the fields that are available.
  */
-export async function getBrowserMetadata(): Promise<BrowserMetadata> {
-  const fbp = getCookie("_fbp");
-  const fbq = getCookie("_fbq");
-  const ip_address = await getPublicIP();
-  const user_agent = navigator.userAgent;
+export async function getBrowserMetadata(options: BrowserMetadataOptions = {}): Promise<BrowserMetadata> {
+  const {
+    includeFbp = true,
+    includeFbc = true,
+    includeIpAddress = true,
+    includeUserAgent = true,
+  } = options;
+
+  const fbp = includeFbp ? getCookie("_fbp") : null;
+  const fbc = includeFbc ? getCookie("_fbc") : null;
+  const ip_address = includeIpAddress ? await getPublicIP() : null;
+  const user_agent = includeUserAgent ? navigator.userAgent : null;
 
   const metadata: BrowserMetadata = {};
   if (fbp) metadata.fbp = fbp;
-  if (fbq) metadata.fbq = fbq;
+  if (fbc) metadata.fbc = fbc;
   if (ip_address) metadata.ip_address = ip_address;
   if (user_agent) metadata.user_agent = user_agent;
 

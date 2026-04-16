@@ -20,7 +20,7 @@ export interface Profile {
   data_sharing_consent: boolean;
   review_prompted: boolean | null;
   fbp: string | null;
-  fbq: string | null;
+  fbc: string | null;
   ip_address: string | null;
   user_agent: string | null;
 }

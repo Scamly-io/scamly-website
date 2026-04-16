@@ -169,7 +169,7 @@ interface ProfileDataForCapiEvent {
   em: string;
   ipAddress: string;
   fbp?: string;
-  fbq?: string;
+  fbc?: string;
   userAgent?: string;
 }
 
@@ -229,7 +229,7 @@ async function getProfileDataForCapiEvent(
 ): Promise<ProfileDataForCapiEvent | null> {
   const { data: profileData, error: profileError } = await supabaseAdmin
     .from("profiles")
-    .select("ip_address, fbp, fbq, user_agent")
+    .select("ip_address, fbp, fbc, user_agent")
     .eq("id", appUserId)
     .maybeSingle();
 
@@ -252,10 +252,10 @@ async function getProfileDataForCapiEvent(
 
   const out: ProfileDataForCapiEvent = { em, ipAddress };
   const fbp = nonEmptyString(profileData?.fbp);
-  const fbq = nonEmptyString(profileData?.fbq);
+  const fbc = nonEmptyString(profileData?.fbc);
   const userAgent = nonEmptyString(profileData?.user_agent);
   if (fbp) out.fbp = fbp;
-  if (fbq) out.fbq = fbq;
+  if (fbc) out.fbc = fbc;
   if (userAgent) out.userAgent = userAgent;
 
   return out;
@@ -282,7 +282,7 @@ interface MetaCapiEventData {
   externalId: string,
   ipAddress: string,
   fbp?: string,
-  fbq?: string,
+  fbc?: string,
   userAgent?: string,
 }
 
@@ -292,7 +292,7 @@ interface MetaCapiUserData {
   externalId: string;
   ipAddress: string;
   fbp?: string;
-  fbq?: string;
+  fbc?: string;
   userAgent?: string;
 }
 
@@ -323,7 +323,7 @@ const sendMetaConversionEvent = async (p: MetaCapiEventData) => {
     ]);
 
     const optFbp = nonEmptyString(p.fbp);
-    const optFbq = nonEmptyString(p.fbq);
+    const optFbc = nonEmptyString(p.fbc);
     const optUa = nonEmptyString(p.userAgent);
 
     const userData: MetaCapiUserData = {
@@ -332,7 +332,7 @@ const sendMetaConversionEvent = async (p: MetaCapiEventData) => {
       externalId: externalIdHash,
       ipAddress: p.ipAddress,
       ...(optFbp !== undefined && { fbp: optFbp }),
-      ...(optFbq !== undefined && { fbq: optFbq }),
+      ...(optFbc !== undefined && { fbc: optFbc }),
       ...(optUa !== undefined && { userAgent: optUa }),
     };
 
@@ -557,7 +557,7 @@ serve(async (req) => {
             externalId: appUserId,
             ipAddress: profileData.ipAddress,
             ...(profileData.fbp !== undefined && { fbp: profileData.fbp }),
-            ...(profileData.fbq !== undefined && { fbq: profileData.fbq }),
+            ...(profileData.fbc !== undefined && { fbc: profileData.fbc }),
             ...(profileData.userAgent !== undefined && { userAgent: profileData.userAgent }),
             contents: {
               id: plan,
@@ -628,7 +628,7 @@ serve(async (req) => {
             externalId: appUserId,
             ipAddress: profileData.ipAddress,
             ...(profileData.fbp !== undefined && { fbp: profileData.fbp }),
-            ...(profileData.fbq !== undefined && { fbq: profileData.fbq }),
+            ...(profileData.fbc !== undefined && { fbc: profileData.fbc }),
             ...(profileData.userAgent !== undefined && { userAgent: profileData.userAgent }),
             ...(originalEventResult.data && {
               originalEventData: {
