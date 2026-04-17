@@ -303,36 +303,42 @@ export type Database = {
           },
         ]
       }
-      initial_meta_capi_events: {
+      meta_capi_events: {
         Row: {
           created_at: string
+          error_message: string | null
           event_id: string
           event_name: string
           event_time: number
           id: string
+          meta_response: Json | null
           user_id: string
         }
         Insert: {
           created_at?: string
+          error_message?: string | null
           event_id: string
           event_name: string
           event_time: number
           id?: string
+          meta_response?: Json | null
           user_id: string
         }
         Update: {
           created_at?: string
+          error_message?: string | null
           event_id?: string
           event_name?: string
           event_time?: number
           id?: string
+          meta_response?: Json | null
           user_id?: string
         }
         Relationships: [
           {
             foreignKeyName: "initial_meta_capi_event_user_id_fkey"
             columns: ["user_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },

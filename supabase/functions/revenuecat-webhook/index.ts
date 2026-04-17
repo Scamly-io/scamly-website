@@ -273,7 +273,6 @@ interface MetaCapiEventData {
   eventId: string;
   actionSource: "app" | "system_generated" | "website";
   value?: number,
-  originalEventData?: Record<string, unknown>,
   contents: Record<string, unknown>[],
   contentType: "product",
   em: string,
@@ -302,20 +301,81 @@ interface MetaCapiCustomData {
   currency?: "USD";
 }
 
+interface MetaCapiSendResult {
+  eventTime: number;
+  metaResponse: unknown | null;
+  errorMessage: string | null;
+}
+
+interface PersistMetaCapiEventParams {
+  userId: string;
+  eventId: string;
+  eventName: "Purchase" | "StartTrial";
+  eventTime: number;
+  metaResponse: unknown | null;
+  errorMessage: string | null;
+}
+
+const persistMetaCapiEvent = async (
+  supabaseAdmin: any,
+  params: PersistMetaCapiEventParams,
+) => {
+  const { error } = await supabaseAdmin.from("meta_capi_events").insert({
+    user_id: params.userId,
+    event_id: params.eventId,
+    event_name: params.eventName,
+    event_time: params.eventTime,
+    meta_response: params.metaResponse,
+    error_message: params.errorMessage,
+  });
+
+  if (error) {
+    logError("Failed to persist meta capi event", {
+      error,
+      userId: params.userId,
+      eventId: params.eventId,
+      eventName: params.eventName,
+    });
+    captureError(error, {
+      step: "persist-meta-capi-event",
+      userId: params.userId,
+      eventId: params.eventId,
+      eventName: params.eventName,
+    });
+  }
+};
+
 /**
  * Send an event to Meta Conversions API.
  * @param p - The event data of type MetaCapiEventData
  */
-const sendMetaConversionEvent = async (p: MetaCapiEventData, testEvent: boolean = false) => {
+const sendMetaConversionEvent = async (
+  supabaseAdmin: any,
+  userId: string | null,
+  p: MetaCapiEventData,
+  testEvent: boolean = false,
+): Promise<MetaCapiSendResult> => {
+  const eventTime = Math.floor(Date.now() / 1000);
+  let metaResponse: unknown | null = null;
+  let errorMessage: string | null = null;
   const metaToken = Deno.env.get("META_CONVERSIONS_API_TOKEN");
   if (!metaToken) {
     logWarn("META_CONVERSIONS_API_TOKEN not set, skipping Meta CAPI event");
-    return;
+    errorMessage = "META_CONVERSIONS_API_TOKEN not set";
+    if (userId && !testEvent) {
+      await persistMetaCapiEvent(supabaseAdmin, {
+        userId,
+        eventId: p.eventId,
+        eventName: p.eventName,
+        eventTime,
+        metaResponse,
+        errorMessage,
+      });
+    }
+    return { eventTime, metaResponse, errorMessage };
   }
 
   try {
-    const eventTime = Math.floor(Date.now() / 1000);
-
     const [emHash, countryHash, externalIdHash] = await Promise.all([
       hashString(p.em),
       hashString(p.country),
@@ -349,9 +409,6 @@ const sendMetaConversionEvent = async (p: MetaCapiEventData, testEvent: boolean 
       action_source: p.actionSource,
       user_data: userData,
       custom_data: customData,
-      ...(p.originalEventData !== undefined && {
-        original_event_data: p.originalEventData,
-      }),
     };
 
     let payload: Record<string, unknown>
@@ -371,19 +428,43 @@ const sendMetaConversionEvent = async (p: MetaCapiEventData, testEvent: boolean 
       body: JSON.stringify(payload),
     });
 
-    const result = await response.json()
-    console.log("META response", result);
-
+    metaResponse = await response.json();
+    console.log("META response", metaResponse);
     if (!response.ok) {
-      const errorBody = await response.text();
-      throw new Error(`Meta CAPI responded with ${response.status}: ${errorBody}`);
+      errorMessage = `Meta CAPI responded with ${response.status}: ${JSON.stringify(metaResponse)}`;
+      logWarn("Meta CAPI returned non-2xx response", {
+        eventName: p.eventName,
+        eventId: p.eventId,
+        status: response.status,
+        metaResponse,
+      });
+      captureError(new Error(errorMessage), {
+        step: "meta-capi-event-non-2xx",
+        eventName: p.eventName,
+        eventId: p.eventId,
+        status: response.status,
+        metaResponse,
+      });
     }
-
   } catch (error) {
+    errorMessage = error instanceof Error ? error.message : String(error);
     logWarn("Failed to send Meta CAPI event", { error, eventName: p.eventName, eventId: p.eventId });
     captureError(error, { step: "meta-capi-event-failed", eventName: p.eventName, eventId: p.eventId });
     // Don't throw – tracking failure should not break the webhook
   }
+
+  if (userId && !testEvent) {
+    await persistMetaCapiEvent(supabaseAdmin, {
+      userId,
+      eventId: p.eventId,
+      eventName: p.eventName,
+      eventTime,
+      metaResponse,
+      errorMessage,
+    });
+  }
+
+  return { eventTime, metaResponse, errorMessage };
 };
 
 // ── Product ID mapping ───────────────────────────────────────────────────────
@@ -437,7 +518,6 @@ serve(async (req) => {
     }
 
     const eventType: string = event.type;
-    const eventTime: number = event.event_timestamp_ms || Date.now()
     const eventId: string = event.id || `${eventType}_${Date.now()}`;
     const appUserId: string = event.app_user_id || event.original_app_user_id || "";
     const productId: string = event.product_id;
@@ -445,6 +525,13 @@ serve(async (req) => {
     const expirationAtMs: number | null = event.expiration_at_ms || null;
     const periodType: string | null = event.period_type || null;
     const country: string = event.country_code
+
+    // ── Supabase admin client ────────────────────────────────────────────
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } },
+    );
 
     // ── RevenueCat TEST event handling ───────────────────────────────────────
     // RevenueCat can send `type: "TEST"` from the dashboard to validate a webhook
@@ -457,7 +544,7 @@ serve(async (req) => {
       const userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36"
       const testEvent = true;
 
-      await sendMetaConversionEvent({
+      await sendMetaConversionEvent(supabaseAdmin, null, {
         eventName: "Purchase",
         eventId,
         actionSource: "website",
@@ -488,13 +575,6 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
-    // ── Supabase admin client ────────────────────────────────────────────
-    const supabaseAdmin = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { auth: { persistSession: false } },
-    );
 
     // ── Idempotency check ────────────────────────────────────────────────
     const isDuplicate = await checkDuplicateEvent(supabaseAdmin, eventId);
@@ -564,26 +644,21 @@ serve(async (req) => {
           });
         }
 
-        const { error: capiError } = await supabaseAdmin
-          .from("initial_meta_capi_events")
-          .insert({
-            user_id: appUserId,
-            event_id: eventId,
-            event_name: isTrial ? "StartTrial" : "Purchase",
-            event_time: eventTime,
-          })
-
-        if (capiError) {
-          logError("Failed to insert initial meta capi event for INITIAL_PURCHASE", { capiError, appUserId });
-          captureError(capiError, { step: "initial-purchase-insert-meta-capi-event", appUserId });
-        }
-
         const profileData = await getProfileDataForCapiEvent(supabaseAdmin, appUserId);
         const price = event.price ? parseFloat(String(event.price)) : undefined;
 
         if (!profileData) {
           logError("Failed to get profile data for INITIAL_PURCHASE", { appUserId });
-          captureError(new Error("Failed to get profile data for INITIAL_PURCHASE, Skipping Meta CAPI event"), { step: "initial-purchase-get-profile-data", appUserId });
+          const errorMessage = "Failed to get profile data for INITIAL_PURCHASE, skipping Meta CAPI event";
+          captureError(new Error(errorMessage), { step: "initial-purchase-get-profile-data", appUserId });
+          await persistMetaCapiEvent(supabaseAdmin, {
+            userId: appUserId,
+            eventId,
+            eventName: isTrial ? "StartTrial" : "Purchase",
+            eventTime: Math.floor(Date.now() / 1000),
+            metaResponse: null,
+            errorMessage,
+          });
         } else {
           const eventData: MetaCapiEventData = {
             eventName: isTrial ? "StartTrial" : "Purchase",
@@ -604,7 +679,7 @@ serve(async (req) => {
             }],
             contentType: "product",
           };
-          await sendMetaConversionEvent(eventData);
+          await sendMetaConversionEvent(supabaseAdmin, appUserId, eventData);
         }
         break;
       }
@@ -644,16 +719,18 @@ serve(async (req) => {
         const profileData = await getProfileDataForCapiEvent(supabaseAdmin, appUserId);
         const price = event.price ? parseFloat(String(event.price)) : undefined;
 
-        const originalEventResult = await supabaseAdmin
-          .from("initial_meta_capi_events")
-          .select("event_id, event_name, event_time")
-          .eq("user_id", appUserId)
-          .limit(1)
-          .single();
-
         if (!profileData) {
           logError("Failed to get profile data for RENEWAL", { appUserId });
-          captureError(new Error("Failed to get profile data for RENEWAL, Skipping Meta CAPI event"), { step: "renewal-get-profile-data", appUserId });
+          const errorMessage = "Failed to get profile data for RENEWAL, skipping Meta CAPI event";
+          captureError(new Error(errorMessage), { step: "renewal-get-profile-data", appUserId });
+          await persistMetaCapiEvent(supabaseAdmin, {
+            userId: appUserId,
+            eventId,
+            eventName: "Purchase",
+            eventTime: Math.floor(Date.now() / 1000),
+            metaResponse: null,
+            errorMessage,
+          });
         } else {
           const eventData: MetaCapiEventData = {
             eventName: "Purchase",
@@ -667,13 +744,6 @@ serve(async (req) => {
             ...(profileData.fbp !== undefined && { fbp: profileData.fbp }),
             ...(profileData.fbc !== undefined && { fbc: profileData.fbc }),
             ...(profileData.userAgent !== undefined && { client_user_agent: profileData.userAgent }),
-            ...(originalEventResult.data && {
-              originalEventData: {
-                event_id: originalEventResult.data.event_id,
-                event_name: originalEventResult.data.event_name,
-                event_time: originalEventResult.data.event_time,
-              },
-            }),
             contents: [{
               id: plan,
               quantity: 1,
@@ -681,7 +751,7 @@ serve(async (req) => {
             }],
             contentType: "product",
           };
-          await sendMetaConversionEvent(eventData);
+          await sendMetaConversionEvent(supabaseAdmin, appUserId, eventData);
         }
         break;
       }
