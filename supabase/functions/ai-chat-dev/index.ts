@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import OpenAI from "https://esm.sh/openai@6.16";
+import OpenAI from "https://esm.sh/openai";
 import { Redis } from "https://esm.sh/@upstash/redis";
 import { Ratelimit } from "https://esm.sh/@upstash/ratelimit@latest";
 
@@ -13,9 +13,12 @@ const corsHeaders = {
 
 const streamHeaders = (conversationId: string) => ({
   ...corsHeaders,
+  // text/event-stream is not buffered by Cloudflare (which sits in front of Supabase Edge).
+  // text/plain responses are buffered until stream close and arrive all at once on the client.
   "Content-Type": "text/event-stream",
   "Cache-Control": "no-cache",
-  Connection: "keep-alive",
+  "Connection": "keep-alive",
+  "X-Accel-Buffering": "no",
   "X-Conversation-Id": conversationId,
 });
 
@@ -433,8 +436,9 @@ async function handleCreateConversationId(
 
 /**
  * Unified send: persists the user message, streams the assistant reply as raw UTF-8 chunks
- * (readable as `text/event-stream` without SSE `data:` framing), and exposes the OpenAI
- * conversation id in `X-Conversation-Id` before the body.
+ * (`text/plain; charset=utf-8`, no SSE `data:` framing), and exposes the OpenAI conversation
+ * id in `X-Conversation-Id` before the body. The mobile client reads chunks via XHR
+ * `onprogress` since React Native's `fetch` does not expose `Response.body` as a stream.
  *
  * If `conversationId` is null/empty, calls `openai.conversations.create()`, saves the id on
  * `chats`, then streams with that conversation. Otherwise uses the provided id as-is.
@@ -593,15 +597,15 @@ async function handleSendMessage(
   let openaiStream: AsyncIterable<unknown>;
   try {
     openaiStream = (await openai.responses.create({
-      model: "gpt-5.4-mini",
+      model: "gpt-5.5",
       stream: true,
       store: true,
       tools: [{ type: "web_search" }],
       input: [{ role: "user", content: message }],
       conversation: effectiveConversationId,
       instructions: systemPrompt,
-      reasoning: { effort: "low" },
-      max_output_tokens: 700,
+      reasoning: { effort: "none" },
+      max_output_tokens: 1000,
     })) as AsyncIterable<unknown>;
   } catch (error) {
     console.error("Error starting OpenAI stream:", error);
@@ -626,7 +630,9 @@ async function handleSendMessage(
               const d = extractOutputTextDelta(event);
               if (d) {
                 fullText += d;
-                controller.enqueue(encoder.encode(d));
+                // SSE frame: each token delta is JSON-stringified so newlines inside
+                // deltas don't break the `data:` line, then terminated with \n\n.
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify(d)}\n\n`));
               }
             }
           } catch (error) {
