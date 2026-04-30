@@ -73,6 +73,38 @@ function extractOutputTextDelta(ev: unknown): string | undefined {
   return typeof d === "string" ? d : undefined;
 }
 
+/** Optional string array from body; absent or invalid shapes yield []. */
+function parseImageIds(body: Record<string, unknown>): string[] {
+  const raw = body.imageIds;
+  if (raw === undefined || raw === null) return [];
+  if (!Array.isArray(raw)) return [];
+  return raw.filter((item): item is string => typeof item === "string" && item.trim().length > 0).map((s) =>
+    s.trim()
+  );
+}
+
+/** Optional string array from body; absent or invalid shapes yield []. */
+function parseImageUrls(body: Record<string, unknown>): string[] {
+  const raw = body.imageUrls;
+  if (raw === undefined || raw === null) return [];
+  if (!Array.isArray(raw)) return [];
+  return raw.filter((item): item is string => typeof item === "string" && item.trim().length > 0).map((u) =>
+    u.trim()
+  );
+}
+
+type ResponsesUserContentPart =
+  | { type: "input_text"; text: string }
+  | { type: "input_image"; image_url: string };
+
+function buildUserMessageContent(message: string, imageUrls: string[]): ResponsesUserContentPart[] {
+  const parts: ResponsesUserContentPart[] = [{ type: "input_text", text: message }];
+  for (const url of imageUrls) {
+    parts.push({ type: "input_image", image_url: url });
+  }
+  return parts;
+}
+
 async function buildScamlySystemPrompt(supabase: any, userId: string): Promise<string> {
   const { data: profile } = await supabase
     .from("profiles")
@@ -104,8 +136,6 @@ async function buildScamlySystemPrompt(supabase: any, userId: string): Promise<s
     If a user asks "who are you?" or "what do you do?", say: "I'm Scamly — an AI assistant that helps people spot scams and stay safe online." Only say this if explicitly asked — don't volunteer it randomly.
 
     Generate content in plain text format only.
-
-    Don't ever ask a user to upload an image or screenshot. You are not able to view or analyse images as there is no UI within the chat tool of Scamly to do this.
 
     HOW TO RESPOND TO USER QUESTIONS
 
@@ -443,7 +473,7 @@ async function handleCreateConversationId(
  * If `conversationId` is null/empty, calls `openai.conversations.create()`, saves the id on
  * `chats`, then streams with that conversation. Otherwise uses the provided id as-is.
  *
- * Body: `{ action: "sendMessage", message: string, conversationId: string | null, chatId: string }`
+ * Body: `{ action: "sendMessage", message, conversationId, chatId, imageUrls?: string[], imageIds?: string[] }`
  */
 async function handleSendMessage(
   supabase: any,
@@ -451,6 +481,8 @@ async function handleSendMessage(
   userId: string,
 ) {
   const message = typeof body.message === "string" ? body.message : "";
+  const imageUrls = parseImageUrls(body);
+  const imageIds = parseImageIds(body);
   const rawConv = body.conversationId;
   const conversationIdFromClient =
     rawConv === null || rawConv === undefined || rawConv === "" ? null : String(rawConv);
@@ -506,8 +538,15 @@ async function handleSendMessage(
   }
 
   try {
+    const userMessageRow: Record<string, unknown> = {
+      chat_id: chatId,
+      role: "user",
+      content: message,
+      image_id: imageIds,
+    };
+
     const [addUserMessage, updateChatsUser] = await Promise.all([
-      supabase.from("messages").insert([{ chat_id: chatId, role: "user", content: message }]),
+      supabase.from("messages").insert([userMessageRow]),
       supabase.from("chats").update({ last_message: message }).eq("id", chatId),
     ]);
 
@@ -594,6 +633,8 @@ async function handleSendMessage(
     effectiveConversationId = conversationIdFromClient;
   }
 
+  const userInputContent = buildUserMessageContent(message, imageUrls);
+
   let openaiStream: AsyncIterable<unknown>;
   try {
     openaiStream = (await openai.responses.create({
@@ -601,7 +642,7 @@ async function handleSendMessage(
       stream: true,
       store: true,
       tools: [{ type: "web_search" }],
-      input: [{ role: "user", content: message }],
+      input: [{ role: "user", content: userInputContent }],
       conversation: effectiveConversationId,
       instructions: systemPrompt,
       reasoning: { effort: "none" },
