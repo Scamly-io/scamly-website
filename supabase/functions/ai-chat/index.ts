@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import OpenAI from "https://esm.sh/openai@6.16";
+import OpenAI from "https://esm.sh/openai";
 import { Redis } from "https://esm.sh/@upstash/redis";
 import { Ratelimit } from "https://esm.sh/@upstash/ratelimit@latest";
 
@@ -8,7 +8,19 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  "Access-Control-Expose-Headers": "X-Conversation-Id",
 };
+
+const streamHeaders = (conversationId: string) => ({
+  ...corsHeaders,
+  // text/event-stream is not buffered by Cloudflare (which sits in front of Supabase Edge).
+  // text/plain responses are buffered until stream close and arrive all at once on the client.
+  "Content-Type": "text/event-stream",
+  "Cache-Control": "no-cache",
+  "Connection": "keep-alive",
+  "X-Accel-Buffering": "no",
+  "X-Conversation-Id": conversationId,
+});
 
 // Error response helper
 function errorResponse(
@@ -53,376 +65,54 @@ function successResponse(data: Record<string, unknown>, status = 200) {
 const openaiApiKey = Deno.env.get("OPENAI_CHAT_API_KEY");
 const openai = new OpenAI({ apiKey: openaiApiKey });
 
-serve(async (req) => {
-  // Handle CORS preflight
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
-
-  try {
-    // Parse request body
-    let body: Record<string, unknown>;
-    try {
-      body = await req.json();
-    } catch {
-      return errorResponse("Invalid JSON body", "validation", "INVALID_JSON", {}, 400);
-    }
-
-    const action = body.action as string;
-    if (!action || !["createConversationId", "deleteConversationId", "generateResponse"].includes(action)) {
-      return errorResponse(
-        "Invalid action. Must be one of: createConversationId, deleteConversationId, generateResponse",
-        "validation",
-        "INVALID_ACTION",
-        { received: action },
-        400
-      );
-    }
-
-    // Validate authentication
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return errorResponse("Missing authorization header", "auth", "MISSING_AUTH", {}, 401);
-    }
-
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
-    
-    if (!supabaseUrl || !supabaseAnonKey) {
-      return errorResponse("Server configuration error", "validation", "CONFIG_ERROR", {}, 500);
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
-
-    // Verify user session
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      console.error("Auth error:", authError);
-      return errorResponse("Authentication failed", "auth", "AUTH_FAILED", {}, 401);
-    }
-
-    const userId = user.id;
-    console.log(`[ai-chat] Action: ${action}, User: ${userId}`);
-
-    // Rate limiting (only for generateResponse action)
-    if (action === "generateResponse") {
-      const redis = new Redis({
-        url: Deno.env.get("REDIS_URL")!,
-        token: Deno.env.get("REDIS_TOKEN")!,
-      });
-
-      const rateLimit = new Ratelimit({
-        redis,
-        limiter: Ratelimit.slidingWindow(15, '60 s'),
-        analytics: true,
-      });
-
-      const identifier = `${userId}-(ai-chat)`;
-      const { success: rateLimitSuccess } = await rateLimit.limit(identifier);
-      if (!rateLimitSuccess) {
-        console.warn(`[ai-chat] Rate limit exceeded for ${identifier}`);
-        return errorResponse(
-          "Rate limit exceeded",
-          "validation",
-          "RATE_LIMIT_EXCEEDED",
-          { identifier },
-          429
-        );
-      }
-    }
-
-    // Route to appropriate handler
-    switch (action) {
-      case "createConversationId":
-        return await handleCreateConversationId(supabase, body);
-      case "deleteConversationId":
-        return await handleDeleteConversationId(supabase,body);
-      case "generateResponse":
-        return await handleGenerateResponse(supabase, body);
-      default:
-        return errorResponse("Unknown action", "validation", "UNKNOWN_ACTION", {}, 400);
-    }
-  } catch (error) {
-    console.error("Unexpected error:", error);
-    return errorResponse(
-      "An unexpected error occurred",
-      "ai_response",
-      "UNEXPECTED_ERROR",
-      { error: error instanceof Error ? error.message : "Unknown error" },
-      500
-    );
-  }
-});
-
-/**
- * Creates a new OpenAI conversation ID and stores it in the database
- * 
- * Expects chatId {string}
- * Returns {conversationId: string}
- */
-async function handleCreateConversationId(
-  supabase: any,
-  body: Record<string, unknown>,
-) {
-  const chatId = body.chatId as string;
-  
-  if (!chatId) {
-    return errorResponse("Missing chatId", "validation", "MISSING_CHAT_ID", {}, 400);
-  }
-
-  console.log(`[createConversationId] Creating conversation for chat: ${chatId}`);
-
-  try {
-    // Create OpenAI conversation
-    console.log("Creating OpenAI conversation");
-    const conversation = await openai.conversations.create();
-    const conversationId = conversation.id;
-
-    console.log(`[createConversationId] Created OpenAI conversation: ${conversationId}`);
-
-    // Update chat with conversation ID
-    const { error: updateError } = await supabase
-      .from("chats")
-      .update({ openai_conversation_id: conversationId })
-      .eq("id", chatId);
-
-    if (updateError) {
-      console.error("Error updating chat:", updateError);
-      return errorResponse(
-        "Error updating chat conversation ID",
-        "db_write",
-        "DB_UPDATE_ERROR",
-        { chatId, error: updateError.message },
-        500
-      );
-    }
-
-    return successResponse({ conversationId });
-  } catch (error) {
-    console.error("Error creating conversation:", error);
-    return errorResponse(
-      "Failed to create conversation",
-      "ai_response",
-      "OPENAI_CREATE_ERROR",
-      { error: error instanceof Error ? error.message : "Unknown error" },
-      502
-    );
-  }
+function extractOutputTextDelta(ev: unknown): string | undefined {
+  if (!ev || typeof ev !== "object") return;
+  const e = ev as Record<string, unknown>;
+  if (e.type !== "response.output_text.delta") return;
+  const d = e.delta;
+  return typeof d === "string" ? d : undefined;
 }
 
-/**
- * Deletes an OpenAI conversation and removes the chat from the database
- * 
- * Expects chatId {string}
- * Returns deleted {boolean}
- */
-async function handleDeleteConversationId(
-  supabase: any,
-  body: Record<string, unknown>,
-) {
-  const chatId = body.chatId as string;
-  
-  if (!chatId) {
-    return errorResponse("Missing chatId", "validation", "MISSING_CHAT_ID", {}, 400);
-  }
-
-  console.log(`[deleteConversationId] Deleting conversation for chat: ${chatId}`);
-
-  try {
-    // Fetch the conversation ID from the database
-    const { data: conversationData, error: fetchError } = await supabase
-      .from("chats")
-      .select("openai_conversation_id")
-      .eq("id", chatId)
-      .maybeSingle();
-
-    if (fetchError) {
-      console.error("Error fetching conversation:", fetchError);
-      return errorResponse(
-        "Error fetching conversation ID for chat",
-        "db_read",
-        "DB_FETCH_ERROR",
-        { chatId, error: fetchError.message },
-        500
-      );
-    }
-
-    // If no data found, nothing to delete - return success
-    if (!conversationData) {
-      console.log(`[deleteConversationId] No conversation found for chat: ${chatId}`);
-      return successResponse({ deleted: true, message: "No conversation found" });
-    }
-
-    // Delete the conversation from OpenAI if it exists
-    const conversationId = conversationData.openai_conversation_id;
-    if (conversationId) {
-      try {
-        await openai.conversations.delete(conversationId);
-        console.log(`[deleteConversationId] Deleted OpenAI conversation: ${conversationId}`);
-      } catch (openaiError) {
-        // Log but don't fail - the conversation might already be deleted
-        console.warn("Error deleting OpenAI conversation (may already be deleted):", openaiError);
-      }
-    }
-
-    // Delete the chat from Supabase
-    const { error: deleteError } = await supabase
-      .from("chats")
-      .delete()
-      .eq("id", chatId);
-
-    if (deleteError) {
-      console.error("Error deleting chat:", deleteError);
-      return errorResponse(
-        "Error deleting conversation ID from chat",
-        "db_write",
-        "DB_DELETE_ERROR",
-        { chatId, error: deleteError.message },
-        500
-      );
-    }
-
-    return successResponse({ deleted: true });
-  } catch (error) {
-    console.error("Error in deleteConversationId:", error);
-    return errorResponse(
-      "Failed to delete conversation",
-      "ai_response",
-      "DELETE_ERROR",
-      { error: error instanceof Error ? error.message : "Unknown error" },
-      500
-    );
-  }
+/** Optional string array from body; absent or invalid shapes yield []. */
+function parseImageIds(body: Record<string, unknown>): string[] {
+  const raw = body.imageIds;
+  if (raw === undefined || raw === null) return [];
+  if (!Array.isArray(raw)) return [];
+  return raw.filter((item): item is string => typeof item === "string" && item.trim().length > 0).map((s) =>
+    s.trim()
+  );
 }
 
-/**
- * Generates an AI response for the user's message
- * 
- * Expects content {string}, chatId {string}, conversationId {string}, userId {string}
- * returns {response: string}
- */
-async function handleGenerateResponse(
-  supabase: any,
-  body: Record<string, unknown>,
-) {
-  const content = body.content as string;
-  const chatId = body.chatId as string;
-  const conversationId = body.conversationId as string;
-  const userId = body.userId as string;
+/** Optional string array from body; absent or invalid shapes yield []. */
+function parseImageUrls(body: Record<string, unknown>): string[] {
+  const raw = body.imageUrls;
+  if (raw === undefined || raw === null) return [];
+  if (!Array.isArray(raw)) return [];
+  return raw.filter((item): item is string => typeof item === "string" && item.trim().length > 0).map((u) =>
+    u.trim()
+  );
+}
 
-  // Validate required fields
-  if (!content) {
-    return errorResponse("Missing content", "validation", "MISSING_CONTENT", {}, 400);
+type ResponsesUserContentPart =
+  | { type: "input_text"; text: string }
+  | { type: "input_image"; image_url: string };
+
+function buildUserMessageContent(message: string, imageUrls: string[]): ResponsesUserContentPart[] {
+  const parts: ResponsesUserContentPart[] = [{ type: "input_text", text: message }];
+  for (const url of imageUrls) {
+    parts.push({ type: "input_image", image_url: url });
   }
-  if (!chatId) {
-    return errorResponse("Missing chatId", "validation", "MISSING_CHAT_ID", {}, 400);
-  }
-  if (!conversationId) {
-    return errorResponse("Missing conversationId", "validation", "MISSING_CONVERSATION_ID", {}, 400);
-  }
+  return parts;
+}
 
-  // Check subscription - Free users can't use the chat feature
-  try {
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("subscription_plan")
-      .eq("id", userId)
-      .maybeSingle();
-
-    if (profileError) {
-      console.error("Error fetching profile:", profileError);
-      return errorResponse(
-        "Error fetching user profile for chat",
-        "subscription_check",
-        "PROFILE_FETCH_ERROR",
-        { error: profileError.message },
-        500
-      );
-    }
-
-    if (!profile) {
-      return errorResponse(
-        "User profile not found",
-        "subscription_check",
-        "PROFILE_NOT_FOUND",
-        {},
-        404
-      );
-    }
-
-    if (profile.subscription_plan === "free") {
-      return errorResponse(
-        "Free user cannot use the chat feature",
-        "subscription_check",
-        "FREE_USER_BLOCKED",
-        { userId },
-        403
-      );
-    }
-  } catch (error) {
-    console.error("Subscription check error:", error);
-    return errorResponse(
-      "Error checking subscription",
-      "subscription_check",
-      "SUBSCRIPTION_CHECK_ERROR",
-      { error: error instanceof Error ? error.message : "Unknown error" },
-      500
-    );
-  }
-
-  // Store user message in database
-  try {
-    const [addUserMessage, updateChatsUser] = await Promise.all([
-      supabase.from("messages").insert([{ chat_id: chatId, role: "user", content }]),
-      supabase.from("chats").update({ last_message: content }).eq("id", chatId),
-    ]);
-
-    if (addUserMessage.error) {
-      console.error("Error adding user message:", addUserMessage.error);
-      return errorResponse(
-        "Error adding user message",
-        "db_write",
-        "DB_INSERT_ERROR",
-        { error: addUserMessage.error.message },
-        500
-      );
-    }
-
-    if (updateChatsUser.error) {
-      console.error("Error updating chat:", updateChatsUser.error);
-      return errorResponse(
-        "Error updating chat",
-        "db_write",
-        "DB_UPDATE_ERROR",
-        { error: updateChatsUser.error.message },
-        500
-      );
-    }
-  } catch (error) {
-    console.error("Error storing user message:", error);
-    return errorResponse(
-      "Error storing message",
-      "db_write",
-      "DB_WRITE_ERROR",
-      { error: error instanceof Error ? error.message : "Unknown error" },
-      500
-    );
-  }
-
+async function buildScamlySystemPrompt(supabase: any, userId: string): Promise<string> {
   const { data: profile } = await supabase
     .from("profiles")
     .select("country")
     .eq("id", userId)
     .single();
 
-  const systemPrompt = `
+  return `
     You are Scamly — an AI assistant that helps people detect scams, fraud, and other forms of cybercrime. You chat naturally, like texting a human, with short and clear answers.
 
     CORE ROLE & BOUNDARIES
@@ -433,7 +123,7 @@ async function handleGenerateResponse(
 
     Give only general guidance — not recovery, legal, or referral advice. If someone needs help recovering money, suggest contacting their bank or authorities. If they need legal help, recommend they consult a lawyer. Do not provide specific referrals or detailed instructions on recovery processes.
 
-    ${profile.country ? `The user you are speaking with is located in ${profile.country}. Use this for context when providing advice.` : ""}
+    ${profile?.country ? `The user you are speaking with is located in ${profile.country}. Use this for context when providing advice.` : ""}
 
     Communicate casually but clearly. Keep replies shorter, around 1-5 sentences unless the user asks for more detail.
 
@@ -446,8 +136,6 @@ async function handleGenerateResponse(
     If a user asks "who are you?" or "what do you do?", say: "I'm Scamly — an AI assistant that helps people spot scams and stay safe online." Only say this if explicitly asked — don't volunteer it randomly.
 
     Generate content in plain text format only.
-
-    Don't ever ask a user to upload an image or screenshot. You are not able to view or analyse images as there is no UI within the chat tool of Scamly to do this.
 
     HOW TO RESPOND TO USER QUESTIONS
 
@@ -592,7 +280,7 @@ async function handleGenerateResponse(
 
     Don't be afraid to ask quesitons of users before responding to their query. You are better able to help users if you know more about the situation. Unless the request is very simple, get the information you need before you come to a conclusion.
 
-    ${profile.country ? `Remember that the user you are speaking with is located in ${profile.country}. This should influence your responses but do not respond in any other language than english.` : "Do not respond in other languages, only English."}
+    ${profile?.country ? `Remember that the user you are speaking with is located in ${profile.country}. This should influence your responses but do not respond in any other language than english.` : "Do not respond in other languages, only English."}
 
     Don't ask a user over and over again to copy and paste a message if they have already said that they aren't able to do this. Use a different approach to understand the situation better such as follow up questions.
 
@@ -602,6 +290,642 @@ async function handleGenerateResponse(
 
     Stay relevant, concise, and cautious. You're here to help people stay safe.
   `;
+}
+
+serve(async (req) => {
+  // Handle CORS preflight
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  try {
+    // Parse request body
+    let body: Record<string, unknown>;
+    try {
+      body = await req.json();
+    } catch {
+      return errorResponse("Invalid JSON body", "validation", "INVALID_JSON", {}, 400);
+    }
+
+    const action = body.action as string;
+    if (
+      !action ||
+      !["createConversationId", "deleteConversationId", "generateResponse", "sendMessage"].includes(action)
+    ) {
+      return errorResponse(
+        "Invalid action. Must be one of: createConversationId, deleteConversationId, generateResponse, sendMessage",
+        "validation",
+        "INVALID_ACTION",
+        { received: action },
+        400
+      );
+    }
+
+    // Validate authentication
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return errorResponse("Missing authorization header", "auth", "MISSING_AUTH", {}, 401);
+    }
+
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return errorResponse("Server configuration error", "validation", "CONFIG_ERROR", {}, 500);
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    // Verify user session
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      console.error("Auth error:", authError);
+      return errorResponse("Authentication failed", "auth", "AUTH_FAILED", {}, 401);
+    }
+
+    const userId = user.id;
+    console.log(`[ai-chat] Action: ${action}, User: ${userId}`);
+
+    // Rate limiting (generateResponse and sendMessage)
+    if (action === "generateResponse" || action === "sendMessage") {
+      const redis = new Redis({
+        url: Deno.env.get("REDIS_URL")!,
+        token: Deno.env.get("REDIS_TOKEN")!,
+      });
+
+      const rateLimit = new Ratelimit({
+        redis,
+        limiter: Ratelimit.slidingWindow(15, '60 s'),
+        analytics: true,
+      });
+
+      const identifier = `${userId}-(ai-chat)`;
+      const { success: rateLimitSuccess } = await rateLimit.limit(identifier);
+      if (!rateLimitSuccess) {
+        console.warn(`[ai-chat] Rate limit exceeded for ${identifier}`);
+        return errorResponse(
+          "Rate limit exceeded",
+          "validation",
+          "RATE_LIMIT_EXCEEDED",
+          { identifier },
+          429
+        );
+      }
+    }
+
+    // Route to appropriate handler
+    switch (action) {
+      case "createConversationId":
+        return await handleCreateConversationId(supabase, body);
+      case "deleteConversationId":
+        return await handleDeleteConversationId(supabase, body);
+      case "generateResponse":
+        return await handleGenerateResponse(supabase, body, userId);
+      case "sendMessage":
+        return await handleSendMessage(supabase, body, userId);
+      default:
+        return errorResponse("Unknown action", "validation", "UNKNOWN_ACTION", {}, 400);
+    }
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    return errorResponse(
+      "An unexpected error occurred",
+      "ai_response",
+      "UNEXPECTED_ERROR",
+      { error: error instanceof Error ? error.message : "Unknown error" },
+      500
+    );
+  }
+});
+
+/**
+ * Creates a new OpenAI conversation ID and stores it in the database
+ *
+ * @deprecated Superseded by `sendMessage`, which calls `openai.conversations.create()` when
+ *   `conversationId` is null before streaming. Kept for backward compatibility.
+ *
+ * Expects chatId {string}
+ * Returns {conversationId: string}
+ */
+async function handleCreateConversationId(
+  supabase: any,
+  body: Record<string, unknown>,
+) {
+  const chatId = body.chatId as string;
+  
+  if (!chatId) {
+    return errorResponse("Missing chatId", "validation", "MISSING_CHAT_ID", {}, 400);
+  }
+
+  console.log(`[createConversationId] Creating conversation for chat: ${chatId}`);
+
+  try {
+    // Create OpenAI conversation
+    console.log("Creating OpenAI conversation");
+    const conversation = await openai.conversations.create();
+    const conversationId = conversation.id;
+
+    console.log(`[createConversationId] Created OpenAI conversation: ${conversationId}`);
+
+    // Update chat with conversation ID
+    const { error: updateError } = await supabase
+      .from("chats")
+      .update({ openai_conversation_id: conversationId })
+      .eq("id", chatId);
+
+    if (updateError) {
+      console.error("Error updating chat:", updateError);
+      return errorResponse(
+        "Error updating chat conversation ID",
+        "db_write",
+        "DB_UPDATE_ERROR",
+        { chatId, error: updateError.message },
+        500
+      );
+    }
+
+    return successResponse({ conversationId });
+  } catch (error) {
+    console.error("Error creating conversation:", error);
+    return errorResponse(
+      "Failed to create conversation",
+      "ai_response",
+      "OPENAI_CREATE_ERROR",
+      { error: error instanceof Error ? error.message : "Unknown error" },
+      502
+    );
+  }
+}
+
+/**
+ * Unified send: persists the user message, streams the assistant reply as raw UTF-8 chunks
+ * (`text/plain; charset=utf-8`, no SSE `data:` framing), and exposes the OpenAI conversation
+ * id in `X-Conversation-Id` before the body. The mobile client reads chunks via XHR
+ * `onprogress` since React Native's `fetch` does not expose `Response.body` as a stream.
+ *
+ * If `conversationId` is null/empty, calls `openai.conversations.create()`, saves the id on
+ * `chats`, then streams with that conversation. Otherwise uses the provided id as-is.
+ *
+ * Body: `{ action: "sendMessage", message, conversationId, chatId, imageUrls?: string[], imageIds?: string[] }`
+ */
+async function handleSendMessage(
+  supabase: any,
+  body: Record<string, unknown>,
+  userId: string,
+) {
+  const message = typeof body.message === "string" ? body.message : "";
+  const imageUrls = parseImageUrls(body);
+  const imageIds = parseImageIds(body);
+  const rawConv = body.conversationId;
+  const conversationIdFromClient =
+    rawConv === null || rawConv === undefined || rawConv === "" ? null : String(rawConv);
+  const chatId = body.chatId as string;
+
+  if (!message.trim()) {
+    return errorResponse("Missing message", "validation", "MISSING_MESSAGE", {}, 400);
+  }
+  if (!chatId) {
+    return errorResponse("Missing chatId", "validation", "MISSING_CHAT_ID", {}, 400);
+  }
+
+  try {
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("subscription_plan")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (profileError) {
+      console.error("Error fetching profile:", profileError);
+      return errorResponse(
+        "Error fetching user profile for chat",
+        "subscription_check",
+        "PROFILE_FETCH_ERROR",
+        { error: profileError.message },
+        500,
+      );
+    }
+
+    if (!profile) {
+      return errorResponse("User profile not found", "subscription_check", "PROFILE_NOT_FOUND", {}, 404);
+    }
+
+    if (profile.subscription_plan === "free") {
+      return errorResponse(
+        "Free user cannot use the chat feature",
+        "subscription_check",
+        "FREE_USER_BLOCKED",
+        { userId },
+        403,
+      );
+    }
+  } catch (error) {
+    console.error("Subscription check error:", error);
+    return errorResponse(
+      "Error checking subscription",
+      "subscription_check",
+      "SUBSCRIPTION_CHECK_ERROR",
+      { error: error instanceof Error ? error.message : "Unknown error" },
+      500,
+    );
+  }
+
+  try {
+    const userMessageRow: Record<string, unknown> = {
+      chat_id: chatId,
+      role: "user",
+      content: message,
+      image_id: imageIds,
+    };
+
+    const [addUserMessage, updateChatsUser] = await Promise.all([
+      supabase.from("messages").insert([userMessageRow]),
+      supabase.from("chats").update({ last_message: message }).eq("id", chatId),
+    ]);
+
+    if (addUserMessage.error) {
+      console.error("Error adding user message:", addUserMessage.error);
+      return errorResponse(
+        "Error adding user message",
+        "db_write",
+        "DB_INSERT_ERROR",
+        { error: addUserMessage.error.message },
+        500,
+      );
+    }
+
+    if (updateChatsUser.error) {
+      console.error("Error updating chat:", updateChatsUser.error);
+      return errorResponse(
+        "Error updating chat",
+        "db_write",
+        "DB_UPDATE_ERROR",
+        { error: updateChatsUser.error.message },
+        500,
+      );
+    }
+  } catch (error) {
+    console.error("Error storing user message:", error);
+    return errorResponse(
+      "Error storing message",
+      "db_write",
+      "DB_WRITE_ERROR",
+      { error: error instanceof Error ? error.message : "Unknown error" },
+      500,
+    );
+  }
+
+  let systemPrompt: string;
+  try {
+    systemPrompt = await buildScamlySystemPrompt(supabase, userId);
+  } catch (error) {
+    console.error("Error building system prompt:", error);
+    return errorResponse(
+      "Error preparing assistant instructions",
+      "ai_response",
+      "PROMPT_BUILD_ERROR",
+      { error: error instanceof Error ? error.message : "Unknown error" },
+      500,
+    );
+  }
+
+  let effectiveConversationId: string;
+  if (conversationIdFromClient === null) {
+    try {
+      const conversation = await openai.conversations.create();
+      effectiveConversationId = conversation.id;
+      console.log("Conversation", conversation.id);
+      console.log(`[sendMessage] Created OpenAI conversation: ${effectiveConversationId}`);
+    } catch (error) {
+      console.error("Error creating OpenAI conversation:", error);
+      return errorResponse(
+        "Failed to create conversation",
+        "ai_response",
+        "OPENAI_CREATE_ERROR",
+        { error: error instanceof Error ? error.message : "Unknown error" },
+        502,
+      );
+    }
+
+    const { error: updateError } = await supabase
+      .from("chats")
+      .update({ openai_conversation_id: effectiveConversationId })
+      .eq("id", chatId);
+
+    if (updateError) {
+      console.error("Error updating chat conversation ID:", updateError);
+      return errorResponse(
+        "Error updating chat conversation ID",
+        "db_write",
+        "DB_UPDATE_ERROR",
+        { chatId, error: updateError.message },
+        500,
+      );
+    }
+  } else {
+    effectiveConversationId = conversationIdFromClient;
+  }
+
+  const userInputContent = buildUserMessageContent(message, imageUrls);
+
+  let openaiStream: AsyncIterable<unknown>;
+  try {
+    openaiStream = (await openai.responses.create({
+      model: "gpt-5.5",
+      stream: true,
+      store: true,
+      tools: [{ type: "web_search" }],
+      input: [{ role: "user", content: userInputContent }],
+      conversation: effectiveConversationId,
+      instructions: systemPrompt,
+      reasoning: { effort: "none" },
+      max_output_tokens: 1000,
+    })) as AsyncIterable<unknown>;
+  } catch (error) {
+    console.error("Error starting OpenAI stream:", error);
+    return errorResponse(
+      "Error generating AI response",
+      "ai_response",
+      "OPENAI_STREAM_START_ERROR",
+      { error: error instanceof Error ? error.message : "Unknown error" },
+      502,
+    );
+  }
+
+  const encoder = new TextEncoder();
+
+  return new Response(
+    new ReadableStream<Uint8Array>({
+      start(controller) {
+        void (async () => {
+          let fullText = "";
+          try {
+            for await (const event of openaiStream) {
+              const d = extractOutputTextDelta(event);
+              if (d) {
+                fullText += d;
+                // SSE frame: each token delta is JSON-stringified so newlines inside
+                // deltas don't break the `data:` line, then terminated with \n\n.
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify(d)}\n\n`));
+              }
+            }
+          } catch (error) {
+            console.error("[sendMessage] stream error:", error);
+            try {
+              controller.error(error);
+            } catch {
+              /* already closed or errored */
+            }
+            return;
+          }
+
+          try {
+            controller.close();
+          } catch {
+            /* already closed */
+          }
+
+          if (fullText) {
+            const [addAgentMessage, updateChatsAgent] = await Promise.all([
+              supabase.from("messages").insert([{ chat_id: chatId, role: "assistant", content: fullText }]),
+              supabase.from("chats").update({ last_message: fullText }).eq("id", chatId),
+            ]);
+            if (addAgentMessage.error) {
+              console.warn("[sendMessage] Error adding assistant message (non-fatal):", addAgentMessage.error);
+            }
+            if (updateChatsAgent.error) {
+              console.warn("[sendMessage] Error updating chat last_message (non-fatal):", updateChatsAgent.error);
+            }
+          }
+        })();
+      },
+    }),
+    { headers: streamHeaders(effectiveConversationId) },
+  );
+}
+
+/**
+ * Deletes an OpenAI conversation and removes the chat from the database
+ * 
+ * Expects chatId {string}
+ * Returns deleted {boolean}
+ */
+async function handleDeleteConversationId(
+  supabase: any,
+  body: Record<string, unknown>,
+) {
+  const chatId = body.chatId as string;
+  
+  if (!chatId) {
+    return errorResponse("Missing chatId", "validation", "MISSING_CHAT_ID", {}, 400);
+  }
+
+  console.log(`[deleteConversationId] Deleting conversation for chat: ${chatId}`);
+
+  try {
+    // Fetch the conversation ID from the database
+    const { data: conversationData, error: fetchError } = await supabase
+      .from("chats")
+      .select("openai_conversation_id")
+      .eq("id", chatId)
+      .maybeSingle();
+
+    if (fetchError) {
+      console.error("Error fetching conversation:", fetchError);
+      return errorResponse(
+        "Error fetching conversation ID for chat",
+        "db_read",
+        "DB_FETCH_ERROR",
+        { chatId, error: fetchError.message },
+        500
+      );
+    }
+
+    // If no data found, nothing to delete - return success
+    if (!conversationData) {
+      console.log(`[deleteConversationId] No conversation found for chat: ${chatId}`);
+      return successResponse({ deleted: true, message: "No conversation found" });
+    }
+
+    // Delete the conversation from OpenAI if it exists
+    const conversationId = conversationData.openai_conversation_id;
+    if (conversationId) {
+      try {
+        await openai.conversations.delete(conversationId);
+        console.log(`[deleteConversationId] Deleted OpenAI conversation: ${conversationId}`);
+      } catch (openaiError) {
+        // Log but don't fail - the conversation might already be deleted
+        console.warn("Error deleting OpenAI conversation (may already be deleted):", openaiError);
+      }
+    }
+
+    // Delete the chat from Supabase
+    const { error: deleteError } = await supabase
+      .from("chats")
+      .delete()
+      .eq("id", chatId);
+
+    if (deleteError) {
+      console.error("Error deleting chat:", deleteError);
+      return errorResponse(
+        "Error deleting conversation ID from chat",
+        "db_write",
+        "DB_DELETE_ERROR",
+        { chatId, error: deleteError.message },
+        500
+      );
+    }
+
+    return successResponse({ deleted: true });
+  } catch (error) {
+    console.error("Error in deleteConversationId:", error);
+    return errorResponse(
+      "Failed to delete conversation",
+      "ai_response",
+      "DELETE_ERROR",
+      { error: error instanceof Error ? error.message : "Unknown error" },
+      500
+    );
+  }
+}
+
+/**
+ * Generates an AI response for the user's message
+ *
+ * @deprecated Superseded by `sendMessage`, which streams the reply and returns the conversation id
+ *   in `X-Conversation-Id`. Kept for backward compatibility.
+ *
+ * Expects content {string}, chatId {string}, conversationId {string}
+ * returns {response: string}
+ */
+async function handleGenerateResponse(
+  supabase: any,
+  body: Record<string, unknown>,
+  userId: string,
+) {
+  const content = body.content as string;
+  const chatId = body.chatId as string;
+  const conversationId = body.conversationId as string;
+
+  // Validate required fields
+  if (!content) {
+    return errorResponse("Missing content", "validation", "MISSING_CONTENT", {}, 400);
+  }
+  if (!chatId) {
+    return errorResponse("Missing chatId", "validation", "MISSING_CHAT_ID", {}, 400);
+  }
+  if (!conversationId) {
+    return errorResponse("Missing conversationId", "validation", "MISSING_CONVERSATION_ID", {}, 400);
+  }
+
+  // Check subscription - Free users can't use the chat feature
+  try {
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("subscription_plan")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (profileError) {
+      console.error("Error fetching profile:", profileError);
+      return errorResponse(
+        "Error fetching user profile for chat",
+        "subscription_check",
+        "PROFILE_FETCH_ERROR",
+        { error: profileError.message },
+        500
+      );
+    }
+
+    if (!profile) {
+      return errorResponse(
+        "User profile not found",
+        "subscription_check",
+        "PROFILE_NOT_FOUND",
+        {},
+        404
+      );
+    }
+
+    if (profile.subscription_plan === "free") {
+      return errorResponse(
+        "Free user cannot use the chat feature",
+        "subscription_check",
+        "FREE_USER_BLOCKED",
+        { userId },
+        403
+      );
+    }
+  } catch (error) {
+    console.error("Subscription check error:", error);
+    return errorResponse(
+      "Error checking subscription",
+      "subscription_check",
+      "SUBSCRIPTION_CHECK_ERROR",
+      { error: error instanceof Error ? error.message : "Unknown error" },
+      500
+    );
+  }
+
+  // Store user message in database
+  try {
+    const [addUserMessage, updateChatsUser] = await Promise.all([
+      supabase.from("messages").insert([{ chat_id: chatId, role: "user", content }]),
+      supabase.from("chats").update({ last_message: content }).eq("id", chatId),
+    ]);
+
+    if (addUserMessage.error) {
+      console.error("Error adding user message:", addUserMessage.error);
+      return errorResponse(
+        "Error adding user message",
+        "db_write",
+        "DB_INSERT_ERROR",
+        { error: addUserMessage.error.message },
+        500
+      );
+    }
+
+    if (updateChatsUser.error) {
+      console.error("Error updating chat:", updateChatsUser.error);
+      return errorResponse(
+        "Error updating chat",
+        "db_write",
+        "DB_UPDATE_ERROR",
+        { error: updateChatsUser.error.message },
+        500
+      );
+    }
+  } catch (error) {
+    console.error("Error storing user message:", error);
+    return errorResponse(
+      "Error storing message",
+      "db_write",
+      "DB_WRITE_ERROR",
+      { error: error instanceof Error ? error.message : "Unknown error" },
+      500
+    );
+  }
+
+  let systemPrompt: string;
+  try {
+    systemPrompt = await buildScamlySystemPrompt(supabase, userId);
+  } catch (error) {
+    console.error("Error building system prompt:", error);
+    return errorResponse(
+      "Error preparing assistant instructions",
+      "ai_response",
+      "PROMPT_BUILD_ERROR",
+      { error: error instanceof Error ? error.message : "Unknown error" },
+      500,
+    );
+  }
 
   // Generate AI response
   try {
