@@ -38,13 +38,8 @@ import { Ratelimit } from "https://esm.sh/@upstash/ratelimit@latest";
 
 const FUNCTION_NAME = "ai-assistant";
 
-/** Free users get 8 successful assistant replies per billing month. */
-const FREE_TIER_MESSAGE_LIMIT = 8;
-
-const CHAT_MODEL_PREMIUM = "gpt-5.5";
-const CHAT_MODEL_FREE = "gpt-5.4-mini";
-const SCAN_MODEL_PREMIUM = "gpt-5.5";
-const SCAN_MODEL_FREE = "gpt-5.4-mini";
+const CHAT_MODEL = "gpt-5.5";
+const SCAN_MODEL = "gpt-5.5";
 const TITLE_MODEL = "gpt-5.4-nano";
 
 type ToolName = "chat" | "scan" | "search";
@@ -103,7 +98,6 @@ const streamHeaders = (conversationId: string) => ({
 
 type ErrorStage =
   | "subscription_check"
-  | "quota_check"
   | "db_read"
   | "db_write"
   | "ai_response"
@@ -337,112 +331,33 @@ function extractUsage(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Quota / billing helpers
+// Subscription helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
-function getUserBillingPeriod(
-  createdAt: string,
-): { periodStart: Date; nextPeriodStart: Date } {
-  const created = new Date(createdAt);
-  const now = new Date();
+type ProfileRow = {
+  id: string;
+  country: string | null;
+  subscription_plan: string | null;
+  subscription_status: string | null;
+};
 
-  let periodStart = new Date(Date.UTC(
-    now.getUTCFullYear(),
-    created.getUTCMonth(),
-    created.getUTCDate(),
-    0,
-    0,
-    0,
-    0,
-  ));
-
-  if (periodStart > now) {
-    periodStart = new Date(Date.UTC(
-      now.getUTCFullYear(),
-      created.getUTCMonth() - 1,
-      created.getUTCDate(),
-      0,
-      0,
-      0,
-      0,
-    ));
-  }
-
-  const nextPeriodStart = new Date(Date.UTC(
-    periodStart.getUTCFullYear(),
-    periodStart.getUTCMonth() + 1,
-    periodStart.getUTCDate(),
-    0,
-    0,
-    0,
-    0,
-  ));
-
-  return { periodStart, nextPeriodStart };
+function hasPremiumAccess(profile: ProfileRow): boolean {
+  return !!(profile.subscription_plan &&
+    profile.subscription_plan !== "free" &&
+    (profile.subscription_status === "active" ||
+      profile.subscription_status === "trialing"));
 }
 
-type Plan = "free" | "premium";
-
-async function getUserPlanAndProfile(
-  supabase: any,
-  userId: string,
-): Promise<{ plan: Plan; profile: any }> {
+async function getUserProfile(supabase: any, userId: string): Promise<ProfileRow> {
   const { data: profile, error } = await supabase
     .from("profiles")
-    .select("id, country, created_at, subscription_plan, subscription_status")
+    .select("id, country, subscription_plan, subscription_status")
     .eq("id", userId)
     .maybeSingle();
 
   if (error) throw new Error(`profile fetch failed: ${error.message}`);
   if (!profile) throw new Error("profile not found");
-
-  const isPremium = profile.subscription_plan &&
-    profile.subscription_plan !== "free" &&
-    (profile.subscription_status === "active" ||
-      profile.subscription_status === "trialing");
-
-  return { plan: isPremium ? "premium" : "free", profile };
-}
-
-async function checkFreeTierMessageQuota(
-  supabase: any,
-  userId: string,
-  profileCreatedAt: string,
-): Promise<
-  | { allowed: true; used: number; limit: number }
-  | {
-    allowed: false;
-    used: number;
-    limit: number;
-    periodStart: string;
-    nextPeriodStart: string;
-  }
-> {
-  const { periodStart, nextPeriodStart } = getUserBillingPeriod(profileCreatedAt);
-
-  const { count, error } = await supabase
-    .from("assistant_messages")
-    .select("id, assistant_chats!inner(user_id)", { count: "exact", head: true })
-    .eq("assistant_chats.user_id", userId)
-    .eq("role", "assistant")
-    .eq("success", true)
-    .gte("created_at", periodStart.toISOString())
-    .lt("created_at", nextPeriodStart.toISOString());
-
-  if (error) throw new Error(`quota count failed: ${error.message}`);
-
-  const used = count ?? 0;
-  if (used >= FREE_TIER_MESSAGE_LIMIT) {
-    return {
-      allowed: false,
-      used,
-      limit: FREE_TIER_MESSAGE_LIMIT,
-      periodStart: periodStart.toISOString(),
-      nextPeriodStart: nextPeriodStart.toISOString(),
-    };
-  }
-
-  return { allowed: true, used, limit: FREE_TIER_MESSAGE_LIMIT };
+  return profile;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -450,11 +365,9 @@ async function checkFreeTierMessageQuota(
 // ─────────────────────────────────────────────────────────────────────────────
 
 const openaiChatKey = Deno.env.get("OPENAI_CHAT_API_KEY");
-const openaiScanKey = Deno.env.get("OPENAI_SCAN_API_KEY") ?? openaiChatKey;
 const perplexityKey = Deno.env.get("PERPLEXITY_API_KEY");
 
 const openaiChat = new OpenAI({ apiKey: openaiChatKey });
-const openaiScan = new OpenAI({ apiKey: openaiScanKey });
 const perplexity = perplexityKey ? new Perplexity({ apiKey: perplexityKey }) : null;
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -463,11 +376,10 @@ const perplexity = perplexityKey ? new Perplexity({ apiKey: perplexityKey }) : n
 
 function buildChatSystemPrompt(opts: {
   country: string | null;
-  plan: Plan;
   imageCount: number;
   selectedTool: ToolName | null;
 }): string {
-  const { country, plan, imageCount, selectedTool } = opts;
+  const { country, imageCount, selectedTool } = opts;
 
   const toolMenu =
     `
@@ -510,17 +422,6 @@ that tool unless it is impossible:
   - "chat" is always permitted.
 When the override is honoured, follow the brevity rules above for that tool.`
     : "";
-
-  const planClause =
-    plan === "free"
-      ? `
-
-    PLAN AWARENESS
-    The user is on the FREE plan. The "search" tool is NOT available to them — never pick
-    "search". If they ask for company contact information, pick "chat" and gently let them
-    know that contact lookup is a Premium feature, then offer general scam-safety advice
-    about verifying contact details independently.`
-      : "";
 
   const scamlyCore =
     `
@@ -615,8 +516,7 @@ When the override is honoured, follow the brevity rules above for that tool.`
     (amaz0n.com), strange subdomains, or URL shorteners. If unsure, advise: "Don't click it.
 
     Go directly to the official website or call the number on your card." You can also
-    suggest the contact search tool inside the Scamly app to find official contact info
-    (only suggest this for Premium users).
+    suggest the contact search tool inside the Scamly app to find official contact info.
 
     ANALYZING REQUESTS FOR SENSITIVE INFORMATION
 
@@ -677,7 +577,7 @@ When the override is honoured, follow the brevity rules above for that tool.`
 
     When in doubt, lean suspicious — better to flag than miss a real scam.`;
 
-  return [scamlyCore, toolMenu, overrideClause, planClause].join("\n");
+  return [scamlyCore, toolMenu, overrideClause].join("\n");
 }
 
 const ChatRoutingSchema = {
@@ -793,7 +693,7 @@ async function runScanTool(opts: {
     imageUrls.map(async (url, idx) => {
       const start = Date.now();
       try {
-        const response = await openaiScan.responses.create({
+        const response = await openaiChat.responses.create({
           model,
           ...(webSearch ? { tools: [{ type: "web_search" }] } : {}),
           reasoning: { effort: "low" },
@@ -958,10 +858,10 @@ async function generateAndSaveChatTitle(
       input: [
         {
           role: "user",
-          content: `Generate a short title (maximum 7 words, no punctuation, no quotes) that summarises this message from a scam-detection assistant conversation:\n\n"${context.slice(0, 500)}"`,
+          content: `Generate a concise title that summarises the following message that a user has sent to an AI model. The title should generally summarise the topic that the user is asking about. For example, if the user is asking the model if a certain text message they've uploaded is a scam, you might set the title to something like "Checking a text message for signs of scams". You must not use emojis in the title. The message content is:\n\n"${context.slice(0, 500)}"`,
         },
       ],
-      max_output_tokens: 20,
+      max_output_tokens: 30,
     });
 
     const raw = response.output_text?.trim() ?? "";
@@ -1113,13 +1013,9 @@ async function handleSendMessage(
     return errorResponse("Either message or images are required", "validation", "EMPTY_REQUEST", {}, 400);
   }
 
-  // Plan + quota.
-  let plan: Plan;
-  let profile: any;
+  let profile: ProfileRow;
   try {
-    const res = await getUserPlanAndProfile(supabase, userId);
-    plan = res.plan;
-    profile = res.profile;
+    profile = await getUserProfile(supabase, userId);
   } catch (err) {
     return errorResponse(
       "Error fetching user profile",
@@ -1128,33 +1024,6 @@ async function handleSendMessage(
       { error: err instanceof Error ? err.message : "Unknown error" },
       500,
     );
-  }
-
-  if (plan === "free") {
-    try {
-      const quota = await checkFreeTierMessageQuota(supabase, userId, profile.created_at);
-      if (!quota.allowed) {
-        return errorResponse(
-          "Free tier monthly message limit reached",
-          "quota_check",
-          "QUOTA_EXCEEDED",
-          {
-            currentCount: quota.used,
-            limit: quota.limit,
-            billingPeriod: { periodStart: quota.periodStart, nextPeriodStart: quota.nextPeriodStart },
-          },
-          403,
-        );
-      }
-    } catch (err) {
-      return errorResponse(
-        "Failed to check message quota",
-        "quota_check",
-        "QUOTA_CHECK_ERROR",
-        { error: err instanceof Error ? err.message : "Unknown error" },
-        500,
-      );
-    }
   }
 
   // Persist user message and check whether this chat already has a title —
@@ -1236,12 +1105,8 @@ async function handleSendMessage(
     effectiveConversationId = conversationIdFromClient;
   }
 
-  const chatModel = plan === "premium" ? CHAT_MODEL_PREMIUM : CHAT_MODEL_FREE;
-  const scanModel = plan === "premium" ? SCAN_MODEL_PREMIUM : SCAN_MODEL_FREE;
-
   const systemPrompt = buildChatSystemPrompt({
-    country: profile?.country ?? null,
-    plan,
+    country: profile.country ?? null,
     imageCount: imageUrls.length,
     selectedTool,
   });
@@ -1251,14 +1116,14 @@ async function handleSendMessage(
   let openaiStream: AsyncIterable<unknown>;
   try {
     openaiStream = (await openaiChat.responses.create({
-      model: chatModel,
+      model: CHAT_MODEL,
       stream: true,
       store: true,
       ...(webSearch ? { tools: [{ type: "web_search" }] } : {}),
       input: [{ role: "user", content: userInputContent }],
       conversation: effectiveConversationId,
       instructions: systemPrompt,
-      reasoning: { effort: "low"},
+      reasoning: { effort: "none" },
       max_output_tokens: 1500,
       text: {
         format: {
@@ -1336,11 +1201,10 @@ async function handleSendMessage(
           let resolvedTool: ToolName = routing.tool;
           if (selectedTool) {
             const ok = (selectedTool === "scan" && imageUrls.length > 0) ||
-              (selectedTool === "search" && routing.search_query.trim().length > 0 && plan === "premium") ||
+              (selectedTool === "search" && routing.search_query.trim().length > 0) ||
               selectedTool === "chat";
             if (ok) resolvedTool = selectedTool;
           }
-          if (resolvedTool === "search" && plan === "free") resolvedTool = "chat";
           if (resolvedTool === "scan" && imageUrls.length === 0) resolvedTool = "chat";
           if (resolvedTool === "search" && routing.search_query.trim().length === 0) resolvedTool = "chat";
 
@@ -1353,8 +1217,8 @@ async function handleSendMessage(
           if (resolvedTool === "scan") {
             enqueue({ type: "tool_input", input: { image_count: imageUrls.length } });
             try {
-              const scanPrompt = buildScanSystemPrompt(profile?.country ?? null);
-              const { scans } = await runScanTool({ imageUrls, systemPrompt: scanPrompt, model: scanModel, webSearch });
+              const scanPrompt = buildScanSystemPrompt(profile.country ?? null);
+              const { scans } = await runScanTool({ imageUrls, systemPrompt: scanPrompt, model: SCAN_MODEL, webSearch });
               tools.push({ type: "scan", output: { scans } });
               enqueue({ type: "tool_result", result: { scans } });
             } catch (err) {
@@ -1474,6 +1338,27 @@ serve(async (req) => {
 
     const userId = user.id;
     log(`Action: ${action}, User: ${userId}`);
+
+    try {
+      const profile = await getUserProfile(supabase, userId);
+      if (!hasPremiumAccess(profile)) {
+        return errorResponse(
+          "Premium subscription required",
+          "subscription_check",
+          "SUBSCRIPTION_REQUIRED",
+          {},
+          401,
+        );
+      }
+    } catch (err) {
+      return errorResponse(
+        "Error fetching user profile",
+        "subscription_check",
+        "PROFILE_FETCH_ERROR",
+        { error: err instanceof Error ? err.message : "Unknown error" },
+        500,
+      );
+    }
 
     if (action === "sendMessage") {
       const redis = new Redis({

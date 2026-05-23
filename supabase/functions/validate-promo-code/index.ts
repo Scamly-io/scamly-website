@@ -10,13 +10,19 @@ const VALID_CODES: Record<string, string> = {
   "scamly20off": "sm_20"
 };
 
+const VALID_IOS_CODES: Record<string, string> = {
+  "early40": "early_interest",
+  "scamly20off": "ios_sm_20",
+  "protectme": "ios_sm_20"
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { code } = await req.json();
+    const { code, ios } = await req.json();
 
     if (!code || typeof code !== "string") {
       return new Response(JSON.stringify({ valid: false, error: "Code is required" }), {
@@ -26,7 +32,8 @@ serve(async (req) => {
     }
 
     const normalised = code.toLowerCase().trim();
-    const offer = VALID_CODES[normalised] ?? null;
+    const validCodes = ios === true ? VALID_IOS_CODES : VALID_CODES;
+    const offer = validCodes[normalised] ?? null;
     const valid = offer !== null;
 
     return new Response(JSON.stringify({ valid, offer }), {
