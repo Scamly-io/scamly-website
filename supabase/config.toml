@@ -24,9 +24,6 @@ verify_jwt = false
 [functions.validate-promo-code]
 verify_jwt = false
 
-[functions.process-feedback]
-verify_jwt = false
-
 [functions.resend-contact-sync]
 verify_jwt = false
 

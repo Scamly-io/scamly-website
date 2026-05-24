@@ -22,7 +22,7 @@ export function CTASection() {
                 onClick={() => trackSignupStarted("cta")}
                 className="bg-white text-foreground hover:bg-white/90 rounded-full font-semibold"
               >
-                <Link href="/auth?mode=signup">Create free account</Link>
+                <Link href="https://apps.apple.com/app/id6759246327">Download the app</Link>
               </Button>
               <Button
                 size="xl"

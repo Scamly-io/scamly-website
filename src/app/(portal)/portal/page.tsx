@@ -10,7 +10,7 @@ import { Label } from "../../../components/ui/label";
 import { useToast } from "../../../hooks/use-toast";
 import { PolicyAcceptanceModal } from "../../../components/policy";
 import { usePolicyCompliance } from "../../../hooks/usePolicyCompliance";
-import logoLight from "../../../../public/navbar-logo-light.png";
+import logoLight from "../../../../public/navbar-logo.png";
 
 import {
   User,
@@ -260,12 +260,6 @@ export default function PortalPage() {
                   </Button>
                 </div>
                 <DeleteAccountSection />
-                <div className="pt-4 border-t border-border">
-                  <p className="text-sm text-muted-foreground">
-                    We would love to hear your feedback on Scamly.{" "}
-                    <Link href="/portal/feedback" className="text-primary hover:underline">Click here to provide feedback</Link>
-                  </p>
-                </div>
               </div>
             )}
 
@@ -291,7 +285,6 @@ export default function PortalPage() {
                     <div><p className="font-semibold text-foreground">Subscriptions managed via the app</p><p className="text-sm text-muted-foreground">To subscribe, upgrade, or manage billing, please use the Scamly mobile app.</p></div>
                   </div>
                 </div>
-                <div className="pt-4 border-t border-border"><p className="text-sm text-muted-foreground">We would love to hear your feedback on Scamly.{" "}<Link href="/portal/feedback" className="text-primary hover:underline">Click here to provide feedback</Link></p></div>
               </div>
             )}
 
@@ -333,7 +326,6 @@ export default function PortalPage() {
                     </div>
                   </>
                 )}
-                <div className="pt-4 border-t border-border"><p className="text-sm text-muted-foreground">We would love to hear your feedback on Scamly.{" "}<Link href="/portal/feedback" className="text-primary hover:underline">Click here to provide feedback</Link></p></div>
               </div>
             )}
           </div>

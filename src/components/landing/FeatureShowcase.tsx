@@ -4,38 +4,35 @@ import TextType from "../TextType";
 import { GridPattern } from "../GridPattern";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../ui/carousel";
 
-import scanLight from "../../../public/features/scan-light.png";
-import chatLight from "../../../public/features/chat-light.png";
-import searchLight from "../../../public/features/search-light.png";
-import libraryLight from "../../../public/features/library-light.png";
+import assistant from "../../../public/features/assistant.png";
+import automaticProtection from "../../../public/features/automatic-protection.png";
+import breachSearch from "../../../public/features/breach-search.png";
+import articles from "../../../public/features/articles.png";
 
 const features = [
   {
-    title: "AI Scam Scanner",
+    title: "Scam Safety Assistant",
     description:
-      "Upload screenshots of suspicious messages, emails, or social media posts. Our AI analyzes content patterns and provides instant risk assessments with actionable advice.",
-    image: scanLight,
+      "Get tailored scam safety advice, find contact information for legitimate companies, and ask questions about scams and fraud.",
+    image: assistant,
   },
   {
-    title: "AI Chat Assistant",
+    title: "Automatic Protection",
     description:
-      "Have natural conversations about scams, fraud, and cybersecurity. Get personalized answers to complex questions and learn how to stay protected.",
-    image: chatLight,
-    badge: "Premium",
+      "Automatically block scammers from contacting you via SMS, and customise your own protection rules to tailor your experience. Enable lockdown mode if you fear you're under a spam attack.",
+    image: automaticProtection,
   },
   {
-    title: "Contact Search",
+    title: "Breach Search",
     description:
-      "Powered by Perplexity AI, find legitimate contact information for any company worldwide. Never fall for fake customer service scams again.",
-    image: searchLight,
-    badge: "Beta",
-    badgeVariant: "beta" as const,
+      "Search the dark web for your information, and get a specific risk assessment based on if you've been compromised.",
+    image: breachSearch,
   },
   {
     title: "Learning Library",
     description:
       "Access a comprehensive library of articles, guides, and tips about scam types, prevention strategies, and online safety best practices.",
-    image: libraryLight,
+    image: articles,
   },
 ];
 
@@ -87,17 +84,6 @@ export function FeatureShowcaseSection() {
                       <div className="w-fit text-center md:text-left">
                         <div className="flex items-center justify-center md:justify-start gap-3 mb-3">
                           <h3 className="font-display text-2xl md:text-3xl font-bold">{feature.title}</h3>
-                          {feature.badge && (
-                            <span
-                              className={`px-3 py-1 text-xs font-bold rounded-full ${
-                                feature.badgeVariant === "beta"
-                                  ? "bg-orange-500/20 text-orange-600 border border-orange-500/30"
-                                  : "gradient-bg text-primary-foreground"
-                              }`}
-                            >
-                              {feature.badge}
-                            </span>
-                          )}
                         </div>
                         <p className="text-sm md:text-base text-muted-foreground max-w-md">{feature.description}</p>
                       </div>

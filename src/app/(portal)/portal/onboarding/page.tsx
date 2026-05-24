@@ -10,7 +10,7 @@ import { useToast } from "../../../../hooks/use-toast";
 import { User, Calendar, MapPin, Loader2 } from "lucide-react";
 import { z } from "zod";
 import { countries } from "../../../../constants/countries";
-import logoLight from "../../../../../public/navbar-logo-light.png";
+import logoLight from "../../../../../public/navbar-logo.png";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { CountryWhyCollected } from "../../../../components/CountryWhyCollected";
 import { getBrowserMetadata } from "../../../../lib/browser-metadata";

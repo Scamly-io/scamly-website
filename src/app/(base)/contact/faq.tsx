@@ -20,20 +20,20 @@ const faqs = [
       "You can change your email address by logging into the Scamly account portal and selecting the security tab. You will need to have access to both the old and new email address you wish to change to.",
   },
   {
-    question: "How do I sign up to Scamly Premium?",
+    question: "Is scamly paid?",
     answer:
-      "You can sign up to Scamly Premium by logging into the Scamly account portal and selecting the subscription tab.",
+      "Yes, Scamly is a paid service. You can sign up for a 7 day free trial by creating an account in the Scamly app.",
   },
   {
     question:
       "How do I cancel my Scamly Premium subscription or update my billing information?",
     answer:
-      "You can manage your subscription by logging into the Scamly account portal and selecting the subscription tab and selecting either the Manage Billing or Cancel Subscription buttons.",
+      "You can manage your billing, and cancel your subscription through Apple Subscriptions, or within the Scamly app under Settings > Billing",
   },
   {
     question: "How do I get a refund?",
     answer:
-      "Unfortunately, we do not offer refunds for Scamly Premium subscriptions unless in extenuating circumstances. Please contact support@scamly.io for enquiries.",
+      "Unfortunately, we do not offer refunds for Scamly Premium subscriptions except in extenuating circumstances. Please contact support@scamly.io for enquiries.",
   },
 ];
 
