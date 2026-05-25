@@ -19,7 +19,7 @@ async function getPrivacyPolicy() {
     .from("policies")
     .select("version, content")
     .eq("policy_type", "privacy")
-    .order("version", { ascending: false })
+    .order("published_at", { ascending: false })
     .limit(1)
     .maybeSingle();
 
