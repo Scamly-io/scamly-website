@@ -14,6 +14,9 @@ import logoLight from "../../../../../public/navbar-logo.png";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { CountryWhyCollected } from "../../../../components/CountryWhyCollected";
 import { getBrowserMetadata } from "../../../../lib/browser-metadata";
+import { completeRegistration } from "../../../../lib/complete-registration";
+import { trackSignupCompleted } from "../../../../lib/analytics";
+import { parseDobToApiFormat } from "../../../../lib/dob";
 
 const genders = ["Male", "Female", "Prefer not to say"];
 
@@ -48,7 +51,7 @@ export default function PortalOnboardingPage() {
   const searchParams = useSearchParams();
 
   const { toast } = useToast();
-  const { updateProfile } = useAuth();
+  const { refreshProfile } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -123,45 +126,65 @@ export default function PortalOnboardingPage() {
 
     setSaving(true);
 
-    let isoDate: string | null = null;
-    if (dob && dob.trim() !== "") {
-      const dobParts = dob.split("/");
-      isoDate = dobParts.length === 3 ? `${dobParts[2]}-${dobParts[1]}-${dobParts[0]}` : dob;
+    const apiDob = dob.trim() ? parseDobToApiFormat(dob) : undefined;
+    if (dob.trim() && !apiDob) {
+      setErrors({ dob: "Please enter a valid date in dd/mm/yyyy format" });
+      return;
     }
 
     const browserMeta = await getBrowserMetadata();
 
-    const profileData = {
+    const result = await completeRegistration({
       first_name: firstName,
-      ...(isoDate ? { dob: isoDate } : {}),
       country,
+      ...(apiDob ? { dob: apiDob } : {}),
       ...(gender ? { gender } : {}),
       referral_source: referralSource,
-      onboarding_completed: true,
-      ...browserMeta,
-    };
-
-    const { error } = await supabase
-      .from("profiles")
-      .update(profileData)
-      .eq("id", userId);
-
-    const { error: updateProfileError } = await updateProfile(profileData);
+      ...(browserMeta.ip_address ? { ip_address: browserMeta.ip_address } : {}),
+      ...(browserMeta.user_agent ? { user_agent: browserMeta.user_agent } : {}),
+      ...(browserMeta.fbp ? { fbp: browserMeta.fbp } : {}),
+      ...(browserMeta.fbc ? { fbc: browserMeta.fbc } : {}),
+      action_source: "website",
+    });
 
     setSaving(false);
 
-    if (error) {
-      toast({ title: "Update failed", description: error.message, variant: "destructive" });
-    } else if (updateProfileError) {
-      toast({ title: "Update failed", description: updateProfileError.message, variant: "destructive" });
-    } else {
-      supabase.functions.invoke("send-customer-email", {
-        body: { type: "welcome", userId },
-      }).catch((err) => console.error("Failed to send welcome email:", err));
+    if (!result.success) {
+      const profileUpdated = !result.error?.includes("Failed to update profile");
+      if (profileUpdated) {
+        await refreshProfile();
+        toast({
+          title: "Profile saved",
+          description: "We couldn't send analytics for registration, but you can continue.",
+          variant: "destructive",
+        });
+        trackSignupCompleted(userId);
+        supabase.functions.invoke("send-customer-email", {
+          body: { type: "welcome", userId },
+        }).catch((err) => console.error("Failed to send welcome email:", err));
 
-      const hasToken = searchParams.get("token");
-      router.push(hasToken ? "/portal/onboarding-complete?ref=app" : "/portal/onboarding-complete?ref=web");
+        const hasToken = searchParams.get("token");
+        router.push(hasToken ? "/portal/onboarding-complete?ref=app" : "/portal/onboarding-complete?ref=web");
+        return;
+      }
+
+      toast({
+        title: "Setup failed",
+        description: result.error ?? "Unable to complete registration",
+        variant: "destructive",
+      });
+      return;
     }
+
+    await refreshProfile();
+    trackSignupCompleted(userId);
+
+    supabase.functions.invoke("send-customer-email", {
+      body: { type: "welcome", userId },
+    }).catch((err) => console.error("Failed to send welcome email:", err));
+
+    const hasToken = searchParams.get("token");
+    router.push(hasToken ? "/portal/onboarding-complete?ref=app" : "/portal/onboarding-complete?ref=web");
   };
 
   if (loading) {

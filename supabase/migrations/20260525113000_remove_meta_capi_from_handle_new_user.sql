@@ -59,33 +59,8 @@ begin
         'first_name', new.raw_user_meta_data ->> 'first_name'
       )
     ) into request_id;
-
-    select net.http_post(
-      url := supabase_url || '/functions/v1/meta-complete-registration',
-      headers := jsonb_build_object(
-        'Content-Type', 'application/json',
-        'Authorization', 'Bearer ' || anon_key,
-        'x-internal-secret', internal_secret
-      ),
-      body := jsonb_build_object(
-        'email', new.email,
-        'profile_id', new.id,
-        'client_ip_address', new.raw_user_meta_data ->> 'ip_address',
-        'client_user_agent', new.raw_user_meta_data ->> 'user_agent',
-        'fbp', new.raw_user_meta_data ->> 'fbp',
-        'fbc', new.raw_user_meta_data ->> 'fbc',
-        'country', new.raw_user_meta_data ->> 'country'
-      )
-    ) into request_id;
   end if;
 
   return new;
 end;
 $function$;
-
-DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
-
-CREATE TRIGGER on_auth_user_created
-AFTER INSERT ON auth.users
-FOR EACH ROW
-EXECUTE FUNCTION public.handle_new_user();

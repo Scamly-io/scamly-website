@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "../../../contexts/AuthContext";
+import { formatDobForDisplay, parseDobToApiFormat } from "../../../lib/dob";
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
 import { Label } from "../../../components/ui/label";
@@ -83,12 +84,7 @@ export default function PortalPage() {
     if (profile && user) {
       setFirstName(profile.first_name || "");
       if (profile.dob) {
-        const parts = profile.dob.split("-");
-        if (parts.length === 3) {
-          setDob(`${parts[2]}/${parts[1]}/${parts[0]}`);
-        } else {
-          setDob(profile.dob);
-        }
+        setDob(formatDobForDisplay(profile.dob));
       } else {
         setDob("");
       }
@@ -102,13 +98,17 @@ export default function PortalPage() {
       toast({ title: "Country required", description: "Please select your country before saving.", variant: "destructive" });
       return;
     }
-    let isoDate: string | null = null;
+    let apiDob: string | null = null;
     if (dob && dob.trim() !== "") {
-      const dobParts = dob.split("/");
-      isoDate = dobParts.length === 3 ? `${dobParts[2]}-${dobParts[1]}-${dobParts[0]}` : dob;
+      const parsed = parseDobToApiFormat(dob);
+      if (!parsed) {
+        toast({ title: "Invalid date of birth", description: "Please enter a valid date in dd/mm/yyyy format.", variant: "destructive" });
+        return;
+      }
+      apiDob = parsed;
     }
     setSaving(true);
-    const { error } = await updateProfile({ first_name: firstName, ...(isoDate ? { dob: isoDate } : { dob: null }), country, gender });
+    const { error } = await updateProfile({ first_name: firstName, ...(apiDob ? { dob: apiDob } : { dob: null }), country, gender });
     setSaving(false);
     if (error) { toast({ title: "Update failed", description: error.message, variant: "destructive" }); }
     else { toast({ title: "Profile updated", description: "Your profile has been successfully updated." }); }

@@ -38,7 +38,7 @@ import { Ratelimit } from "https://esm.sh/@upstash/ratelimit@latest";
 
 const FUNCTION_NAME = "ai-assistant";
 
-const CHAT_MODEL = "gpt-5.5";
+const CHAT_MODEL = "gpt-5.4-mini";
 const SCAN_MODEL = "gpt-5.5";
 const TITLE_MODEL = "gpt-5.4-nano";
 
