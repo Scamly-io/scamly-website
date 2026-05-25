@@ -55,7 +55,7 @@ export function AboutSection() {
                   <value.icon className="w-6 h-6 text-primary-foreground" />
                 </div>
                 <div>
-                  <h3 className="font-display font-bold mb-1">{value.title}</h3>
+                  <h3 className="font-sans font-bold mb-1">{value.title}</h3>
                   <p className="text-sm text-muted-foreground">{value.description}</p>
                 </div>
               </div>

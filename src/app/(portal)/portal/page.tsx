@@ -193,7 +193,7 @@ export default function PortalPage() {
       <main className="relative z-10 container mx-auto px-4 py-8 pt-24">
         <div className="max-w-4xl mx-auto">
           <div className="mb-8">
-            <h1 className="font-display text-3xl font-bold mb-2">Welcome back, {profile?.first_name || "there"}!</h1>
+            <h1 className="font-sans text-3xl font-bold mb-2">Welcome back, {profile?.first_name || "there"}!</h1>
             <p className="text-muted-foreground">Manage your account settings and subscription.</p>
           </div>
 
@@ -210,7 +210,7 @@ export default function PortalPage() {
             {activeTab === "profile" && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="font-display text-xl font-bold mb-1">Profile Information</h2>
+                  <h2 className="font-sans text-xl font-bold mb-1">Profile Information</h2>
                   <p className="text-sm text-muted-foreground">Update your personal details here.</p>
                 </div>
                 <div className="grid md:grid-cols-2 gap-4">
@@ -265,7 +265,7 @@ export default function PortalPage() {
 
             {activeTab === "subscription" && (
               <div className="space-y-6">
-                <div><h2 className="font-display text-xl font-bold mb-1">Subscription</h2><p className="text-sm text-muted-foreground">Manage your Scamly subscription.</p></div>
+                <div><h2 className="font-sans text-xl font-bold mb-1">Subscription</h2><p className="text-sm text-muted-foreground">Manage your Scamly subscription.</p></div>
                 <div className="p-4 rounded-xl bg-muted/50 border border-border">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-muted-foreground">Current Plan</span>
@@ -273,7 +273,7 @@ export default function PortalPage() {
                     : isCancelling ? (<span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-xs font-semibold text-amber-600 dark:text-amber-400">Cancelling</span>)
                     : (<span className="px-2 py-0.5 rounded-full bg-muted text-xs font-semibold text-muted-foreground">Free</span>)}
                   </div>
-                  <p className="font-display font-bold text-lg">{isPremium ? isTrialing ? "Free Trial" : "Premium" : isCancelling ? "Premium (Cancelling)" : "Free"}</p>
+                  <p className="font-sans font-bold text-lg">{isPremium ? isTrialing ? "Free Trial" : "Premium" : isCancelling ? "Premium (Cancelling)" : "Free"}</p>
                   {isPremium && subscriptionEndDate && (<p className="text-sm text-muted-foreground mt-1">{isTrialing ? `Trial ends on ${subscriptionEndDate}` : `Renews on ${subscriptionEndDate}`}</p>)}
                   {isCancelling && !isPremium && accessExpiryDate && (
                     <div className="mt-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20"><p className="text-sm text-amber-700 dark:text-amber-300">Your subscription has been cancelled. You will retain premium access until <span className="font-semibold">{accessExpiryDate}</span>.</p></div>
@@ -290,7 +290,7 @@ export default function PortalPage() {
 
             {activeTab === "security" && (
               <div className="space-y-8">
-                <div><h2 className="font-display text-xl font-bold mb-1">Security Settings</h2><p className="text-sm text-muted-foreground">{isOAuthUser ? `Your account is managed through ${oAuthProviderName}.` : "Update your email address and password."}</p></div>
+                <div><h2 className="font-sans text-xl font-bold mb-1">Security Settings</h2><p className="text-sm text-muted-foreground">{isOAuthUser ? `Your account is managed through ${oAuthProviderName}.` : "Update your email address and password."}</p></div>
                 {isOAuthUser ? (
                   <div className="p-5 rounded-xl bg-muted/50 border border-border">
                     <div className="flex items-start gap-4">
@@ -307,7 +307,7 @@ export default function PortalPage() {
                 ) : (
                   <>
                     <div className="space-y-4">
-                      <h3 className="font-semibold">Change Email</h3>
+                      <h3 className="font-sans font-semibold">Change Email</h3>
                       <div className="flex flex-col sm:flex-row gap-4">
                         <div className="flex-1 space-y-2">
                           <Label htmlFor="newEmail">New Email Address</Label>
@@ -317,7 +317,7 @@ export default function PortalPage() {
                       </div>
                     </div>
                     <div className="space-y-4 pt-4 border-t border-border">
-                      <h3 className="font-semibold">Change Password</h3>
+                      <h3 className="font-sans font-semibold">Change Password</h3>
                       <div className="grid md:grid-cols-2 gap-4">
                         <div className="space-y-2"><Label htmlFor="newPassword">New Password</Label><div className="relative"><Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" /><Input id="newPassword" type="password" placeholder="Min 8 characters" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="pl-10" /></div></div>
                         <div className="space-y-2"><Label htmlFor="confirmPassword">Confirm Password</Label><div className="relative"><Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" /><Input id="confirmPassword" type="password" placeholder="Confirm password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="pl-10" /></div></div>

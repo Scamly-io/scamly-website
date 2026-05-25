@@ -83,7 +83,7 @@ export function FeatureShowcaseSection() {
                       {/* Content */}
                       <div className="w-fit text-center md:text-left">
                         <div className="flex items-center justify-center md:justify-start gap-3 mb-3">
-                          <h3 className="font-display text-2xl md:text-3xl font-bold">{feature.title}</h3>
+                          <h3 className="font-sans text-2xl md:text-3xl font-bold">{feature.title}</h3>
                         </div>
                         <p className="text-sm md:text-base text-muted-foreground max-w-md">{feature.description}</p>
                       </div>

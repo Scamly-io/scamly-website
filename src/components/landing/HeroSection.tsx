@@ -26,7 +26,7 @@ export function HeroSection({ tightTop = false }: { tightTop?: boolean }) {
 
             {/* Title */}
             <h1
-              className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] mb-4 text-foreground opacity-0 animate-fade-up"
+              className="font-sans text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] mb-4 text-foreground opacity-0 animate-fade-up"
               style={{ animationDelay: "0.2s" }}
             >
               The world's best scam protection app

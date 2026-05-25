@@ -84,7 +84,7 @@ export function PricingSection() {
 
             <div className="flex items-start gap-0 mb-8 sm:mb-10">
               <div className="pr-6 sm:pr-8 border-r border-white/20">
-                <div className="font-display text-3xl sm:text-4xl md:text-5xl font-bold">
+                <div className="font-sans text-3xl sm:text-4xl md:text-5xl font-bold">
                   <span
                     className="bg-clip-text text-transparent"
                     style={{
@@ -97,7 +97,7 @@ export function PricingSection() {
                 <span className="text-slate-400 text-sm mt-1 block">Monthly</span>
               </div>
               <div className="pl-6 sm:pl-8">
-                <div className="font-display text-3xl sm:text-4xl md:text-5xl font-bold">
+                <div className="font-sans text-3xl sm:text-4xl md:text-5xl font-bold">
                   <span
                     className="bg-clip-text text-transparent"
                     style={{

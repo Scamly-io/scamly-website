@@ -298,7 +298,7 @@ export default function AuthPage() {
             ) : null}
 
             <div className="text-center mb-8">
-              <h2 className="font-display text-2xl font-bold mb-2">
+              <h2 className="font-sans text-2xl font-bold mb-2">
                 {mode === "signin"
                   ? "Welcome back"
                   : mode === "forgot"

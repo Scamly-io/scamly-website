@@ -107,7 +107,7 @@ export function GlobalCoverageSection() {
                 ].map((stat, index) => (
                   <div key={stat.label} className="text-center group">
                     <p
-                      className="font-display text-3xl md:text-4xl font-bold text-transparent bg-clip-text mb-1 transition-transform duration-300 group-hover:scale-110"
+                      className="font-sans text-3xl md:text-4xl font-bold text-transparent bg-clip-text mb-1 transition-transform duration-300 group-hover:scale-110"
                       style={{
                         backgroundImage:
                           "linear-gradient(135deg, rgb(242, 166, 162), rgb(231, 115, 201), rgb(162, 162, 248))",
