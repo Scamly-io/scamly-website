@@ -2,6 +2,7 @@ import { HomeAnnouncementStack } from "../../components/HomeAnnouncementStack";
 import { FeatureShowcaseSection } from "../../components/landing/FeatureShowcase";
 import { GlobalCoverageSection } from "../../components/landing/GlobalCoverageSection";
 import { AboutSection } from "../../components/landing/AboutSection";
+import { RecentPostsSection } from "../../components/landing/RecentPostsSection";
 import { CTASection } from "../../components/landing/CTASection";
 
 export default function HomePage() {
@@ -11,6 +12,7 @@ export default function HomePage() {
       <FeatureShowcaseSection />
       <GlobalCoverageSection />
       <AboutSection />
+      <RecentPostsSection />
       <CTASection />
     </div>
   );
