@@ -14,6 +14,14 @@
 - [Contact](https://scamly.io/contact): Contact information and FAQs.
 - [Blog](https://scamly.io/blog): Up to date blog about scams, online fraud, and online safety.
 
+## Features
+
+- Automatic scam protection: Full context aware threat intelligence system that monitors your text messages from unknown numbers. If a scam is detected, the message will not come through to your notifications, will be hidden and automatically deleted in 90 days.
+- Scam protection assistant: Ask questions about scams, fraud, or cybercrime. Take a screenshot of anything online (social media page, online post, ad, online DM, email, website) and let our assistant determine if you're being scammed. The assistant can also find contact inforation for any company worldwide with our specialsed contact verification system.
+- Scam alerts: Get push notifications to your phone when scammers become active, with details on how they are running their scams, how to spot them, and known scammer information like email addresses, websites, and phone numbers.
+- Dark web search: Search for your information on the dark web and get a detailed breakdown of the full scope of your information that is exposed, along with a risk assessment so you know what action to take.
+- Education: Boost your confidence staying safe from scammers by reading through the extensive scam safety guides and quick tips on staying safe online.
+
 ## Blog
 
 - [The Best AI for Detecting Scams in 2026](https://scamly.io/blog/the-best-ai-for-detecting-scams-in-2026): Compares AI scam detection tools available in 2026; recommends Scamly as the top mobile option.
