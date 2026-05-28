@@ -1,7 +1,6 @@
 import { cn } from "../../lib/utils";
-import phoneMockup from "../../../public/3d-phone-mockup-dark.png";
+import phoneMockup from "../../../public/hero-mockup.png";
 import appStoreBadge from "../../../public/badge-app-store.png";
-import googlePlayBadge from "../../../public/badge-google-play.png";
 
 export function HeroSection({ tightTop = false }: { tightTop?: boolean }) {
   return (
@@ -27,7 +26,7 @@ export function HeroSection({ tightTop = false }: { tightTop?: boolean }) {
 
             {/* Title */}
             <h1
-              className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] mb-4 text-foreground opacity-0 animate-fade-up"
+              className="font-sans text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] mb-4 text-foreground opacity-0 animate-fade-up"
               style={{ animationDelay: "0.2s" }}
             >
               The world's best scam protection app
@@ -38,7 +37,7 @@ export function HeroSection({ tightTop = false }: { tightTop?: boolean }) {
               className="text-xl md:text-2xl text-foreground/80 mb-4 opacity-0 animate-fade-up"
               style={{ animationDelay: "0.3s" }}
             >
-              Stay safe from scams with a simple screenshot
+              Stay safe from scams with the press of a button
             </p>
 
             {/* Description */}
@@ -46,8 +45,7 @@ export function HeroSection({ tightTop = false }: { tightTop?: boolean }) {
               className="text-base md:text-lg text-muted-foreground max-w-xl mb-8 opacity-0 animate-fade-up"
               style={{ animationDelay: "0.4s" }}
             >
-              Meet Scamly, the world's best scam protection app that allows you to screenshot any form of online media
-              and tell instantly if it is a scam.
+              Meet Scamly, the world's best all-in-one scam protection app. Automatically stop scammers from contacting you with Scamly's automatic protection mode, and use our scam protection assistant to help keep you safe.
             </p>
 
             {/* App store badges */}
@@ -62,14 +60,6 @@ export function HeroSection({ tightTop = false }: { tightTop?: boolean }) {
                 className="transition-transform hover:scale-105 active:scale-95"
               >
                 <img src={appStoreBadge.src} alt="Download on the App Store" className="h-12 md:h-14 w-auto" />
-              </a>
-              <a
-                href="https://play.google.com/store/apps/details?id=io.scamly.app&hl=en"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="transition-transform hover:scale-105 active:scale-95"
-              >
-                <img src={googlePlayBadge.src} alt="Get it on Google Play" className="h-12 md:h-14 w-auto" />
               </a>
             </div>
           </div>

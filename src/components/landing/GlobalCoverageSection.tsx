@@ -100,14 +100,14 @@ export function GlobalCoverageSection() {
             <div className="relative z-10 flex items-end h-full min-h-[340px] px-8 md:px-12 pb-10">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8 w-full">
                 {[
-                  { value: 95, suffix: "%", label: "Detection Accuracy", duration: 1 },
-                  { value: 500, suffix: "k+", label: "Scan Tokens Used", duration: 1.5 },
-                  { value: 24, suffix: "/7", label: "AI Protection", duration: 1 },
+                  { value: 98, suffix: "%", label: "Detection Accuracy", duration: 1 },
+                  { value: 800, suffix: "k+", label: "Scan Tokens Used", duration: 1.5 },
+                  { value: 24, suffix: "/7", label: "Protection", duration: 1 },
                   { value: 170, suffix: "+", label: "Countries Covered", duration: 1.5 },
                 ].map((stat, index) => (
                   <div key={stat.label} className="text-center group">
                     <p
-                      className="font-display text-3xl md:text-4xl font-bold text-transparent bg-clip-text mb-1 transition-transform duration-300 group-hover:scale-110"
+                      className="font-sans text-3xl md:text-4xl font-bold text-transparent bg-clip-text mb-1 transition-transform duration-300 group-hover:scale-110"
                       style={{
                         backgroundImage:
                           "linear-gradient(135deg, rgb(242, 166, 162), rgb(231, 115, 201), rgb(162, 162, 248))",

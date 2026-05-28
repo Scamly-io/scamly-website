@@ -1,10 +1,142 @@
 export const blogPosts = {
     "articles": [
         {
+            "id": "bb4ca4c1ca",
+            "title": "The Best AI for Detecting Scams in 2026",
+            "created_at": "2026-05-26",
+            "slug": "the-best-ai-for-detecting-scams-in-2026",
+            "description": "Having a dedicated AI app for detecting scams can be the difference between another annoying scammer, and losing thousands. Here is why Scamly excels as the best app for scam detection in 2026",
+            "content": `
+                Every year, millions of people lose money to scams—and the amounts are often far higher than most people expect. A single convincing text message, a fake delivery notification, or a call claiming to be from your bank can lead to losses of hundreds or even thousands of dollars. What makes this especially frustrating is that many victims never thought they would fall for a scam. They considered themselves careful, skeptical, and aware of the risks.
+
+                The reality is that scammers have become extraordinarily good at what they do. They study psychology, exploit urgency, and use technology to make fraudulent messages look indistinguishable from legitimate ones. You no longer need to click an obvious phishing link or reply to a message full of spelling errors to be at risk. Modern scams are polished, personalized, and designed to reach you at the moment when you are least likely to think critically—late at night, during a stressful day, or when you are distracted by something else.
+
+                This is why relying on willpower alone is not enough. A dedicated scam detection app can act as a constant layer of defense: filtering threats before they reach you, helping you evaluate suspicious content when you are unsure, and keeping you informed as new scams emerge. In 2026, Scamly stands out as the best choice for anyone who wants serious protection without needing a background in cybersecurity.
+
+                ---
+
+                ## Why Scams Are So Hard to Spot on Your Own
+
+                Before looking at what makes a great scam detection app, it helps to understand what you are up against.
+
+                **SMS scams are the most common entry point.** Fraudulent text messages now account for a huge share of scam attempts worldwide. Delivery scams, bank impersonation, government refund messages, and fake two-factor authentication codes all arrive as ordinary-looking texts. Because SMS feels personal and immediate, people tend to react quickly—exactly what scammers want.
+
+                **Scammers create false urgency.** Messages that claim your account will be locked, your package will be returned, or you owe money today are designed to bypass your usual caution. When you feel rushed, you are more likely to tap a link, share a code, or send money before verifying anything.
+
+                **Legitimate companies are being impersonated perfectly.** Logos, tone of voice, and even partial personal details can be copied from real communications. Without a tool that recognizes scam patterns, telling the difference between a real bank alert and a fake one can come down to guesswork.
+
+                **The cost of getting it wrong is severe.** Unlike ignoring a spam email, engaging with a scam text or call can lead to direct financial loss, identity theft, or months of recovery work. Prevention is dramatically cheaper than dealing with the aftermath.
+
+                A scam detection app does not replace common sense—but it gives you backup when scams are designed to defeat common sense.
+
+                ---
+
+                ## What to Look for in a Scam Detection App
+
+                Not every security app is built for scams specifically. Traditional antivirus and mobile security suites focus on malware, device theft, and network threats. Those matter, but they often miss the social engineering side of fraud: the text that asks you to verify your identity, the message that looks like it came from Amazon, the caller who sounds exactly like someone you trust.
+
+                The best scam detection app in 2026 should:
+
+                - **Work proactively**, not only when you remember to check something
+                - **Be simple enough** for anyone to use, including people who are not comfortable with technology
+                - **Cover the channels** where scams actually happen—especially SMS
+                - **Offer guidance** when a situation is ambiguous
+                - **Stay affordable** compared to bloated security bundles
+                - **Keep you educated** as tactics evolve
+
+                Scamly was built around exactly these requirements. Here is how its key features deliver on each one.
+
+                ---
+
+                ## Automatic Scam Protection
+
+                The single most valuable feature in any scam app is protection that works without you having to do anything. Scamly's automatic scam protection runs in the background on your phone and monitors text messages from unknown numbers for patterns associated with known scams.
+
+                When a message is flagged as suspicious, it is hidden from your Messages app entirely. You never see it, which means you cannot accidentally reply, tap a malicious link, or follow instructions under pressure. For SMS scams—the most common scam type people encounter—this is a game-changer. Instead of hoping you will recognize every threat, Scamly removes the threat from your view before it can influence you.
+
+                Think of it as a filter between scammers and your daily life. You go about your day; Scamly handles the junk and the dangerous messages quietly.
+
+                ---
+
+                ## Designed for Ease of Use
+
+                The best security tool is one you will actually use. Scamly is designed to be simple and approachable. You do not need technical know-how, cybersecurity training, or hours of setup. Enable automatic protection, and the app begins working. When you have a question about something suspicious—a screenshot, a message, a situation you are unsure about—you can turn to the app without navigating complicated menus or security jargon.
+
+                This matters because scam victims are not only people who "don't understand technology." Plenty of capable, intelligent people fall for scams because the moment of decision happens under stress. An app that is easy to reach for in that moment makes the difference between pausing to verify and acting on impulse.
+
+                If you are setting up protection for a parent, a partner, or anyone who finds traditional security software overwhelming, Scamly's straightforward design removes a major barrier to staying safe.
+
+                ---
+
+                ## AI Assistant for When You Are Unsure
+
+                Not every suspicious situation fits a simple yes-or-no pattern. Sometimes you receive a message that feels slightly off. Sometimes someone asks you to move a conversation to a different app, or sends a link you are not sure about. Sometimes you want to verify whether a company contact is legitimate before you respond.
+
+                Scamly's AI Assistant is built for these grey areas. You can ask questions, describe what you are seeing, and get guidance grounded in scam detection—not generic internet advice. The assistant helps you spot red flags, understand what scammers typically do in similar situations, find contact information for organizations you want to verify, and work through decisions when something does not feel right.
+
+                This is especially useful for scams that do not arrive as obvious spam: romance scams that build trust over weeks, investment pitches that sound professional, or impersonation attempts that use just enough real detail to seem credible. Having a specialized assistant available when you need a second opinion is one of the reasons Scamly outperforms general-purpose tools for fraud prevention.
+
+                ---
+
+                ## Affordable Protection Without the Bloat
+
+                Comprehensive security does not have to mean paying for a expensive bundle you barely use. Competitors like Malwarebytes, McAfee, and Norton often charge substantially more for suites that combine antivirus, VPN, identity monitoring, and other features—many of which address different threats than day-to-day scam attempts.
+
+                Scamly focuses on what matters most for scam prevention and keeps pricing accessible: **$4.99 per month or $49.99 per year**, with a no-obligation free trial for new users. You are paying for scam-specific protection, education, and tools—not for a dozen features you may never open.
+
+                For many people, the cost of one prevented scam pays for years of subscription. When you compare that to the average loss from fraud, Scamly represents strong value without locking you into a heavyweight security ecosystem.
+
+                ---
+
+                ## Dark Web Search and Breach Alerts
+
+                Scams do not always start with a message on your phone. Sometimes criminals already have your email address from an old data breach and use it to craft convincing phishing attempts or account takeover attacks.
+
+                Scamly includes dark web search functionality that can look for your email address in breach-related data and alert you if it has appeared in known exposures. Knowing that your information has been compromised helps you take action early: change passwords, enable two-factor authentication, and watch for targeted phishing that references your real accounts or history.
+
+                This feature complements automatic SMS protection by addressing another common path scammers use to seem legitimate—personalization based on leaked data.
+
+                ---
+
+                ## Scam Alerts for Emerging Threats
+
+                Fraud tactics change constantly. A scam that dominates headlines one month may be replaced by a new variation the next. Scamly's scam alerts keep you informed when scammers become active with new or emerging schemes, so you are not relying on outdated advice or last year's warning signs.
+
+                Staying current matters because scammers adapt faster than most people update their mental checklist of what to avoid. Alerts turn Scamly into an ongoing source of awareness, not just a one-time install.
+
+                ---
+
+                ## Quick Tips and Scam Safety Guides
+
+                Long-term safety comes from understanding how scams work—not only from blocking individual messages. Scamly includes extensive quick tips and scam safety guides that help you learn how to recognize manipulation, protect your accounts, and respond wisely when something feels wrong.
+
+                Education is what turns a one-time close call into lasting resilience. Whether you want a short reminder before tax season, guidance on a specific scam type, or deeper articles on staying safe online, the in-app resources give you practical knowledge you can apply beyond the app itself.
+
+                ---
+
+                ## Availability and Getting Started
+
+                Scamly is currently available on **iOS**. Download the app, start your free trial, enable automatic protection, and explore the AI Assistant and educational content at your own pace. Android support is in development, but iPhone users can benefit from full protection today.
+
+                If you have been thinking about whether you need a scam app at all, consider this: the most common scams meet you where you already are—on your phone, in your messages, during an ordinary day. A tool that works in the background, stays affordable, and helps you when you are unsure is not a luxury. For 2026, it is one of the smartest investments you can make in your financial and personal security.
+
+                ---
+
+                ## The Bottom Line
+
+                Scams are more sophisticated, more common, and more costly than ever. Willpower and caution are important, but they are not a complete strategy when criminals are trained to exploit urgency, trust, and technology at scale.
+
+                **Scamly is the best scam detection app in 2026** because it combines automatic SMS protection, ease of use, an AI Assistant for complex questions, dark web breach awareness, timely scam alerts, and a rich library of safety guides—at a price that respects your budget.
+
+                You do not need to be an expert to stay safe. You need the right app working quietly on your side. Scamly is built to be that app.
+            `,
+        },
+        {
             "id": "0c2sqblvc6",
             "title": "Scammers Are Using AI to Scam You—Here's How It Can Protect You Instead",
-            "created_at": "2026-01-09",
+            "created_at": "2026-05-12",
             "slug": "scammers-are-using-ai-to-scam-you",
+            "description": "Scammers are using AI more and more to run scams and you can no longer rely on the traditional signals such as bad grammer or spelling. However, specialised fraud protection AI like Scamly can also be used to protect you from scams.",
             "content": `
                 Artificial intelligence has transformed nearly every aspect of our lives, but it's brought an unsettling reality: scammers now have access to the same powerful tools that legitimate businesses use. The bad actors in the online fraud world have embraced AI with enthusiasm, weaponizing it to create scams that are more convincing, more scalable, and harder to detect than ever before.
 
@@ -74,6 +206,10 @@ export const blogPosts = {
 
                 Rather than trying to manually analyze every suspicious message, Scamly's AI engine is specifically designed to detect the very scam tactics that scammers use AI to create.
 
+                **Automatic Scam Protection**
+
+                Scamly includes automatic scam protection that when enabled, will monitor your text messages from unknown numbers and automatically flag them as suspicious if they match the patterns of known scams. Flagged messages are completely hidden from your messages app so there is no risk of you accidentally sending money to a scammer.
+
                 **Detecting AI-Generated Phishing**
 
                 Scamly's AI can identify the subtle patterns that indicate a message was AI-generated or designed to manipulate. It analyzes language patterns, personalization techniques, urgency signals, and request structures that are characteristic of modern phishing attempts. While the message might be grammatically perfect and personalized, Scamly recognizes the manipulation tactics underneath.
@@ -92,7 +228,7 @@ export const blogPosts = {
 
                 **Scamly's AI Chat for Complex Situations**
 
-                Beyond instant screenshot analysis, Scamly includes an AI chat assistant specifically trained to help with scam-related questions. Unlike asking a general AI tool, you're getting advice from a system that understands scam psychology, common manipulation tactics, and how to evaluate legitimacy. It's trained on scam-specific knowledge rather than general information.
+                Beyond automatic scam detection for text messages, Scamly includes an AI Assistant that you can ask questions about any suspicious content you come across. Unlike asking a general AI tool, you're getting advice from a system that understands scam psychology, common manipulation tactics, and how to evaluate legitimacy. It's trained on scam-specific knowledge rather than general information.
 
                 ---
 
@@ -125,6 +261,7 @@ export const blogPosts = {
             "title": "The Best Way to Protect Your Parents From Scams",
             "created_at": "2025-12-27",
             "slug": "the-best-way-to-protect-your-parents-from-scams",
+            "description": "Worried about your aging parents falling for scams? Seniors are often targeted because they may be less familiar with technology. You can help protect them though by setting them up with automatic scam protection services like Scamly.",
             "content": `
                 If you have aging parents, you've likely worried about their financial security. But there's a threat you might not have fully considered: scams targeting seniors. The reality is stark. Adults over 60 lose more money to fraud than any other age group, with losses exceeding billions annually. And it's not because they're careless or unintelligent—it's because scammers specifically target them with sophisticated tactics exploiting trust, respect for authority, and sometimes social isolation.
 
@@ -185,21 +322,21 @@ export const blogPosts = {
 
                 While conversation and education are valuable, the reality is that even informed, cautious people can be fooled by sophisticated scams. This is where **Scamly becomes an invaluable tool for your parents.**
 
-                Scamly is designed to be easy to use—no technical expertise required—and provides instant verification of suspicious content. Here's why it's perfect for older adults:
+                Scamly is designed to be easy to use—no technical expertise required—and provides instant verification of suspicious content and automatic protection from the most common scams It takes the burden of spotting scams off your parents shoulders so they don't have to worry about it. Here's why it's perfect for older adults:
 
                 **Why Scamly is ideal for your parents:**
 
-                - **Simple process:** Screenshot anything suspicious and upload it. No need to analyze URLs, spot spelling mistakes, or understand technical details. The AI does the work.
-                - **Instant results:** Your parent gets a clear answer about whether something is a scam, reducing anxiety and preventing hasty decisions.
+                - **Simple process:** Download the app, enable the automatic protection, and Scamly immediately begins monitoring your parents text messages from strange or suspicious numbers in the background.
+                - **Instant results:** If your parents come across something on social media, all they need to do is take a screenshot and ask Scamly's AI assistant and it will instantly tell them if its a scam.
                 - **No special tech skills required:** The app is intuitive and doesn't require your parent to understand how the detection works—just that it works.
                 - **Covers multiple scam types:** Whether it's an email, text, call screenshot, website, or message, Scamly analyzes it. One tool covers the scams most likely to target your parents.
                 - **AI chat for complex situations:** For situations that aren't clear-cut, your parent can chat with Scamly's AI assistant to think through whether something is legitimate.
                 - **Reduces family conflict:** Rather than your parent feeling defensive when you question a suspicious message, they can simply verify with Scamly, creating an objective third party.
-                - **Contact verification:** If your parent receives a call claiming to be from their bank or a government agency, they can use Scamly's contact search to find the legitimate number and call back independently.
+                - **Contact verification:** If your parent receives a call claiming to be from their bank or a government agency, they can ask Scamly's AI assistant to find the real contact information and verify if they are talking to a scammer.
 
                 **How to introduce Scamly to your parents:**
 
-                Start by downloading it on their device and showing them how it works with a harmless example. Let them practice with a screenshot of something obviously suspicious so they understand the process. Then, position it as a tool to use when they're unsure: "When something doesn't feel quite right, just screenshot it and upload it here. It's like having an expert check it for you."
+                Start by downloading it on their device, enabling the automatic protection, and walking them through talking to the assistant with a harmless example. Let them practice with a screenshot of something obviously suspicious so they understand the process. Then, position it as a tool to use when they're unsure: "When something doesn't feel quite right, just screenshot it and upload it here. It's like having an expert check it for you."
 
                 Over time, using Scamly becomes habit. That moment of uncertainty—when they're not sure if an email is from their bank or a caller sounds official—becomes an opportunity to verify rather than a moment of doubt or fear.
 
@@ -255,7 +392,7 @@ export const blogPosts = {
 
                 Protecting your parents requires layers of defense, not a single solution. Here's how these methods work together:
 
-                **Your parent receives a suspicious call claiming to be from their bank.** Their education (Method 1) makes them pause rather than immediately complying. They hang up, feel uncertain, and screenshot the call details or the number. They upload it to Scamly (Method 2), which confirms it's a scam. They check their bank account (Method 3) to ensure it hasn't been compromised. They feel confident reporting the scam to their bank. 
+                **Your parent receives a suspicious call claiming to be from their bank.** Their education (Method 1) makes them pause rather than immediately complying. They hang up, feel uncertain, and screenshot the call details or the number. They upload it to Scamly and ask the Assistant about it (Method 2), which confirms it's a scam. They check their bank account (Method 3) to ensure it hasn't been compromised. They feel confident reporting the scam to their bank. 
 
                 **An unfamiliar person connects with your parent on Facebook.** The person's profile looks real, but your parent's privacy settings (Method 4) mean they don't have access to sensitive personal information. The friend request seems slightly off. Your parent doesn't accept without verifying, potentially avoiding a scammer using a fake profile.
 
@@ -269,11 +406,11 @@ export const blogPosts = {
 
                 **"My parents won't want to use an app like Scamly."**
 
-                Start by setting it up for them and showing them how simple it is. Let them see it work. Over time, when they're uncertain about something and want to verify, you can suggest: "Let's just upload it to Scamly to be sure." Most people embrace tools that are genuinely simple and useful. After using Scamly successfully a few times, it becomes comfortable.
+                Start by setting it up for them and showing them how simple and hands off it is. Let them see it work. Over time, when they're uncertain about something and want to verify, you can suggest: "Let's just upload it to Scamly to be sure." Most people embrace tools that are genuinely simple and useful. After using Scamly successfully a few times, it becomes comfortable.
 
                 **"My parents get defensive when I suggest they might fall for scams."**
 
-                Frame it as protection everyone needs, not something specific to them. "I use Scamly all the time because I get suspicious emails too" normalizes it and removes the sting of suggestion.
+                Frame it as protection everyone needs, not something specific to them. "I'm a lot younger and even I get suspicious messages that I'm not sure about" normalizes it and removes the sting of suggestion.
 
                 **"My parents are private and won't discuss finances with me."**
 
@@ -289,11 +426,11 @@ export const blogPosts = {
 
                 Protecting your parents from scams is one of the most practical, concrete ways you can support their wellbeing. Unlike some health or financial concerns that are complex and situation-specific, scam prevention is straightforward: educate, equip, and stay involved.
 
-                By having open conversations about common scams, setting them up with **Scamly as their verification tool, monitoring financial activity, securing their social media presence, and keeping them informed about emerging threats, you create a comprehensive defense system.**
+                By having open conversations about common scams, setting them up with **Scamly as their verification tool, monitoring financial activity, securing their social media presence, and keeping them informed about emerging threats**, you create a comprehensive defense system.
 
                 Scammers target older adults because they've identified vulnerabilities. But those same vulnerabilities can be addressed. With the right approach, your parents can navigate the digital world safely—and you can have peace of mind knowing you've taken concrete steps to protect them.
 
-                The best time to start is now. Begin a conversation, set up Scamly, review some privacy settings. Small steps create significant protection. Your parents' financial security and peace of mind are worth the effort.
+                The best time to start is now. Small steps create significant protection. Your parents' financial security and peace of mind are worth the effort.
             `,
         },
         {
@@ -301,6 +438,7 @@ export const blogPosts = {
             "title": "The Top 5 Ways to Stay Safe From Online Scams",
             "created_at": "2026-02-18",
             "slug": "the-top-5-ways-to-stay-safe-from-online-scams",
+            "description": "It can be confusing to know how to protect yourself from online scams as scammers get more and more aggressive. However, there are 5 core best practices that you can follow to stay safe.",
             "content": `
                 After spending the last decade studying online fraud, analyzing scam tactics, and helping victims recover from financial losses, I've learned one critical lesson: **the best defense against scams isn't fear—it's knowledge combined with practical tools.**
 
@@ -356,19 +494,19 @@ export const blogPosts = {
 
                 **Scamly represents a breakthrough in accessible scam detection.** Rather than requiring you to be an expert in spotting phishing emails, fake websites, or social engineering attempts, Scamly uses AI to do the analysis for you. Here's how it works:
 
-                Take a screenshot of anything suspicious—an email, text message, social media message, website, advertisement, image, dating profile, or any other online content. Upload it to Scamly, and its AI engine instantly analyzes the content against known scam patterns, suspicious language, fake indicators, and fraudulent markers. In seconds, you get a verdict: legitimate or scam.
+                Install the app and enable the automatic protection. Scamly then begins monitoring any text messages you receive from unknown numbers and automatically flags them if they are a scam, hiding them from your messages app altogether.
 
                 This approach removes the guesswork. You don't need to scrutinize URLs for misspellings or analyze sender information. You don't need to know the subtle differences between authentic and fake websites. You simply screenshot and upload.
 
-                **Why this matters:** In my research, I've found that people are far more likely to protect themselves when the process is easy and doesn't require technical expertise. A tool that requires you to check DNS records or analyze email headers? Most people won't use it consistently. A tool that requires a single screenshot? That's something people will actually use when they feel uncertain.
+                **Why this matters:** In my research, I've found that people are far more likely to protect themselves when the process is easy and doesn't require technical expertise. A tool that requires you to check DNS records or analyze email headers? Most people won't use it consistently. A tool that does it automatically in the background? That's something people will actually use.
 
-                Beyond instant detection, Scamly includes additional features that strengthen your defense:
+                Beyond automatic detection, Scamly includes additional features that strengthen your defense:
 
-                **AI Chat Assistant:** For complex situations that don't fit into a simple "scam or not" analysis, you can chat with Scamly's AI assistant. Have questions about whether a job offer is legitimate? Unsure if a romantic interest's story adds up? Wondering if an investment opportunity is credible? The assistant helps you think through these nuanced scenarios.
-
-                **Contact Verification Tool:** Scammers often impersonate real companies. Scamly's contact search tool helps you find legitimate contact information for any company globally, allowing you to verify independently. If you received a message claiming to be from a company, you can look up their real contact details and reach out directly.
-
+                **Chat Based Assistance:** Scamly's AI assistant is trained on millions of scam examples and can talk you through any situation you are unsure about. It can also help you verify any suspicious content with a simple screenshot, and find contact information for you for any company worldwide.
+                
                 **Education Library:** Knowledge is protection. Scamly's library of articles covers emerging scam tactics, common patterns, and best practices for staying safe.
+
+                **Dark Web Search:** Data breaches are very common nowadays and Scamly includes a tool to search the dark web for your email address to know if its been compromised.
 
                 **The combination approach:** A critical mindset identifies when something might be suspicious. A screenshot sent to Scamly provides instant verification. Together, they create a two-layer defense that catches most threats.
 
@@ -464,6 +602,7 @@ export const blogPosts = {
             "title": "How the Elderly Can Stay Safe From Online Scams: A Practical Guide",
             "created_at": "2026-01-22",
             "slug": "how-the-elderly-can-stay-safe-from-online-scams",
+            "description": "Elderly people are targeted the most by scammers which is why its important you understand how to keep yourself safe, and know what tools are available to help you.",
             "content": `
                 The statistics are sobering. Adults over 65 lose more money to fraud than any other age group—often tens of thousands of dollars in a single scam. Yet these aren't careless people or victims of their own foolishness. They're thoughtful, accomplished individuals who built careers, raised families, and managed finances successfully for decades. What makes them targets isn't lack of intelligence; it's specific vulnerabilities that scammers have learned to exploit.
 
@@ -513,20 +652,22 @@ export const blogPosts = {
 
                 ## Five Methods to Stay Safe: A Complete Protection Strategy
 
-                ### Method 1: Use Scamly to Verify Suspicious Content and Avoid Scams Altogether
+                ### Method 1: Use Scamly to take the burden of spotting scams off your shoulders
 
                 The most effective defense against scams is not falling for them in the first place. While no tool is 100% accurate, **Scamly provides an AI-powered verification system designed specifically to catch scams before they cause damage.**
 
                 Here's why Scamly is ideal for older adults:
 
-                **How it works simply:**
+                **How it works:**
 
-                - You receive something suspicious: an email, text message, pop-up, social media message, or screenshot of a call
-                - You take a screenshot of the suspicious content
-                - You upload it to Scamly's app
-                - In seconds, the AI analyzes it and tells you whether it's a scam or legitimate
-                - You know whether to trust it or delete it
+                - You download the app and sign up.
+                - You enable the automatic protection on your phone.
+                - Scamly begins protecting you.
 
+                In the background, when you receive a text message from an unknown number, Scamly will automatically flag it as suspicious if it matches the patterns of known scams, hiding it from your messages app altogether so there is no risk of you accidentally sending money to a scammer.
+
+                If you see a website, email, social media post, or anything else you can also ask the AI assistant to verify it for you with a simple screenshot.
+                
                 **Why this matters for you:**
 
                 - **No technical expertise required:** You don't need to understand URLs, email headers, or technical jargon. The app analyzes all of that for you.
@@ -534,12 +675,9 @@ export const blogPosts = {
                 - **Prevents emotional manipulation:** Romance scammers use psychological tactics. Investment scammers sound professional. Government impersonators sound official. Scamly's analysis bypasses emotion and identifies manipulation.
                 - **Covers all scam types:** Whether it's tech support pop-ups, romance scam messages, investment pitch emails, government impersonation, or any other scam type, Scamly analyzes them all.
                 - **Reduces anxiety:** Rather than worrying whether something is legitimate, you verify it and move on with confidence.
-                - **Extra features help beyond instant verification:**
 
-                - **AI Chat Assistant:** For complex situations that don't fit into simple "scam or not" analysis, you can chat with Scamly's AI assistant. Questions about whether a romantic interest's story makes sense? Whether an investment opportunity seems legitimate? The assistant helps you think through nuanced situations.
-                - **Contact Verification:** If someone claims to be from your bank, government agency, or a company, Scamly's contact search tool helps you find legitimate contact information so you can call back independently.
-                - **Education Library:** Articles in the app teach you about common scams and red flags, building your understanding over time.
-
+                Scamly's AI assistant also has the ability to search and verify contact information for any company worldwide. If you receive a phone call claiming to be from your bank, ask the assistant what the real contact number is and call them back independently.
+                
                 **How to use it as your first line of defense:**
 
                 Make checking with Scamly your new habit. That moment when something doesn't feel quite right? That's your signal to take a screenshot and verify. It takes 30 seconds. It could save you thousands of dollars.
@@ -638,7 +776,7 @@ export const blogPosts = {
 
                 **A kind person starts chatting with you online.** Over weeks, they seem genuinely interested in you. Then they ask for money for an emergency. Before responding, you think about your rules (Method 2): "Never send money to people I haven't met in person." You decline and ask for proof of who they really are. When they can't provide it, you realize it's a scam and block them.
 
-                **Someone calls claiming to be from Social Security.** Your heart races—what if there's actually a problem? But you've established a rule (Method 3): no financial or sensitive conversations without your trusted person present. You tell the caller you need to call back and hang up. You contact your adult child, who calls Social Security directly with you on the line. Social Security confirms there's no issue. The call was a scam.
+                **Someone calls claiming to be from Social Security.** Your heart races—what if there's actually a problem? But you've established a rule (Method 3): no financial or sensitive conversations without your trusted person present. You tell the caller you need to call back and hang up. You contact your trusted person, who calls Social Security directly with you on the line. Social Security confirms there's no issue. The call was a scam.
 
                 **Your computer starts acting strangely.** You see a pop-up with a tech support number. Your instinct is to call, but you remember your dedicated tech support person (Method 4). You call them instead. They help you understand that the pop-up is a scam and walk you through closing your browser safely. You never call the number in the pop-up.
 
@@ -660,7 +798,7 @@ export const blogPosts = {
 
                 **"Scamly feels like one more piece of technology I have to learn."**
 
-                Scamly is designed to be simple: screenshot, upload, get result. Try it once with something obviously suspicious so you understand the process. After that, it becomes a habit. And it's much simpler than learning about URL verification, phishing indicators, or technical scam details.
+                Scamly is designed to be simple: download the app, enable the automatic protection, and Scamly begins working for you completely hands off. If you see a website, email, social media post, or anything else you can also ask the AI assistant to verify it for you with a simple screenshot.
 
                 **"I'm embarrassed that I almost fell for a scam."**
 
@@ -670,7 +808,7 @@ export const blogPosts = {
 
                 ## Conclusion
 
-                Staying safe from online scams requires creating systems and habits, not relying on perfect judgment in moments of vulnerability. By using **Scamly as your first line of defense, establishing firm rules for online communication and financial transactions, requiring a trusted person present for banking decisions, having a dedicated tech support contact, and staying informed about evolving threats, you create comprehensive protection.**
+                Staying safe from online scams requires creating systems and habits, not relying on perfect judgment in moments of vulnerability. By using tools like **Scamly as your first line of defense, establishing firm rules for online communication and financial transactions, requiring a trusted person present for banking decisions, having a dedicated tech support contact, and staying informed about evolving threats**, you create comprehensive protection.
 
                 Scammers target older adults because they've identified vulnerabilities. But those vulnerabilities can be addressed. You don't have to be a technology expert. You don't have to understand how every scam works. You just need to implement these five practical strategies and follow them consistently.
 
@@ -684,6 +822,7 @@ export const blogPosts = {
             "title": "The 5 Most Common Scams and How to Spot Them",
             "created_at": "2026-03-03",
             "slug": "the-5-most-common-scams-and-how-to-spot-them",
+            "description": "Scammers will always still follow patterns regardless of how good technology gets. Here are the top 5 most common scams and what they look like so you know how to spot them.",
             "content": `
                 Scams aren't created equal. While the universe of fraud is vast and constantly evolving, certain types appear over and over again. Understanding the most common scams—and knowing the specific red flags for each—gives you a targeted defense strategy.
 
@@ -837,7 +976,9 @@ export const blogPosts = {
 
                 Here's why this matters:
 
-                **Universal Detection:** Whether you receive a suspicious email from someone claiming to be your bank, a romance scammer's message, a tech support scam pop-up screenshot, an investment opportunity email, or a government impersonation text, you can screenshot it and upload it to Scamly. The AI analyzes the content against known patterns for all scam types and gives you a clear verdict.
+                **Automatic Protection:** The best way to stay safe from scams is if they can never contact you. Scamly solves this problem by automatically monitoring your text messages from unknown numbers and hiding them from your phone if it identifies a scam. Your phone works together with Scamly to form a shield for your online communication.
+
+                **Universal Detection:** Whether you receive a suspicious email from someone claiming to be your bank, a romance scammer's message, a tech support scam pop-up screenshot, an investment opportunity email, or a government impersonation text, Scamly can spot it. The AI analyzes the content against known patterns for all scam types and gives you a clear verdict.
 
                 **No Need to Remember Every Red Flag:** You don't need to remember whether this particular tactic is associated with romance scams or investment scams. You don't need to spot misspellings in email addresses or recognize subtle social engineering techniques. Scamly does that analysis for you.
 
@@ -845,11 +986,7 @@ export const blogPosts = {
 
                 **Evolving with Threats:** Scammers change their tactics constantly. A variation of romance scams, investment scams, or impersonation scams emerges, and Scamly's AI learns from it. You don't need to stay current on emerging variations; your protection automatically evolves.
 
-                **Beyond Detection:** Beyond the screenshot analysis tool, Scamly's AI chat assistant helps you think through complex situations. Not sure if a job offer is legitimate? Have questions about whether a romantic interest's story adds up? Need to evaluate an investment opportunity? The specialized scam detection AI can help you work through ambiguous situations.
-
-                **Contact Verification:** Scamly's global contact search tool helps you independently verify company information, which is crucial for spotting bank impersonation, tech support, and government impersonation scams.
-
-                **Education Library:** The more you understand how these scams work, the better your natural instincts become. Scamly's educational resources help you develop the background knowledge that makes you harder to deceive.
+                **Beyond Detection:** Beyond blocking scammers automatically, Scamly's AI chat assistant helps you think through complex situations. Not sure if a job offer is legitimate? Have questions about whether a romantic interest's story adds up? Need to evaluate an investment opportunity? The specialized scam detection AI can help you work through ambiguous situations. You can also ask the assistant to find contact information for any company worldwide if you ever need to verify contact details.
 
                 ---
 
@@ -862,8 +999,6 @@ export const blogPosts = {
                 **Scamly covers all five of these common scams—and many others—in one package.** It's not a specialized tool for one type of fraud; it's a universal defense against the full spectrum of online deception.
 
                 The five scams in this article account for a massive percentage of fraud attempts. By understanding them and using Scamly to verify suspicious content, you protect yourself against the threats most likely to target you.
-
-                Make it a habit: if something feels off, screenshot it and upload it to Scamly. In seconds, you'll know if it's legitimate or a threat. That simple step could save you thousands of dollars and considerable emotional distress.
             `,
         },
         {
@@ -871,6 +1006,7 @@ export const blogPosts = {
             "title": "The Best Scam Protection Apps in 2026: Complete Guide",
             "created_at": "2026-04-03",
             "slug": "the-best-scam-protection-apps-in-2026",
+            "description": "There are many apps that claim to protect you from scams, but only some of them actually hold up their claims. Here are the best scam protection apps in 2026 and which one we recommend.",
             "content": `
                 In an increasingly digital world, scams have become more sophisticated and prevalent than ever. Whether you're shopping online, banking on your phone, or simply browsing social media, the risk of encountering fraudulent schemes is real. Scammers employ psychology, urgency, and technology to deceive millions of people every year, resulting in billions of dollars in losses globally.
 
@@ -890,22 +1026,21 @@ export const blogPosts = {
 
                 **Overview:**
 
-                Scamly stands out as the most user-friendly and accurate scam detection platform on the market. At its core is a powerful AI engine designed to instantly analyze any online content and determine whether it's legitimate or a scam. The app's flagship feature is beautifully simple: take a screenshot of anything suspicious—a message, email, website, social media post, ad, or image—and upload it to get an immediate verdict. This screenshot-to-analysis approach removes complexity and makes scam detection accessible to everyone, regardless of technical expertise.
+                Scamly stands out as the most user-friendly and accurate scam detection platform on the market. At its core is a powerful AI engine designed to instantly analyze any online content and determine whether it's legitimate or a scam. The app's flagship feature is beautifully simple: download the app, enable the automatic protection, and Scamly begins working for you completely hands off. If it finds a text message sent to your phone that's a scam, it hides it so you don't even see it.
 
-                Beyond instant detection, Scamly offers an AI-powered chat assistant for nuanced questions about scam prevention, a comprehensive contact search tool that helps you verify company information globally, and an extensive library of educational articles covering everything from common scam tactics to best practices for staying safe online.
+                Beyond instant detection, Scamly offers an AI assistant for nuanced questions about scam prevention. The assistant can also help you verify contact information for any company around the globe.
 
                 **Pros:**
-                - Instant analysis of screenshots with high accuracy—simply capture and upload
-                - AI chat assistant for personalized advice on complex scam-related questions
-                - Global contact search tool to verify legitimate company information
+                - Automatic scam detection for text messages.
+                - AI assistant for personalized advice on complex scam-related questions, and scam detection
                 - Intuitive, beginner-friendly interface requiring no technical knowledge
-                - Comprehensive education library keeping you informed about emerging threats
                 - Real-time detection using advanced machine learning algorithms
-                - Works with any type of online content—emails, texts, images, websites, social posts
+                - Will detect any scam regardless of the platform. It doesn't matter if its a text message, email, website, social media post, or anything else.
 
                 **Cons:**
                 - As a newer platform, it has a smaller user base than some established competitors
                 - Mobile app focus means limited desktop integration compared to some alternatives
+                - Only available on iOS currently, with Android being developed.
 
                 ---
 
@@ -920,7 +1055,6 @@ export const blogPosts = {
                 **Pros:**
                 - Established, trusted brand with decades of security expertise
                 - Comprehensive mobile security beyond just scam detection
-                - Call and SMS filtering to block suspicious communications
                 - App scanner to check for malware and security issues
                 - WiFi security monitoring for safer browsing on public networks
                 - Extensive threat database from years of research
@@ -928,7 +1062,7 @@ export const blogPosts = {
 
                 **Cons:**
                 - Can feel overwhelming for users who only want scam detection
-                - Premium features require a subscription, which adds monthly costs
+                - Premium features require an expensive subscription, which adds monthly costs
                 - May use significant battery and data on some devices
                 - Less focused on user education compared to dedicated scam apps
 
@@ -944,7 +1078,7 @@ export const blogPosts = {
 
                 **Pros:**
                 - Industry-leading malware and phishing detection capabilities
-                - Real-time scanning with minimal performance impact
+                - Real-time malware scanning with minimal performance impact (on Android only)
                 - Privacy-focused features including app permission audits
                 - Secure folder for protecting sensitive documents and photos
                 - Web filtering to block dangerous websites before you visit them
@@ -978,10 +1112,10 @@ export const blogPosts = {
                 - Frequently updated threat definitions
 
                 **Cons:**
-                - Premium subscription required for advanced features
+                - Complicated pricing model which can increase costs over time.
                 - Can slow down older or lower-end devices
                 - Interface is somewhat cluttered with many features
-                - Less specialized in scam education compared to dedicated apps
+                - Less specialized in scam detection compared to dedicated apps
                 - Customer support can be inconsistent based on user reviews
 
                 ---
@@ -990,7 +1124,7 @@ export const blogPosts = {
 
                 **Overview:**
 
-                TrueCaller takes a different approach to scam protection by focusing on call and message filtering. The app uses a massive crowdsourced database of known spam numbers and scam contacts to identify incoming calls and texts before they even reach you. When a call comes in from a flagged number, TrueCaller alerts you with the caller's identity or spam/scam designation. The app also allows you to block specific numbers and create custom filtering rules.
+                TrueCaller takes a different approach to scam protection by focusing on call filtering. The app uses a massive crowdsourced database of known spam numbers and scam contacts to identify incoming calls before they even reach you. When a call comes in from a flagged number, TrueCaller alerts you with the caller's identity or spam/scam designation. The app also allows you to block specific numbers and create custom filtering rules.
 
                 TrueCaller is particularly effective for blocking unwanted calls and identifying unknown callers, making it ideal for users who receive frequent spam or scam attempts via phone.
 
@@ -999,12 +1133,11 @@ export const blogPosts = {
                 - Effective spam and scam call blocking
                 - Real-time identification of incoming callers
                 - Crowdsourced reporting helps identify new scams quickly
-                - Can block spam SMS/text messages
                 - Free version offers essential features
                 - Simple, focused interface easy to navigate
 
                 **Cons:**
-                - Primarily focused on calls and messages; less effective for other scam types
+                - Primarily focused on calls; less effective for other scam types
                 - Doesn't analyze visual content like emails or images
                 - Requires phone number sharing with their database
                 - Privacy concerns for some users due to data collection model
@@ -1053,12 +1186,13 @@ export const blogPosts = {
                 | Education Library | ✓ | Limited | Limited | Limited | Limited | Limited |
                 | Device Performance | Excellent | Good | Good | Fair | Excellent | Excellent |
                 | Ease of Use | Excellent | Good | Fair | Fair | Excellent | Excellent |
+                | Automatic SMS Scam Detection | ✓ | ✗ | ✗ | ✓ | ✓ | ✗ |
 
                 ---
 
                 ## How to Choose the Right App for You
 
-                **Choose Scamly if:** You want the easiest, most intuitive scam detection experience with instant analysis of suspicious content. Perfect if you value user education, AI-powered assistance, and don't want to manage a complex security suite.
+                **Choose Scamly if:** You want the easiest, most hands off scam detection experience with automatic protection from scams.
 
                 **Choose Norton or Kaspersky if:** You want comprehensive mobile security beyond just scams, including malware protection, and don't mind paying for a premium suite.
 
@@ -1085,9 +1219,9 @@ export const blogPosts = {
 
                 ## Conclusion
 
-                Scams are evolving, but so are the tools designed to protect you. **Scamly emerges as the clear leader for users seeking straightforward, accurate, AI-powered scam detection with an emphasis on user education and ease of use.** Its screenshot analysis feature, combined with an AI assistant and comprehensive knowledge library, makes it the most accessible choice for anyone wanting to protect themselves from online fraud.
+                Scams are evolving, but so are the tools designed to protect you. **Scamly emerges as the clear leader for users seeking straightforward, accurate, AI-powered scam detection with an emphasis on user education and ease of use.** Its automatic protection feature, combined with an AI assistant and comprehensive knowledge library, makes it the most accessible choice for anyone wanting to protect themselves from online fraud.
 
-                However, the best app for you depends on your specific needs. If you want broader mobile security, Norton and Kaspersky offer comprehensive suites. If calls and texts are your primary concern, TrueCaller excels at filtering. If you prioritize device performance and simplicity, Bitdefender and TrueCaller are excellent lightweight options.
+                However, the best app for you depends on your specific needs. If you want broader mobile security, Norton and Kaspersky offer comprehensive suites. If calls are your primary concern, TrueCaller excels at filtering.
 
                 The most important step is to take action—install a scam protection app, educate yourself about common tactics, and stay vigilant. In 2026, digital safety is personal security, and these tools are designed to give you peace of mind in an increasingly complex online world.
             `,
@@ -1097,6 +1231,7 @@ export const blogPosts = {
             "title": "The Easiest Way to Spot Any Scam in 2026: Universal Detection Methods",
             "created_at": "2026-03-17",
             "slug": "the-easiest-way-to-spot-any-scam-in-2026",
+            "description": "Memorising all the different scams is impossible, so its important you understand how to use patterns to spot scammers. Here is how you can apply 5 different methods to spot any scam in 2026.",
             "content": `
                 One of the biggest challenges in scam prevention is that fraud comes in countless varieties. Romance scams look nothing like tech support scams. Investment fraud operates differently from government impersonation. Phishing emails have different characteristics than deepfakes. Trying to learn the red flags for every scam type is overwhelming.
 
@@ -1110,7 +1245,7 @@ export const blogPosts = {
 
                 **What it is:**
 
-                Rather than relying on your own ability to spot red flags, leverage AI technology specifically trained to detect scams across all types. Tools like Scamly analyze suspicious content—screenshots of messages, emails, websites, or images—and use machine learning to identify whether it's a scam or legitimate.
+                Rather than relying on your own ability to spot red flags, leverage AI technology specifically trained to detect scams across all types. Tools like Scamly automatically protect you by working with your phone to detect and block scams in the background.
 
                 **How it works universally:**
 
@@ -1120,21 +1255,20 @@ export const blogPosts = {
 
                 **Pros:**
 
-                - **Instant verification:** Screenshot, upload, get a result in seconds. No waiting, no analysis required from you.
+                - **Fully Automatic:** Simply download the app, enable the automatic protection, and Scamly begins working for you completely hands off. If it finds a text message sent to your phone that's a scam, it hides it so you don't even see it.
                 - **Requires no expertise:** You don't need to understand URLs, psychology, technical indicators, or specific scam types. The AI handles all of that.
                 - **Covers all scam types:** One tool works for romance scams, tech support scams, investment fraud, phishing, deepfakes, government impersonation—everything.
                 - **Removes emotion from decisions:** When you're scared, angry, or in love, your judgment is clouded. An objective AI analysis bypasses emotion.
                 - **Evolves with threats:** As new scam tactics emerge, the AI learns and improves. You benefit from continuously improving detection.
-                - **Low friction:** The process is so simple that you'll actually use it consistently, unlike more complex verification methods.
                 - **Peace of mind:** Getting confirmation that something is legitimate allows you to proceed with confidence.
-                - **Additional features:** Beyond instant detection, many tools include chat assistants for complex situations, contact verification tools, and educational resources.
+                - **Additional features:** Beyond automatic protection, Scamly's AI assistant can help you verify any suspicious content you come across with a simple screenshot, or find contact information for you for any company worldwide.
 
                 **Cons:**
 
                 - **Doesn't prevent all losses:** If you've already sent money or given away information before verifying, the tool can't recover what's lost.
                 - **New to the market:** Scamly is a relatively new app, so it may not be as well-known as some other apps.
 
-                **Best for:** Anyone who wants instant, effortless verification without needing to learn scam detection techniques. Ideal for everyday consumers, tech-averse individuals, and anyone who wants maximum convenience.
+                **Best for:** Anyone who wants instant, effortless protection without needing to learn scam detection techniques. Ideal for everyday consumers, tech-averse individuals, and anyone who wants maximum convenience.
 
                 ---
 
@@ -1320,6 +1454,7 @@ export const blogPosts = {
             "title": "How AI Can Protect You From Online Criminals: A Complete Guide",
             "created_at": "2026-02-02",
             "slug": "how-ai-can-protect-you-from-online-criminals",
+            "description": "AI is often cast as the villian in todays world, but it can actually be used to protect you from online criminals. Here is how you can utilise AI to your advantage to keep yourself safe online.",
             "content": `
                 Artificial intelligence has a reputation problem. In conversations about scams, AI is often cast as the villain—deepfakes, AI-generated phishing messages, voice cloning. These threats are real and serious. But there's a critical missing piece of the narrative: **AI is also one of your most powerful defenses against online criminals.**
 
@@ -1471,6 +1606,10 @@ export const blogPosts = {
 
                 **Here's what Scamly does:**
 
+                ### Automatic Scam Protection
+
+                Scamly automatically protects you by working with your phone to detect and block scams in the background. If it finds a text message sent to your phone that's a scam, it hides it so you don't even see it.
+
                 ### Instant Content Analysis
 
                 Upload a screenshot of anything suspicious—an email, text message, dating profile, investment opportunity, tech support pop-up, or social media message. Scamly's AI analyzes the content and provides an instant verdict. You get a clear answer about whether something is a scam or legitimate, without needing to understand how the analysis works.
@@ -1497,11 +1636,7 @@ export const blogPosts = {
 
                 ### Contact Verification
 
-                Beyond analyzing content, Scamly helps you verify whether organizations and people are who they claim to be. Its global contact search tool lets you look up legitimate company contact information so you can verify independently. This works against any scam involving impersonation.
-
-                ### AI Chat Assistant
-
-                For situations that don't fit neatly into "scam or not," Scamly's AI chat assistant helps you think through complex scenarios. Questions about whether a romantic interest's story adds up? Concerns about an investment opportunity? The specialized AI helps you evaluate ambiguous situations.
+                Beyond analyzing content, Scamly helps you verify whether organizations and people are who they claim to be. It's AI assistant can help you find contact information for any company worldwide.
 
                 ### Education and Insight
 
@@ -1555,6 +1690,7 @@ export const blogPosts = {
             "title": "Norton vs McAfee for Scam Protection: Which Is Right for You?",
             "created_at": "2026-01-29",
             "slug": "norton-vs-mcafee-for-scam-protection",
+            "description": "The question of what the best scam protection app is can be difficult to answer, so here is a breakdown of the 2 biggest names in the industry and why we don't recommend one over the other.",
             "content": `
                 When it comes to mobile security and scam protection, two names consistently appear: Norton and McAfee. Both are established, trusted brands with decades of cybersecurity expertise. Both offer comprehensive security suites that include scam detection alongside malware protection, antivirus software, and other security features.
 
@@ -1708,8 +1844,8 @@ export const blogPosts = {
                 **Specialized for scams, not general security:**
                 Scamly isn't trying to be everything. It's not scanning for viruses or malware. It's focused entirely on scam detection—understanding how fraudsters manipulate people, what psychological tactics they use, and how to identify those tactics regardless of the form they take.
 
-                **Instant screenshot analysis:**
-                Rather than complex scanning procedures, Scamly makes detection simple: screenshot anything suspicious and upload it. The AI analyzes it for scam indicators and gives you an instant verdict. This works for emails, texts, dating profiles, investment pitches, images, videos, websites—any online content.
+                **Completely hands off:**
+                Rather than requiring manual interaction, Scamly works in the background to keep you safe by blocking scammers from contacting you. It works with your phone to check text messages that you receive form unknown numbers and automatically hides them if they are a scam.
 
                 **Psychological manipulation detection:**
                 Scamly's AI is trained to recognize psychological tactics: artificial urgency, authority impersonation, emotional manipulation, isolation tactics, and social engineering. These are the tools scammers use, and Scamly detects them.
@@ -1718,10 +1854,7 @@ export const blogPosts = {
                 One tool covers romance scams, investment fraud, tech support scams, phishing, government impersonation, deepfakes, grandparent scams—all scam types. You don't need different tools for different threats.
 
                 **AI chat assistant:**
-                For complex situations that don't fit into simple "scam or not," Scamly's AI assistant helps you think through ambiguous scenarios. Questions about whether someone is being truthful? Whether an investment opportunity is legitimate? The assistant helps you evaluate.
-
-                **Contact verification:**
-                Scamly's global contact search helps you independently verify whether companies and organizations are legitimate, addressing a key scam tactic: impersonation.
+                If you come across something online that you're not sure about, you can ask the AI assistant to verify it for you with a simple screenshot. Scamly's assistant can also help you find contact information for any company worldwide.
 
                 **Education and awareness:**
                 Beyond detection, Scamly includes an educational library helping you understand scam tactics, build awareness, and develop the instincts that make you harder to deceive.
@@ -1736,18 +1869,19 @@ export const blogPosts = {
                 | Feature | Norton | McAfee | Scamly |
                 |---------|--------|--------|--------|
                 | **Primary Focus** | General security | General security | Scam detection |
+                | **Automatic Scam Protection** | No | No | Yes |
                 | **Screenshot Analysis** | No | No | Yes |
                 | **Psychological Tactic Detection** | No | No | Yes |
                 | **Romance Scam Detection** | Minimal | Minimal | Specialized |
                 | **Investment Scam Analysis** | No | No | Yes |
-                | **AI Chat Assistance** | No | No | Yes |
+                | **AI Chat Assistance** | Separate App | No | Yes |
                 | **Contact Verification** | No | No | Yes |
                 | **Deepfake Detection** | No | No | Yes |
                 | **Malware/Antivirus** | Yes | Yes | No |
                 | **Call Filtering** | Yes | Yes | No |
-                | **Price** | Higher | Lower | Moderate |
+                | **Price** | Higher | Higher | Affordable |
                 | **Scam Education** | Limited | Limited | Comprehensive |
-                | **Specialization** | Cybersecurity | Cybersecurity | Fraud prevention |
+                | **Specialization** | Cybersecurity | Cybersecurity | Scam prevention |
 
                 ---
 
@@ -1761,7 +1895,7 @@ export const blogPosts = {
 
                 Many security-conscious users maintain both a general security suite (for device protection, malware scanning, etc.) and a specialized scam detection tool (for the fraud threats not addressed by general security software).
 
-                However, **if you must choose one tool and scams are your primary concern, Scamly is the better choice.** Norton and McAfee are designed for cybersecurity professionals and comprehensive device protection. Scamly is designed specifically for you—to catch the scams most likely to target you, using AI specialized in fraud detection.
+                However, **if you must choose one tool and scams are your primary concern, Scamly is the better choice.** Norton and McAfee are designed for cybersecurity and comprehensive device protection. Scamly is designed specifically for you—to catch the scams most likely to target you, using AI specialized in fraud detection.
 
                 ---
 
@@ -1801,6 +1935,7 @@ export const blogPosts = {
             "title": "What Apps Do Scammers Use to Scam You",
             "created_at": "2026-03-27",
             "slug": "what-apps-do-scammers-use-to-scam-you",
+            "description": "Understanding what apps scammers are using to steal from you can help you spot them before they get to you. Here is a breakdown of the 10 most common apps and tools scammers use, and some that you can use to help protect yourself as well.",
             "content": `
                 Understanding the tools scammers use is the first step toward defending yourself against them. Modern fraud isn't conducted with pen and paper or simple email scripts. Today's scammers have access to sophisticated software, AI tools, and apps specifically designed to deceive at scale. They're equipped like tech companies—except they're using that technology for criminal purposes.
 
@@ -1994,7 +2129,7 @@ export const blogPosts = {
 
                 ### Against AI-Generated Messages
 
-                Scammers use AI to generate convincing phishing emails, romance scam messages, and investment pitches. Scamly uses AI trained specifically on scam detection to recognize these AI-generated messages. You screenshot a message and upload it to Scamly; the AI identifies whether it was likely generated by a scammer's AI engine.
+                Scammers use AI to generate convincing phishing emails, romance scam messages, and investment pitches. Scamly uses AI trained specifically on scam detection to recognize these AI-generated messages. If you receive a text from a scammer that has used AI, this might fool even the eye of a trained professional, but Scamly will pick it up almost instantly.
 
                 ### Against Deepfakes and Synthetic Media
 
@@ -2002,7 +2137,7 @@ export const blogPosts = {
 
                 ### Against Spoofing and Impersonation
 
-                Scammers spoof caller IDs and email addresses to appear legitimate. Scamly's contact verification tool lets you independently verify whether someone actually represents the organization they claim to. You can look up legitimate contact information and verify independently.
+                Scammers spoof caller IDs and email addresses to appear legitimate. Scamly can verify contact information through the AI assistant which lets you independently verify whether someone actually represents the organization they claim to.
 
                 ### Against Personalized, Targeted Scams
 
@@ -2010,7 +2145,7 @@ export const blogPosts = {
 
                 ### Against Phishing at Scale
 
-                Scammers use phishing tools to send thousands of customized emails. Scamly instantly analyzes any email you suspect is phishing, identifying whether it's a legitimate message or a fraudulent attempt.
+                Scammers use phishing tools to send thousands of customized text messages. Even if you receive hundreds of messages a day, Scamly can put a stop to this by hiding them from your phone altogether.
 
                 ### Against Romance Scams Using Fake Profiles and Automation
 
@@ -2090,6 +2225,7 @@ export const blogPosts = {
             "title": "What to Do If a Scammer Contacts You: A Step-by-Step Guide",
             "created_at": "2026-02-14",
             "slug": "what-to-do-if-a-scammer-contacts-you",
+            "description": "Scammers rely on you to panic to steal from you. If you know what to do when they come calling, you can stay safe. Here is a step by step guide on what to do if a scammer contacts you.",
             "content": `
                 The moment you realize a scammer has contacted you, panic can set in. Your first instinct might be to respond, ask questions, or try to report them. But in those critical first moments, taking the right steps can prevent significant financial loss and protect your personal information.
 
@@ -2105,17 +2241,22 @@ export const blogPosts = {
 
                 **How to use Scamly immediately:**
 
-                **For text messages or emails:**
+                **For text messages:**
 
-                - Take a screenshot of the message
-                - Open Scamly and upload the screenshot
-                - Wait for the AI analysis (usually seconds)
+                - Enable the automatic protection feature in the app and on your device
+                - Sit back as Scamly works in the background to protect you from scams, completely hands off.
+
+                **For emails:**
+
+                - Take a screenshot of the email
+                - Open Scamly and ask the AI assistant to verify the screenshot
                 - Get a clear verdict: scam or legitimate
+                - Ask follow up questions for further clarification.
 
                 **For phone calls:**
 
-                - If you're still on the call, note any details: the caller's name, what organization they claim to represent, what they're asking for, and any phone number they provide
-                - After ending the call, you can describe the situation to Scamly's AI chat assistant
+                - If you're still on the call, note any details: the caller's name, what organization they claim to represent, what they're asking for, and any phone number they provide. Then hang up.
+                - After ending the call, you can describe the situation to Scamly's AI assistant
                 - Ask questions like: "I received a call claiming to be from [organization]. They asked for [information]. Is this a scam?"
                 - The AI provides guidance based on the details you provide
 
@@ -2163,7 +2304,7 @@ export const blogPosts = {
                 **If you've given them personal information:**
 
                 - **Passwords or account credentials:** Change your passwords immediately. Contact the organization (your bank, email provider, etc.) using an independently verified phone number. Tell them your account may be compromised and ask them to check for unauthorized activity.
-                - **Social Security number, date of birth, or financial information:** Place a fraud alert with the three major credit bureaus (Equifax, Experian, TransUnion). This prevents scammers from opening new accounts in your name. Consider a credit freeze for additional protection.
+                - **Social Security number, date of birth, or financial information:** Place a fraud alert with the major credit bureaus in your country. This prevents scammers from opening new accounts in your name. Consider a credit freeze for additional protection.
                 - **Credit card information:** Contact your credit card company immediately and report the fraud. They may cancel your card and issue a new one.
 
                 **If you've sent money:**
@@ -2171,7 +2312,7 @@ export const blogPosts = {
                 - **Wire transfer or cryptocurrency:** Contact the sending service immediately. While money sent this way is often unrecoverable, act as quickly as possible. Some services can freeze accounts if contacted immediately.
                 - **Gift card codes:** Contact the gift card provider (iTunes, Amazon, Google Play, etc.) immediately with the gift card details. If the codes haven't been used, there's a chance they can be recovered.
                 - **Check or bank transfer:** Contact your bank and report the fraud. They may be able to reverse the transaction, especially if done immediately.
-                - **File a report:** Report the fraud to the FTC at ReportFraud.ftc.gov. This creates an official record and helps authorities track scam patterns.
+                - **File a report:** Report the fraud to your countries scam reporting service. This creates an official record and helps authorities track scam patterns.
 
                 **Time is critical:** The faster you act, the better your chances of recovering money or preventing further theft.
 
@@ -2227,17 +2368,17 @@ export const blogPosts = {
 
                 **For any type of scam:**
 
-                - **Federal Trade Commission (FTC):** Report at ReportFraud.ftc.gov. The FTC aggregates reports and uses them to identify scam patterns and track criminal enterprises.
+                - **Government scam reporting bodies:** Your country likely has an internet crime or online scam reporting service. These services help your government build a defence for your country against scams.
 
                 **For specific scam types:**
 
-                - **Tech support scams:** Report to your device manufacturer (Apple, Microsoft, etc.) and to the FTC
-                - **Government impersonation:** Report to the specific agency being impersonated. If it's IRS impersonation, report to the IRS. If it's Social Security, report to Social Security.
-                - **Investment fraud:** Report to the SEC (Securities and Exchange Commission) at sec.gov/fraud
-                - **Romance or dating app scams:** Report to the dating platform where you met them
-                - **Bank impersonation:** Report to your bank and to the IC3 (Internet Crime Complaint Center) at ic3.gov
-                - **Cryptocurrency fraud:** Report to the crypto exchange and to the FBI's IC3
-                - **Online retailer fraud:** Report to the retailer and to the FTC
+                - **Tech support scams:** Report to your bank for account security, and see an IT technician.
+                - **Government impersonation:** Report to the specific agency being impersonated. If it's IRS impersonation, report to the IRS. If it's Social Security, report to Social Security, so on.
+                - **Investment fraud:** Report to the relevant regulatory body for investments in your country, as well as your bank for financial security.
+                - **Romance or dating app scams:** Report to the dating platform where you met them.
+                - **Bank impersonation:** Report to your bank for account security.
+                - **Cryptocurrency fraud:** Report to the crypto exchange and to the relevant regulatory body for investments in your country.
+                - **Online retailer fraud:** Report to the legitimate retailer and to your bank for financial security.
 
                 **Local law enforcement:**
 
@@ -2307,12 +2448,6 @@ export const blogPosts = {
                 - Warn them about the specific tactic used on you
                 - Help them understand why you fell for it (to reduce the judgment they might feel if they fall for it)
 
-                **Use Scamly going forward:**
-
-                - Make Scamly part of your routine for any suspicious contact
-                - Screenshot and verify when something doesn't feel quite right
-                - Use the chat feature for complex situations you're unsure about
-
                 ---
 
                 ## Complete Step-by-Step Response Plan: Quick Reference
@@ -2322,9 +2457,7 @@ export const blogPosts = {
                 **Immediately upon receiving a suspicious contact:**
 
                 1. **Don't panic.** You have time to think and respond carefully.
-                2. **Take a screenshot** of the message or write down details from the call
-                3. **Open Scamly** and upload the screenshot or describe the contact
-                4. **Wait for verification.** Scamly tells you if it's a scam.
+                2. If Scamly hasn't blocked it automatically, **take a screenshot** and ask the AI assistant to verify if you're being scammed.
 
                 **If Scamly confirms it's a scam:**
 
@@ -2336,7 +2469,7 @@ export const blogPosts = {
                 **If you provided information or money:**
 
                 9. **Act immediately.** Contact your bank, credit card company, or relevant service to report fraud.
-                10. **File official reports.** Report to the FTC and relevant agencies.
+                10. **File official reports.** Report to the relevant agencies.
                 11. **Monitor your accounts** for unauthorized activity.
                 12. **Review security** and change passwords.
 
@@ -2351,11 +2484,11 @@ export const blogPosts = {
 
                 **Scenario 1: Suspicious Email**
 
-                You receive an email from "your bank" asking you to verify your account information. Something feels off. You screenshot the email and upload it to Scamly. Scamly flags it as phishing. You stop responding, block the email address, mark it as spam, and report it to the FTC. You're protected.
+                You receive an email from "your bank" asking you to verify your account information. Something feels off. You screenshot the email and upload it to Scamly. Scamly flags it as phishing. You stop responding, block the email address, mark it as spam, and report it to the relevant agencies. You're protected.
 
                 **Scenario 2: Romance Scam**
 
-                You've been chatting with someone online for weeks when they ask for money for an emergency. Before sending anything, you describe the situation to Scamly's AI chat. The assistant recognizes romance scam indicators and suggests verifying their identity through video call. When they refuse, you know it's a scam. You block them and report to the dating platform. You avoided financial loss.
+                You've been chatting with someone online for weeks when they ask for money for an emergency. Before sending anything, you describe the situation to Scamly's AI assistant. The assistant recognizes romance scam indicators and suggests cutting contact. You block them and report to the dating platform. You avoided financial loss.
 
                 **Scenario 3: Tech Support Call**
 
@@ -2365,21 +2498,9 @@ export const blogPosts = {
 
                 You receive an email about a guaranteed investment opportunity. Before responding or sending money, you screenshot it and upload to Scamly. Scamly flags it as an investment scam. You report it to the SEC and block the contact. Your money stays in your account.
 
-                ---
+                **Scenario 5: Phishing Text Message**
 
-                ## The Critical First Step: Verification
-
-                All of this guidance comes down to one critical point: **The moment you receive a suspicious contact, verify it with Scamly before taking any other action.**
-
-                This one step—taking 30 seconds to screenshot and upload—can prevent:
-
-                - Thousands of dollars in financial loss
-                - Identity theft and fraud
-                - Emotional manipulation and heartbreak (in romance scams)
-                - Malware installation (in tech support scams)
-                - Months of dealing with fraud recovery
-
-                **Scamly is specifically designed for this moment.** It's your first line of defense when you suspect something is wrong. Use it immediately, and let the AI analysis guide your subsequent actions.
+                A scammer tries to send you a text message impersonating your bank to trick you into sharing your login details through a fake website. Scamly automatically spots this and blocks the message, hiding it from your phone altogether. You don't even realise a scammer tried to contact you and go about your day.
 
                 ---
 
@@ -2387,17 +2508,18 @@ export const blogPosts = {
 
                 If a scammer contacts you, the steps are clear:
 
-                1. **Verify with Scamly** - Confirm it's actually a scam
-                2. **Stop communicating** - Don't engage further
-                3. **Protect yourself** - If you've already provided information or money, act quickly
-                4. **Document everything** - Record details for reporting and evidence
-                5. **Block and report** - Remove them from your life and report to authorities
-                6. **Strengthen security** - Review accounts and change passwords
-                7. **Stay vigilant** - Use Scamly proactively going forward
+                1. **Use Scamly** - Automatically protect yourself from scams, completely hands off.
+                2. **Verify** - If Scamly hasn't blocked it automatically, take a screenshot and ask the AI assistant to verify if you're being scammed.
+                3. **Stop communicating** - Don't engage further
+                4. **Protect yourself** - If you've already provided information or money, act quickly
+                5. **Document everything** - Record details for reporting and evidence
+                6. **Block and report** - Remove them from your life and report to authorities
+                7. **Strengthen security** - Review accounts and change passwords
+                8. **Stay vigilant** - Use Scamly proactively going forward
 
-                The most important step is the first one: **Use Scamly immediately to verify whether you're actually dealing with a scammer.** That verification guides everything that follows.
+                The most important step is the first one: **Use Scamly to protect you!**
 
-                Remember: scammers are professional criminals with sophisticated tools. You don't have to match their sophistication—you just need to use Scamly to identify them and then follow these steps to protect yourself.
+                Remember: scammers are professional criminals with sophisticated tools. You don't have to match their sophistication—you just need good personal practices to keep yourself safe.
 
                 You've been contacted by a scammer. Now you know what to do.
             `
@@ -2407,6 +2529,7 @@ export const blogPosts = {
             "title": "How to Keep Your Kids Safe From Online Criminals: A Parent's Guide",
             "created_at": "2026-03-10",
             "slug": "how-to-keep-your-kids-safe-from-online-criminals",
+            "description": "Most people think that elderly people are the only ones targeted by scammers, but they can come for your children as well. Here is how to help teach your children how to stay safe online.",
             "content": `
                 The digital landscape your children navigate is fundamentally different from the one you grew up in. They're exposed to online interactions at younger ages, have less developed critical thinking skills about digital deception, and are often more trusting of online personas. At the same time, scammers have identified children and teenagers as attractive targets—they're easier to manipulate, less likely to report fraud, and often have access to family payment methods.
 
@@ -2552,27 +2675,19 @@ export const blogPosts = {
 
                 ### Method 2: Give Them Scamly to Detect Scams on Their Own
 
-                While parent-child communication is essential, young people also need **their own tools to identify suspicious contacts and content independently.** This builds their confidence and gives them a way to verify when something feels off.
+                While parent-child communication is essential, the best approach to scam protection is to block scammers from contacting your children altogether. Thats where Scamly comes in.
 
                 **Why Scamly is perfect for teens:**
 
+                - **Fully Automatic:** Scamly works in the background to protect your children from scams, completely hands off. If it finds a text message sent to their phone that's a scam, it hides it so they don't even see it.
                 - **Age-appropriate and empowering:** Rather than relying on you to catch every threat, they have a tool they can use independently. This builds critical thinking and self-reliance.
                 - **No judgment:** Scamly provides objective analysis without judgment. Your teen doesn't have to admit they were almost manipulated—they just upload and verify.
                 - **Covers all threat types:** Whether it's a sextortion attempt, a suspicious gaming offer, a fake investment pitch, or credential theft, Scamly analyzes it.
-                - **Easy to use:** Screenshot, upload, get result. Teens understand technology and will actually use this—unlike complex security advice they might ignore.
                 - **Builds healthy skepticism:** Using Scamly teaches them to verify rather than trust blindly. This skill protects them throughout their lives.
-                - **Private and discreet:** They can verify something without having to immediately tell you, reducing shame if they've been targeted.
-
-                **How to introduce Scamly to your teen:**
-
-                - **Frame it as independence:** "I'm setting this up so you can verify things yourself without always having to ask me. Just screenshot something that seems off and upload it. You'll get an answer in seconds."
-                - **Show them it works:** Do a practice run with something obviously suspicious. Let them see how simple the process is.
-                - **Explain when to use it:** "When someone online asks you for something—money, personal information, photos—or when an offer seems too good to be true, just verify with Scamly first. If it's flagged as a scam, you'll know not to engage."
-                - **Keep it judgment-free:** "Using Scamly doesn't mean you've been dumb or made a mistake. It means you're being smart about verifying things."
-                - **Make it their tool:** Don't monitor what they verify. Trust that they'll use it. The goal is to give them a tool, not to surveil them.
 
                 **Real-world examples your teen might face:**
 
+                - A lewd text message from someone claiming to be interested in sexual interaction.
                 - Someone on Instagram DMs asking to be a "modeling scout" but needs photos first
                 - A Discord friend asking for their Fortnite account password
                 - A TikTok video promoting a cryptocurrency investment opportunity
@@ -2582,9 +2697,9 @@ export const blogPosts = {
 
                 For each of these, Scamly provides instant verification.
 
-                **Beyond detection - the chat feature:**
+                **Beyond automatic protection - the chat feature:**
 
-                For complex situations, Scamly's AI chat assistant helps them think through ambiguous scenarios: "I've been talking to someone for a few weeks. They seem nice but now they're asking me to move to a private app. Is this suspicious?" The assistant provides guidance without judgment.
+                For complex situations, Scamly's AI assistant helps them think through ambiguous scenarios: "I've been talking to someone for a few weeks. They seem nice but now they're asking me to move to a private app. Is this suspicious?" The assistant provides guidance without judgment.
 
                 ---
 
@@ -2666,7 +2781,7 @@ export const blogPosts = {
 
                 **Layer 1 - Communication:** Open dialogue where they feel safe discussing online interactions
 
-                **Layer 2 - Detection tool:** Scamly so they can verify suspicious contacts independently
+                **Layer 2 - Detection tool:** Scamly so they can verify immediately.
 
                 **Layer 3 - Financial protection:** Limits on payments and monitoring of transactions
 
@@ -2696,11 +2811,11 @@ export const blogPosts = {
 
                 **"What if my teen has already been targeted?"**
 
-                Don't panic. Act quickly using the steps in our "What to Do If a Scammer Contacts You" article. Involve them in verifying with Scamly and reporting to authorities. Make it clear this wasn't their fault—they were targeted by professionals.
+                Don't panic. Act quickly using the steps in our "What to Do If a Scammer Contacts You" article. Involve them in reporting to authorities. Make it clear this wasn't their fault—they were targeted by professionals.
 
                 **"My teen will just ignore my warnings and take risks anyway."**
 
-                Probably some of them will. That's why Scamly is so valuable—it gives them a tool they'll actually use when they're in the moment of uncertainty. Tools that make protection easy are more effective than warnings they might ignore.
+                Probably some of them will. That's why Scamly is so valuable—it protects them automatically and gives them a tool they'll actually use when they're in the moment of uncertainty. Tools that make protection easy are more effective than warnings they might ignore.
 
                 ---
 
@@ -2708,7 +2823,7 @@ export const blogPosts = {
 
                 **Scenario 1: Sextortion Attempt**
 
-                Your 15-year-old receives a DM from someone claiming to be their age. After a few weeks of friendly conversation, the person asks for intimate photos. Before complying, your teen describes the situation to Scamly's chat feature. The assistant recognizes romance scam indicators and suggests verifying the person's identity through video call. When the person refuses, your teen knows it's a scam. They block the account, tell you what happened, and you report it to Instagram. No harm done.
+                Your 15-year-old receives a DM from someone claiming to be their age. After a few weeks of friendly conversation, the person asks for intimate photos. Before complying, your teen describes the situation to Scamly's assistant. The assistant recognizes romance scam indicators and suggests blocking communication. They block the account, tell you what happened, and you report it to Instagram. No harm done.
 
                 **Scenario 2: Gaming Purchase Scam**
 
@@ -2720,35 +2835,19 @@ export const blogPosts = {
 
                 **Scenario 4: Credential Theft**
 
-                Your 14-year-old receives an email claiming to be from their school asking to verify login information. Something feels off, so they describe it to Scamly's chat feature. The assistant explains that schools never ask for passwords via email. Your teen doesn't click the link. No account compromise.
-
-                ---
-
-                ## The Most Important Tool: Giving Them Scamly
-
-                While all these methods work together, **the single most empowering thing you can do is give your teen Scamly.** Here's why:
-
-                - **It shifts the power:** Rather than relying on you to catch every threat, they have their own tool
-                - **It builds confidence:** They can verify independently, which builds trust in their own judgment
-                - **It removes shame:** They can verify something without admitting they were almost manipulated
-                - **It's actually used:** Teens understand technology and will use tools that are simple and effective
-                - **It teaches critical thinking:** The habit of verifying before trusting protects them throughout their lives
-
-                A teen with Scamly is a teen who can protect themselves. That's the goal—not total protection from danger, but the tools and skills to navigate digital risks safely.
+                Your 14-year-old receives an email claiming to be from their school asking to verify login information. Something feels off, so they describe it to Scamly's assistant. The assistant explains that schools never ask for passwords via email. Your teen doesn't click the link. No account compromise.
 
                 ---
 
                 ## Conclusion
 
-                Keeping your children safe from online criminals requires multiple layers: communication, detection tools, financial limits, privacy management, and awareness. **Scamly serves as the critical second layer—giving your teens their own tool to verify suspicious contacts and content independently.**
+                Keeping your children safe from online criminals requires multiple layers: communication, detection tools, financial limits, privacy management, and awareness.
 
                 The scammers targeting your children are professionals. They're skilled at manipulation, they operate at massive scale, and they've identified your teen as an attractive target. But with the right combination of parental involvement and your teen's own defensive skills, they can navigate the digital world safely.
 
-                Start with open communication. Set up Scamly so they have a verification tool. Establish financial boundaries. Manage their privacy. Monitor their online life while respecting their growing independence. And teach them to think critically about everything they encounter online.
+                Start with open communication. Set up Scamly so they get immediate automatic protectio. Establish financial boundaries. Manage their privacy. Monitor their online life while respecting their growing independence. And teach them to think critically about everything they encounter online.
 
                 Your children will encounter threats. The goal isn't to eliminate all risk—that's impossible. The goal is to equip them with knowledge, tools, and confidence so they can recognize threats and protect themselves.
-
-                **Scamly is the tool that does exactly that. Give it to them, and you give them power over their own safety.**
             `
         },
         {
@@ -2756,6 +2855,7 @@ export const blogPosts = {
             "title": "What Apps to Use to Protect Your Digital Identity",
             "created_at": "2026-03-29",
             "slug": "what-apps-to-use-to-protect-your-digital-identity",
+            "description": "Your digital identity is your online presence and its important to keep it safe and secure. Here are the top 6 best apps for keeping your digital identity safe online",
             "content": `
                 Digital identity protection isn't a single solution—it's a layered strategy using specialized tools, each designed to address a specific aspect of your online security. Think of it like home security: you don't use one lock for everything. You have a front door lock, window locks, an alarm system, security cameras, and motion-sensor lights. Each serves a distinct purpose.
 
@@ -2786,14 +2886,13 @@ export const blogPosts = {
                 - Excellent at detecting emerging and new malware threats
                 - User-friendly interface
                 - Works on Windows, Mac, iOS, and Android
-                - Free version provides basic protection; premium offers advanced features
+                - Free version provides basic protection
 
                 **Cons:**
 
                 - Primary focus is malware, not comprehensive security suite
-                - Doesn't include call filtering or phishing detection (though it blocks malicious websites)
-                - Subscription required for full features
-                - Some users report occasional false positives
+                - Doesn't include call filtering
+                - Expensive subscription required for full features
 
                 **How it fits the identity protection toolkit:**
 
@@ -2833,9 +2932,6 @@ export const blogPosts = {
 
                 **Cons:**
 
-                - Subscription required (though affordable)
-                - Password managers are attractive targets for hackers (though 1Password's security is excellent)
-                - Requires trusting a third party with password storage
                 - Learning curve for some users unfamiliar with password managers
 
                 **How it fits the identity protection toolkit:**
@@ -2925,7 +3021,7 @@ export const blogPosts = {
 
                 **What it does:**
 
-                Scamly uses AI specifically trained on scam detection to analyze suspicious content—emails, text messages, images, videos, social media messages—and identify whether it's a scam or legitimate. Simply screenshot suspicious content and upload it for instant verification.
+                Scamly uses AI specifically trained on scam detection to analyze suspicious content—emails, text messages, images, videos, social media messages—and identify whether it's a scam or legitimate. It works automatically in the background to protect you from the most common scams.
 
                 **Why it protects your digital identity:**
 
@@ -2935,10 +3031,10 @@ export const blogPosts = {
 
                 Scamly protects you by:
 
-                - **Instant scam detection:** AI analyzes content for fraud indicators
+                - **Automatic scam protection:** Works in the background to protect you from the most common SMS scams.
                 - **Psychological manipulation recognition:** Identifies social engineering tactics
                 - **Coverage across all scam types:** Works for romance scams, phishing, investment fraud, tech support scams, government impersonation, deepfakes, and more
-                - **AI chat assistant:** Helps evaluate ambiguous situations
+                - **AI assistant:** Helps evaluate ambiguous situations
                 - **Contact verification:** Verify whether organizations are legitimate
                 - **Educational resources:** Build your scam awareness
 
@@ -2946,20 +3042,19 @@ export const blogPosts = {
 
                 **Pros:**
 
-                - Instant verification of suspicious content
+                - Automatic protection from the most common scams
                 - No technical expertise required
                 - Covers all scam types with one tool
-                - AI chat for complex situations
+                - AI assistant for complex situations
                 - Educational resources build awareness
-                - Works across all platforms and devices
                 - Removes emotion from decision-making
 
                 **Cons:**
 
-                - Requires active uploads (doesn't passively monitor)
                 - Although Scamly is very effective, no detection platform is ever 100% accurate
                 - Doesn't prevent you from sending information if you ignore the verdict
                 - Doesn't recover money already lost
+                - Only available on iOS currently.
 
                 **How it fits the identity protection toolkit:**
 
@@ -3023,15 +3118,12 @@ export const blogPosts = {
                 4. Your email account is now secure with a strong password the criminal doesn't have
                 5. Even if the criminal has your old password, they can't get in
 
-                **Different scenario:** A scammer sends you a convincing phishing email claiming to be from your bank.
+                **Different scenario:** A scammer sends you a convincing phishing text claiming to be from your bank.
 
                 **How your toolkit protects you:**
 
-                1. You screenshot the email and upload it to **Scamly**
-                2. **Scamly** flags it as a phishing attempt
-                3. You don't click the link or enter credentials
-                4. Your accounts remain secure
-                5. Later, you verify with your bank using **Mullvad VPN** on public WiFi, ensuring your verification connection is encrypted
+                1. Scamly automatically blocks the text message, hiding it from your phone altogether.
+                2. You don't even realise a scammer tried to contact you and go about your day.
 
                 **Another scenario:** Malware attempts to install on your device.
 
@@ -3053,7 +3145,7 @@ export const blogPosts = {
                 - **Implement 1Password or Bitwarden:** Create strong, unique passwords for all accounts
                 - **Set up Mullvad VPN:** Enable it for all internet activity, especially on public WiFi
                 - **Register with Have I Been Pwned:** Check your email and set up alerts
-                - **Download Scamly:** Screenshot and verify suspicious content immediately
+                - **Download Scamly:** Setup the automatic protection to filter your text messages from unknown numbers.
                 - **Maintain regularly:** Update all apps, change breached passwords, review security settings
 
                 ---
@@ -3081,7 +3173,7 @@ export const blogPosts = {
                 1. Run Malwarebytes to check for existing malware
                 2. Set up 1Password with strong, unique passwords for all accounts
                 3. Register with Have I Been Pwned and set up alerts
-                4. Download and use Scamly for suspicious content
+                4. Download and setup Scamly
 
                 **Tier 2 - Strongly Recommended (add these next):**
 
@@ -3102,7 +3194,7 @@ export const blogPosts = {
                 - **Bitwarden:** Free (basic) or ~$10/year (premium)
                 - **Mullvad VPN:** ~$5/month or ~$60/year
                 - **Have I Been Pwned:** Free
-                - **Scamly:** Free (basic) or $4.99/month (premium)
+                - **Scamly:** $4.99/month or $49.99/year
 
                 **Total for comprehensive protection:** $150-250/year, less than the average value lost to a single scam.
 

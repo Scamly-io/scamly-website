@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "../../../components/ui/button";
 import { CheckCircle2, ArrowLeft } from "lucide-react";
-import logoLight from "../../../../public/navbar-logo-light.png";
+import logoLight from "../../../../public/navbar-logo.png";
 
 export const metadata: Metadata = {
   title: "Account Deleted | Scamly",

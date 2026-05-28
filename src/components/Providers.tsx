@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "../contexts/AuthContext";
 import { ThemeProvider } from "../contexts/ThemeContext";
 import { setupConsentListener } from "../lib/consent";
+import { PageAnalytics } from "./PageAnalytics";
 import { TooltipProvider } from "./ui/tooltip";
 import { Toaster } from "./ui/toaster";
 import { Toaster as Sonner } from "./ui/sonner";
@@ -25,6 +26,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <ThemeProvider>
         <AuthProvider>
           <TooltipProvider>
+            <PageAnalytics />
             {children}
             <Toaster />
             <Sonner />

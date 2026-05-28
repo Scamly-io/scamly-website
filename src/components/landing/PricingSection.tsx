@@ -9,12 +9,12 @@ import CountUp from "../CountUp";
 import Particles from "../Particles";
 
 const features = [
-  "Unlimited scans",
-  "Advanced AI detection",
-  "Full library access",
-  "AI Chat Assistant",
-  "Contact Search Tool",
-  "First access to new features",
+  "Unlimited usage",
+  "Automatic scam protection",
+  "Our most advanced AI models",
+  "Data breach search",
+  "Ongoing scam alerts",
+  "Comprehensive learning library",
 ];
 
 export function PricingSection() {
@@ -84,31 +84,32 @@ export function PricingSection() {
 
             <div className="flex items-start gap-0 mb-8 sm:mb-10">
               <div className="pr-6 sm:pr-8 border-r border-white/20">
-                <div className="font-display text-3xl sm:text-4xl md:text-5xl font-bold">
-                  <span
-                    className="bg-clip-text text-transparent"
-                    style={{
-                      backgroundImage: "linear-gradient(135deg, rgb(242, 166, 162), rgb(231, 115, 201))",
-                    }}
-                  >
-                    $<CountUp to={49.99} duration={0.4} separator="," />
-                  </span>
-                </div>
-                <span className="text-slate-400 text-sm mt-1 block">Annually</span>
-              </div>
-              <div className="pl-6 sm:pl-8">
-                <div className="font-display text-3xl sm:text-4xl md:text-5xl font-bold">
+                <div className="font-sans text-3xl sm:text-4xl md:text-5xl font-bold">
                   <span
                     className="bg-clip-text text-transparent"
                     style={{
                       backgroundImage: "linear-gradient(135deg, rgb(231, 115, 201), rgb(162, 162, 248))",
                     }}
                   >
-                    $<CountUp to={4.99} duration={0.3} />
+                    $<CountUp to={4.99} duration={0.1} />
                   </span>
                 </div>
                 <span className="text-slate-400 text-sm mt-1 block">Monthly</span>
               </div>
+              <div className="pl-6 sm:pl-8">
+                <div className="font-sans text-3xl sm:text-4xl md:text-5xl font-bold">
+                  <span
+                    className="bg-clip-text text-transparent"
+                    style={{
+                      backgroundImage: "linear-gradient(135deg, rgb(242, 166, 162), rgb(231, 115, 201))",
+                    }}
+                  >
+                    $<CountUp to={49.99} duration={0.2} separator="," />
+                  </span>
+                </div>
+                <span className="text-slate-400 text-sm mt-1 block">Annually</span>
+              </div>
+              
             </div>
 
             <ul className="space-y-3 mb-8 sm:mb-10">

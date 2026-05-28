@@ -74,11 +74,9 @@ export default function ContactPage() {
               <p className="text-sm text-muted-foreground">
                 You can delete your account directly through the Scamly app by
                 navigating to the{" "}
-                <strong className="text-foreground">Profile</strong> tab in your
-                account portal and selecting{" "}
+                <strong className="text-foreground">Settings</strong> tab and selecting{" "}
                 <strong className="text-foreground">Delete Account</strong>.
-                This will immediately and permanently delete your account,
-                cancel any active subscriptions, and remove your personal data.
+                This will immediately and permanently delete your account, and remove your personal data.
               </p>
               <p className="text-sm text-muted-foreground">
                 If you have been locked out of your account and would like to

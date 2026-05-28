@@ -6,7 +6,7 @@ import { Button } from "./ui/button";
 import { useAuth } from "../contexts/AuthContext";
 import { Menu, X } from "lucide-react";
 import { trackSignupStarted } from "../lib/analytics";
-import logoLight from "../../public/navbar-logo-light.png";
+import logoLight from "../../public/navbar-logo.png";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);

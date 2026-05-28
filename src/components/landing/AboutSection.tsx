@@ -20,7 +20,7 @@ export function AboutSection() {
               </p>
               <p>
                 Traditional security tools focus on protecting systems, not people. Scamly flips the script by putting
-                powerful AI-driven detection directly in your hands. Whether it's a suspicious text message, a
+                powerful context aware detection directly in your hands. Whether it's a suspicious text message, a
                 too-good-to-be-true email, or a sketchy social media post — Scamly helps you verify before you trust.
               </p>
               <p>
@@ -42,7 +42,7 @@ export function AboutSection() {
                 icon: Target,
                 title: "Accuracy Matters",
                 description:
-                  "Our AI is trained on millions of real scam examples to deliver reliable, actionable results.",
+                  "Our threat intelligence system is trained on millions of real scam examples to deliver reliable, actionable results.",
               },
               {
                 icon: Users,
@@ -55,7 +55,7 @@ export function AboutSection() {
                   <value.icon className="w-6 h-6 text-primary-foreground" />
                 </div>
                 <div>
-                  <h3 className="font-display font-bold mb-1">{value.title}</h3>
+                  <h3 className="font-sans font-bold mb-1">{value.title}</h3>
                   <p className="text-sm text-muted-foreground">{value.description}</p>
                 </div>
               </div>

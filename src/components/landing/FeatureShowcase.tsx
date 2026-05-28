@@ -4,38 +4,42 @@ import TextType from "../TextType";
 import { GridPattern } from "../GridPattern";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../ui/carousel";
 
-import scanLight from "../../../public/features/scan-light.png";
-import chatLight from "../../../public/features/chat-light.png";
-import searchLight from "../../../public/features/search-light.png";
-import libraryLight from "../../../public/features/library-light.png";
+import assistant from "../../../public/features/assistant.png";
+import automaticProtection from "../../../public/features/automatic-protection.png";
+import breachSearch from "../../../public/features/breach-search.png";
+import alerts from "../../../public/features/alerts.png";
+import articles from "../../../public/features/articles.png";
 
 const features = [
   {
-    title: "AI Scam Scanner",
+    title: "Automatic Protection",
     description:
-      "Upload screenshots of suspicious messages, emails, or social media posts. Our AI analyzes content patterns and provides instant risk assessments with actionable advice.",
-    image: scanLight,
+      "Enable our context aware intelligent SMS monitoring to protect you automatically from scammers who try to contact you. With one button, you forget that scammers even exist as our system hides their messages and deletes them automatically after 90 days.",
+    image: automaticProtection,
   },
   {
-    title: "AI Chat Assistant",
+    title: "Scam Safety Assistant",
     description:
-      "Have natural conversations about scams, fraud, and cybersecurity. Get personalized answers to complex questions and learn how to stay protected.",
-    image: chatLight,
-    badge: "Premium",
+      "Ask our AI assistant any question about scams, fraud, or cybercrime. Screenshot any message, social media post, online account, website, or marketplace listing (and much more) and our AI will instantly tell you if you're being scammed.",
+    image: assistant,
   },
   {
-    title: "Contact Search",
+    title: "Scam Alerts",
     description:
-      "Powered by Perplexity AI, find legitimate contact information for any company worldwide. Never fall for fake customer service scams again.",
-    image: searchLight,
-    badge: "Beta",
-    badgeVariant: "beta" as const,
+      "Stop being surprised by new scams and let us do the investigating. Get push notifications to your phone when scammers become active and launch new scams. We do the research, you get alerted, you stay safe.",
+    image: alerts,
   },
   {
-    title: "Learning Library",
+    title: "Breach Search",
     description:
-      "Access a comprehensive library of articles, guides, and tips about scam types, prevention strategies, and online safety best practices.",
-    image: libraryLight,
+      "Get answers to how scammers keep contacting you by searching the dark web for your information. Get a detailed risk analysis based on what has been exposed, so you know what to do next, and where the scammers keep coming from.",
+    image: breachSearch,
+  },
+  {
+    title: "Scam Safety Guides",
+    description:
+      "Stop feeling like you can't keep up with scammers and let us take the heavy lifting. Our scam safety guides teach you everything you need to know to stay safe online, and protect yourself from losing your hard earned money to a scammer.",
+    image: articles,
   },
 ];
 
@@ -45,8 +49,8 @@ export function FeatureShowcaseSection() {
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-2">Everything you need to</h2>
-          <div className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-[#5022f6] mb-6">
+          <h2 className="font-sans text-4xl md:text-5xl lg:text-6xl font-bold mb-2">Everything you need to</h2>
+          <div className="font-sans text-4xl md:text-5xl lg:text-6xl font-bold text-[#5022f6] mb-6">
             <TextType
               text={["stay safe online.", "protect your family.", "avoid scammers."]}
               typingSpeed={60}
@@ -86,18 +90,7 @@ export function FeatureShowcaseSection() {
                       {/* Content */}
                       <div className="w-fit text-center md:text-left">
                         <div className="flex items-center justify-center md:justify-start gap-3 mb-3">
-                          <h3 className="font-display text-2xl md:text-3xl font-bold">{feature.title}</h3>
-                          {feature.badge && (
-                            <span
-                              className={`px-3 py-1 text-xs font-bold rounded-full ${
-                                feature.badgeVariant === "beta"
-                                  ? "bg-orange-500/20 text-orange-600 border border-orange-500/30"
-                                  : "gradient-bg text-primary-foreground"
-                              }`}
-                            >
-                              {feature.badge}
-                            </span>
-                          )}
+                          <h3 className="font-sans text-2xl md:text-3xl font-bold">{feature.title}</h3>
                         </div>
                         <p className="text-sm md:text-base text-muted-foreground max-w-md">{feature.description}</p>
                       </div>

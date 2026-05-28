@@ -6,29 +6,29 @@ import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export const metadata: Metadata = {
-  title: "Scamly - AI-Powered Scam Detection",
+  title: "Scamly - Hands-Free Scam Protection",
   description:
-    "Protect yourself from scams with Scamly's AI-powered detection. Get detailed analysis of suspicious messages, emails, social media posts, and more.",
+    "Protect yourself from scams with Scamly's hands-free scam protection. Our threat intelligence system monitors your messages and alerts you to suspicious activity.",
   openGraph: {
     type: "website",
-    title: "Scamly - AI-Powered Scam Detection",
+    title: "Scamly - Hands-Free Scam Protection",
     description:
-      "Protect yourself from scams with Scamly's AI-powered detection. Get detailed analysis of suspicious messages, emails, social media posts, and more.",
+      "Protect yourself from scams with Scamly's hands-free scam protection. Our threat intelligence system monitors your messages and alerts you to suspicious activity.",
     images: [
       {
         url: "https://storage.googleapis.com/gpt-engineer-file-uploads/pNiDDrx70cb0Gd0k4FyzcDg0wfL2/social-images/social-1770457160790-share-image.png",
         width: 1200,
         height: 630,
-        alt: "Scamly - AI-Powered Scam Detection",
+        alt: "Scamly - Hands-Free Scam Protection",
       },
     ],
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Scamly - AI-Powered Scam Detection",
+    title: "Scamly - Hands-Free Scam Protection",
     description:
-      "Protect yourself from scams with Scamly's AI-powered detection. Get detailed analysis of suspicious messages, emails, social media posts, and more.",
+      "Protect yourself from scams with Scamly's hands-free scam protection. Our threat intelligence system monitors your messages and alerts you to suspicious activity.",
     images: [
       "https://storage.googleapis.com/gpt-engineer-file-uploads/pNiDDrx70cb0Gd0k4FyzcDg0wfL2/social-images/social-1770457160790-share-image.png",
     ],

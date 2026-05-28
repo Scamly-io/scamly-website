@@ -39,7 +39,7 @@ export default function CheckEmailPage() {
             <h1 className="font-display text-3xl font-bold mb-4">Check your email</h1>
 
             <p className="text-muted-foreground text-lg mb-8">
-              We&apos;ve sent a verification link to your email address. Please click the link to verify your account and complete your registration.
+              We&apos;ve sent a verification link to your email address. After you verify, sign in and you&apos;ll finish setting up your profile on the website.
             </p>
 
             <div className="bg-muted/50 rounded-xl p-6 mb-8 text-left">
@@ -48,7 +48,7 @@ export default function CheckEmailPage() {
                 <div>
                   <p className="font-medium text-sm mb-1">It&apos;s safe to close this page</p>
                   <p className="text-sm text-muted-foreground">
-                    You can close this browser tab now. Once you verify your email, you can sign in from any device.
+                    You can close this browser tab now. Once you verify your email, sign in from any device to complete onboarding.
                   </p>
                 </div>
               </div>

@@ -156,7 +156,7 @@ export function DeleteAccountSection() {
         <div className="flex items-start gap-3 mb-4">
           <AlertTriangle className="w-5 h-5 text-destructive mt-0.5 shrink-0" />
           <div>
-            <h3 className="font-display font-bold text-destructive">Danger Zone</h3>
+            <h3 className="font-sans font-bold text-destructive">Danger Zone</h3>
             <p className="text-sm text-muted-foreground mt-1">
               Permanently delete your account and all associated data. This action cannot be undone.
             </p>

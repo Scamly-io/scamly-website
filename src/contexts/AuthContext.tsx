@@ -6,13 +6,12 @@ import { supabase } from "../integrations/supabase/client";
 import { Profile } from "../types/profile";
 import { captureError } from "../lib/sentry";
 import { getBrowserMetadata } from "../lib/browser-metadata";
-
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
-  signUp: (email: string, password: string, profileData: Partial<Profile>) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   updateProfile: (data: Partial<Profile>) => Promise<{ error: Error | null }>;
@@ -148,7 +147,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, profileData: Partial<Profile>) => {
+  const signUp = async (email: string, password: string) => {
     try {
       const redirectUrl = `${window.location.origin}/portal`;
 
@@ -158,16 +157,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         options: {
           emailRedirectTo: redirectUrl,
           data: {
-            first_name: profileData.first_name,
-            dob: profileData.dob,
-            gender: profileData.gender,
-            country: profileData.country,
-            referral_source: profileData.referral_source,
-            onboarding_completed: true,
-            fbp: profileData.fbp,
-            fbc: profileData.fbc,
-            ip_address: profileData.ip_address,
-            user_agent: profileData.user_agent,
+            onboarding_completed: false,
           },
         },
       });

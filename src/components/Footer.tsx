@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { Twitter, Facebook, Instagram } from "lucide-react";
-import logoLight from "../../public/navbar-logo-light.png";
+import logoLight from "../../public/navbar-logo.png";
 import appStoreBadge from "../../public/badge-app-store.png";
-import googlePlayBadge from "../../public/badge-google-play.png";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -75,22 +74,11 @@ export function Footer() {
                   className="h-10 w-auto"
                 />
               </a>
-              <a
-                href="https://play.google.com/store/apps/details?id=io.scamly.app&hl=en"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <img
-                  src={googlePlayBadge.src}
-                  alt="Get it on Google Play"
-                  className="h-10 w-auto"
-                />
-              </a>
             </div>
           </div>
 
           <div>
-            <h4 className="font-display font-semibold mb-4">Product</h4>
+            <h4 className="font-sans font-semibold mb-4">Product</h4>
             <ul className="space-y-3">
               {footerLinks.product.map((link) => (
                 <li key={link.label}>
@@ -106,7 +94,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="font-display font-semibold mb-4">Support</h4>
+            <h4 className="font-sans font-semibold mb-4">Support</h4>
             <ul className="space-y-3">
               {footerLinks.support.map((link) => (
                 <li key={link.label}>

@@ -7,9 +7,7 @@ export function isTestSubdomain(): boolean {
   const hostname = window.location.hostname;
   return (
     hostname.startsWith("test.") ||
-    hostname.includes(".test.") ||
-    hostname.startsWith("preview--") ||
-    hostname.includes("preview--")
+    hostname.includes(".test.")
   );
 }
 

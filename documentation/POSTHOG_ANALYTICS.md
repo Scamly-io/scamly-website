@@ -2,411 +2,383 @@
 
 ## Overview
 
-PostHog is used for product analytics, behavioral tracking, and conversion funnel analysis on the Scamly web application. The implementation is centralized in `src/lib/analytics.ts` and uses a dynamic import with an event queue to prevent data loss during initialization.
+PostHog powers product analytics, behavioral tracking, and conversion funnels on the Scamly marketing site and web portal. Implementation is centralized in `src/lib/analytics.ts`, with consent gating in `src/lib/consent.ts` and automatic route tracking in `src/components/PageAnalytics.tsx`.
 
-**Key Principles:**
-- Analytics available for all visitors (no auth gate on the landing page)
-- No PII ever captured in event properties
-- Event naming convention: `snake_case`
-- All events include common context properties (page path, referrer, timestamp)
-- Events are queued if fired before PostHog initializes, then flushed automatically
+**Key principles:**
 
-## Configuration
+- Analytics only load after the user grants **analytics** consent via CookieYes
+- No chat content, scan results, or credentials in event properties
+- Event names use `snake_case`
+- Custom events include shared page context via `getCommonProperties()`
+- Events fired before PostHog initializes are queued (or coalesced for `page_visited`) and flushed on init
 
-**File:** `src/lib/analytics.ts`
+**Separate from PostHog:** Vercel Analytics and Speed Insights are mounted in `src/app/layout.tsx` and are not governed by this module.
 
-**Environment Variables:**
-- `NEXT_PUBLIC_POSTHOG_API_KEY` — PostHog project API key
-- `NEXT_PUBLIC_POSTHOG_HOST` — PostHog host URL (default: `https://us.i.posthog.com`)
+---
 
-**Initialization:**
-- PostHog is dynamically imported in `initAnalytics()` to avoid React bundling conflicts
-- Called once in `src/main.tsx` before the app renders
-- Autocapture and heatmaps are enabled
-- Manual pageview capture (`capture_pageview: false`) for more control
-- Persistence: `localStorage+cookie`
+## Architecture
 
-**PostHog Settings:**
+```
+src/app/layout.tsx
+  └── Providers (client)
+        ├── setupConsentListener()  → initAnalytics() when consent granted
+        └── PageAnalytics             → trackPageVisited() on route change
+
+src/lib/analytics.ts                  → PostHog init, capture helpers
+src/lib/consent.ts                    → CookieYes → initAnalytics()
+src/lib/analytics-gate.ts             → excludes iOS onboarding webview routes
+```
+
+### Initialization flow
+
+1. `Providers` mounts and calls `setupConsentListener()` once (`src/components/Providers.tsx`).
+2. `setupConsentListener()` reads the existing CookieYes cookie and listens for `cookieyes_consent_update`.
+3. When analytics consent is `yes`, `initAnalytics()` runs (dynamic `import("posthog-js")`).
+4. Queued capture/identify/reset events and any deferred `page_visited` are flushed.
+
+PostHog is **not** initialized from `main.tsx` (CRA-era); there is no `src/main.tsx` in this Next.js app.
+
+### PostHog configuration
+
+**Environment variables:**
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_POSTHOG_API_KEY` | Project API key (required; analytics disabled if unset) |
+| `NEXT_PUBLIC_POSTHOG_HOST` | Ingest host (default: `https://us.i.posthog.com`) |
+
 ```typescript
 posthog.init(POSTHOG_API_KEY, {
   api_host: POSTHOG_HOST,
-  capture_pageview: false,
+  capture_pageview: false,      // page views tracked manually via page_visited
   persistence: "localStorage+cookie",
   autocapture: true,
   enable_heatmaps: true,
 });
 ```
 
----
+### Analytics gate (onboarding webview)
 
-## Common Properties
+`src/lib/analytics-gate.ts` blocks tracking on routes rendered inside the iOS app webview (Apple ATT requirements):
 
-Every event automatically includes the following context via `getCommonProperties()`:
+| Excluded path | `page_name` (if tracked elsewhere) |
+|---------------|-------------------------------------|
+| `/portal/onboarding` | `portal_onboarding` |
+| `/portal/onboarding-complete` | `portal_onboarding_complete` |
 
-| Property           | Type     | Description                                      |
-|--------------------|----------|--------------------------------------------------|
-| `page_path`        | string   | Current URL pathname (e.g., `/`, `/auth`)        |
-| `page_url`         | string   | Full URL including query params                  |
-| `page_title`       | string   | Document title                                   |
-| `referrer`         | string   | `document.referrer` (traffic source)             |
-| `anonymous_id`     | string   | PostHog distinct ID for anonymous user tracking  |
-| `client_timestamp` | string   | ISO 8601 timestamp for accurate event ordering   |
+`PageAnalytics` checks `isAnalyticsAllowed()` before calling `trackPageVisited()`.
 
 ---
 
-## User Identification
+## Common properties
 
-### Identify User
+Included on every custom event via `getCommonProperties()`:
 
-**Function:** `identifyUser(userId: string, traits?: Record<string, unknown>)`
+| Property | Type | Description |
+|----------|------|-------------|
+| `page_path` | string | Current pathname (e.g. `/blog/foo`) |
+| `page_url` | string | Full URL including query string |
+| `page_title` | string | `document.title` |
+| `referrer` | string | `document.referrer` when present |
+| `anonymous_id` | string | PostHog distinct ID when initialized |
+| `client_timestamp` | string | ISO 8601 client time |
 
-**When:** After user logs in / portal loads with authenticated user
+---
 
-**Location:** `src/pages/Portal.tsx` — `useEffect` on user/profile change
+## Route tracking (`page_visited`)
 
-**Traits Passed:**
-- `email`: User email
-- `first_name`: User's first name from profile
+Automatic tracking is handled by `PageAnalytics`, which uses Next.js `usePathname()` and fires on each client-side navigation.
 
-**Usage:**
-```typescript
-identifyUser(user.id, {
-  email: user.email,
-  first_name: profile?.first_name,
-});
-```
+**Files:** `src/components/PageAnalytics.tsx`, `src/components/Providers.tsx`
 
-### Reset User
+### `page_name` values (`resolvePageName`)
+
+| Path | `page_name` |
+|------|-------------|
+| `/` | `home` |
+| `/blog` | `blog` |
+| `/blog/[slug]` | `blog_post` |
+| `/auth` | `auth` |
+| `/check-email` | `check_email` |
+| `/reset-password` | `reset_password` |
+| `/portal` | `portal` |
+| `/contact` | `contact` |
+| `/privacy` | `privacy` |
+| `/terms` | `terms` |
+| `/account-deleted` | `account_deleted` |
+| Other paths | Derived from path segments (e.g. `/foo/bar` → `foo_bar`) |
+
+Blog posts also send `blog_slug` (via `getPageVisitedProperties()`).
+
+### Pre-init behavior
+
+`page_visited` does not use the generic event queue. If PostHog is not ready, the **latest** visit is stored in `pendingPageVisit` and sent once on init (avoids duplicate or stale page events during consent banner delay).
+
+---
+
+## User identification
+
+### Identify
+
+**Function:** `identifyUser(userId, traits?)`
+
+**When:** Authenticated user loads the portal with a valid session.
+
+**Location:** `src/app/(portal)/portal/page.tsx` — `useEffect` when `user` / `profile` are available.
+
+**Traits:**
+
+| Trait | Source |
+|-------|--------|
+| `email` | `user.email` |
+| `first_name` | `profile?.first_name` |
+
+Traits are attached to the PostHog person profile, not duplicated on every event.
+
+### Reset
 
 **Function:** `resetUser()`
 
-**When:** User signs out
+**When:** User signs out or deletes their account.
 
-**Location:** `src/pages/Portal.tsx` — `handleSignOut()`
+**Locations:**
 
-**Effect:**
-- Clears PostHog user data
-- Subsequent events tracked as a new anonymous user
+- `src/app/(portal)/portal/page.tsx` — sign out handler
+- `src/components/DeleteAccountSection.tsx` — after successful account deletion
 
 ---
 
-## Analytics Events
+## Custom events
 
-### 1. Page Visited
+### Summary
 
-**Event:** `page_visited`
+| Event | Function | Status |
+|-------|----------|--------|
+| `page_visited` | `trackPageVisited()` | Active — all allowed routes |
+| `pricing_viewed` | `trackPricingViewed()` | Active |
+| `signup_started` | `trackSignupStarted(source)` | Active |
+| `signup_completed` | `trackSignupCompleted(userId?)` | Active |
+| _(generic)_ | `trackEvent(name, props?)` | Available — no current callers |
 
-**Function:** `trackPageVisited(pageName: string = "home")`
+**Not implemented in code:** `checkout_started`, `checkout_completed`, and `trial_abuse_detected` are not defined or called in the current codebase. Subscription changes are handled in the mobile app, not via Stripe on the web portal.
 
-**When:** User lands on the home/landing page
+---
 
-**Location:** `src/pages/Index.tsx` — `useEffect` on mount
+### 1. `page_visited`
+
+**Function:** `trackPageVisited(pageName, extraProperties?)`
+
+**When:** Client-side route change on any analytics-allowed page.
+
+**Caller:** `PageAnalytics` (do not call manually per route unless you have a special case).
 
 **Properties:**
 
-| Property    | Type   | Description                    |
-|-------------|--------|--------------------------------|
-| `page_name` | string | Name of the page (e.g., `home`) |
+| Property | Type | Description |
+|----------|------|-------------|
+| `page_name` | string | Stable page identifier (see table above) |
+| `blog_slug` | string | Present on `/blog/[slug]` posts only |
 
-**Business Question:** How many users land on our home page? What's our traffic volume over time?
+**Use in analysis:** Traffic volume, page mix, blog post views (filter or break down by `page_name` / `blog_slug`).
 
 ---
 
-### 2. Pricing Viewed
-
-**Event:** `pricing_viewed`
+### 2. `pricing_viewed`
 
 **Function:** `trackPricingViewed()`
 
-**When:** Pricing section becomes visible in the viewport (via intersection observer)
+**When:** Pricing section enters the viewport (intersection observer, 30% threshold).
 
-**Locations:**
-- `src/components/landing/PricingSection.tsx` — intersection observer callback
-- `src/components/landing/MainPricingSection.tsx` — intersection observer callback
+**Location:** `src/components/landing/PricingSection.tsx`
 
-**Properties:** Common properties only (no additional properties)
+**Properties:** Common properties only.
 
-**Note:** Uses intersection observer, NOT page load, for accurate visibility tracking. Only fires once per page load via `useRef` guard.
-
-**Business Question:** What percentage of visitors see our pricing? This is a key funnel step — if users don't see pricing, they can't convert.
+**Notes:** Fires at most once per page load (`useRef` guard). Not tied to `page_visited` timing — measures visibility, not mount.
 
 ---
 
-### 3. Signup Started
+### 3. `signup_started`
 
-**Event:** `signup_started`
+**Function:** `trackSignupStarted(source)`
 
-**Function:** `trackSignupStarted(source: string)`
+**When:** User clicks a tracked signup/download CTA.
 
-**When:** User clicks a primary signup CTA button
+**Locations and `signup_source` values:**
 
-**Locations:**
-- `src/components/landing/HeroSection.tsx` — hero "Start Free Trial" button (`source: "hero"`)
-- `src/components/landing/CTASection.tsx` — CTA "Create Free Account" button (`source: "cta_section"`)
-- `src/components/landing/PricingSection.tsx` — pricing plan CTA buttons (`source: "pricing_{planName}"`)
-- `src/components/Navbar.tsx` — desktop "Get Started" button (`source: "navbar"`)
-- `src/components/Navbar.tsx` — mobile "Get Started" button (`source: "navbar_mobile"`)
+| Location | `signup_source` |
+|----------|-----------------|
+| `src/components/Navbar.tsx` — desktop CTA | `navbar` |
+| `src/components/Navbar.tsx` — mobile CTA | `navbar_mobile` |
+| `src/components/landing/CTASection.tsx` — primary button | `cta` |
+| `src/components/landing/PricingSection.tsx` — plan CTA | `pricing_premium` |
 
 **Properties:**
 
-| Property        | Type   | Description                                                        |
-|-----------------|--------|--------------------------------------------------------------------|
-| `signup_source` | string | Identifies which CTA was clicked (e.g., `hero`, `pricing_pro`, `navbar`) |
+| Property | Type | Description |
+|----------|------|-------------|
+| `signup_source` | string | CTA identifier (see table) |
 
-**Business Question:** How many users click our signup CTAs? Which CTAs perform best?
+**Note:** `HeroSection` has no signup tracking. The CTA section primary button links to the App Store but still records `signup_started` with source `cta`.
 
 ---
 
-### 4. Signup Completed
+### 4. `signup_completed`
 
-**Event:** `signup_completed`
+**Function:** `trackSignupCompleted(userId?)`
 
-**Function:** `trackSignupCompleted(userId?: string)`
+**When:** User successfully completes portal onboarding (profile saved).
 
-**When:** User successfully completes the signup form and Supabase returns success
-
-**Location:** `src/pages/Auth.tsx` — after successful `supabase.auth.signUp()` response
+**Location:** `src/app/(portal)/portal/onboarding/page.tsx` — after successful onboarding submit (including a fallback path when analytics invoke fails but profile save succeeds).
 
 **Properties:**
 
-| Property  | Type   | Description                                   |
-|-----------|--------|-----------------------------------------------|
-| `user_id` | string | Supabase user ID (if available at this point) |
+| Property | Type | Description |
+|----------|------|-------------|
+| `user_id` | string | Supabase user ID when available |
 
-**Note:** Only fires AFTER successful signup, not on form submission.
-
-**Business Question:** What's our signup conversion rate? How many users who started signup actually complete it?
+**Note:** This reflects **onboarding completion**, not the initial magic-link or email auth step on `/auth`. Pair with `signup_started` and `page_visited` (`page_name: auth`) for full funnel context.
 
 ---
 
-### 5. Checkout Started
+### 5. Generic events
 
-**Event:** `checkout_started`
+**Function:** `trackEvent(eventName, properties?)`
 
-**Function:** `trackCheckoutStarted(plan: "monthly" | "yearly", hasReferralCode: boolean)`
-
-**When:** User clicks the upgrade/subscribe button and is about to be redirected to Stripe Checkout
-
-**Location:** `src/pages/Portal.tsx` — `handleUpgrade()` function
-
-**Properties:**
-
-| Property            | Type    | Description                                     |
-|---------------------|---------|-------------------------------------------------|
-| `checkout_plan`     | string  | Pricing plan selected (`monthly` or `yearly`)   |
-| `has_referral_code` | boolean | Whether user entered a referral code at checkout |
-
-**Business Question:** How many users initiate payment? Which pricing plan is more popular?
+Merges custom properties with common properties. Prefer adding a typed `track*` helper in `analytics.ts` for new product events.
 
 ---
 
-### 6. Checkout Completed
+## Tracking by area
 
-**Event:** `checkout_completed`
+### Marketing / base routes (`app/(base)/`)
 
-**Function:** `trackCheckoutCompleted(plan?: string)`
+| Route | `page_visited` | Other events |
+|-------|----------------|--------------|
+| `/` | `home` | `pricing_viewed`, `signup_started` (pricing, navbar) |
+| `/blog`, `/blog/[slug]` | `blog`, `blog_post` + `blog_slug` | — |
+| `/contact`, `/privacy`, `/terms`, `/account-deleted` | respective `page_name` | — |
 
-**When:** User returns from Stripe Checkout with `?success=true` in the URL
+Home page composition: `src/app/(base)/page.tsx` → `HomeAnnouncementStack`, `FeatureShowcaseSection`, etc., with pricing on the landing stack via `PricingSection`.
 
-**Location:** `src/pages/Portal.tsx` — `useEffect` checking `searchParams`
+### Auth (`app/(auth)/`)
 
-**Properties:**
+| Route | `page_visited` | Other events |
+|-------|----------------|--------------|
+| `/auth` | `auth` | — |
+| `/check-email` | `check_email` | — |
+| `/reset-password` | `reset_password` | — |
 
-| Property        | Type   | Description                                |
-|-----------------|--------|--------------------------------------------|
-| `checkout_plan` | string | Subscription plan from profile (if available) |
+### Portal (`app/(portal)/`)
 
-**Note:** Relies on the `success` query param in the Stripe return URL.
-
-**Business Question:** What's our checkout conversion rate? How many users who start checkout actually complete payment?
-
----
-
-### 7. Trial Abuse Detected
-
-**Event:** `trial_abuse_detected`
-
-**Function:** `trackTrialAbuseDetected()`
-
-**When:** Trial abuse is detected and the abuse modal is shown for the first time
-
-**Location:** Currently defined in `src/lib/analytics.ts` but **not yet called** in any component (ready for implementation).
-
-**Properties:** Common properties only (no additional properties)
-
-**Business Question:** How many users are attempting to abuse the trial system?
+| Route | `page_visited` | Other events |
+|-------|----------------|--------------|
+| `/portal` | `portal` | `identifyUser` on load; `resetUser` on sign out |
+| `/portal/onboarding` | _(excluded)_ | `signup_completed` on success |
+| `/portal/onboarding-complete` | _(excluded)_ | — |
 
 ---
 
-### 8. Generic Event
+## Event queue
 
-**Function:** `trackEvent(eventName: string, properties?: Record<string, unknown>)`
+| Mechanism | Used for |
+|-----------|----------|
+| `eventQueue` | `captureEvent`, `identifyUser`, `resetUser` before init |
+| `pendingPageVisit` | Latest `page_visited` only (coalesced) |
 
-**Purpose:** Generic event capture for custom/ad-hoc events. Use specific `track*` functions when available for consistency.
-
-**Location:** `src/lib/analytics.ts` — available for use anywhere
-
-**Properties:** Any custom key-value pairs merged with common properties.
-
----
-
-## Event Summary
-
-### Total Events: 7 named event types (+ generic)
-
-**By Category:**
-
-**Landing Page Events (3):**
-1. `page_visited` — Home page load
-2. `pricing_viewed` — Pricing section visible
-3. `signup_started` — CTA click
-
-**Auth Events (1):**
-4. `signup_completed` — Successful registration
-
-**Checkout Events (2):**
-5. `checkout_started` — Stripe redirect initiated
-6. `checkout_completed` — Stripe return with success
-
-**Abuse Prevention (1):**
-7. `trial_abuse_detected` — Trial abuse modal shown (not yet wired)
+After `initAnalytics()` completes, `flushEventQueue()` processes the queue and then sends any deferred `page_visited`.
 
 ---
 
-## Event Tracking by Feature
+## Suggested funnels
 
-### Landing Page
+### Landing → app interest
 
-**Files:** `src/pages/Index.tsx`, `src/components/landing/HeroSection.tsx`, `src/components/landing/PricingSection.tsx`, `src/components/landing/MainPricingSection.tsx`, `src/components/landing/CTASection.tsx`, `src/components/Navbar.tsx`
-
-| Event             | Trigger                          | Key Properties                  |
-|-------------------|----------------------------------|---------------------------------|
-| `page_visited`    | Page mount                       | `page_name: 'home'`            |
-| `pricing_viewed`  | Pricing section in viewport      | _(common only)_                 |
-| `signup_started`  | CTA button click                 | `signup_source: '{source}'`     |
-
-### Auth / Signup
-
-**File:** `src/pages/Auth.tsx`
-
-| Event              | Trigger                          | Key Properties    |
-|--------------------|----------------------------------|-------------------|
-| `signup_completed` | Successful Supabase signup       | `user_id`         |
-
-### Portal (Authenticated)
-
-**File:** `src/pages/Portal.tsx`
-
-| Event                | Trigger                          | Key Properties                              |
-|----------------------|----------------------------------|---------------------------------------------|
-| `checkout_started`   | Upgrade button click             | `checkout_plan`, `has_referral_code`         |
-| `checkout_completed` | Return from Stripe with success  | `checkout_plan`                             |
-| _(identify)_         | Portal loads with user           | `email`, `first_name`                       |
-| _(reset)_            | Sign out                         | _(clears user)_                             |
-
----
-
-## Event Queue Mechanism
-
-PostHog is loaded via dynamic `import()` which is asynchronous. Events fired before initialization completes are queued in memory and automatically flushed once PostHog is ready.
-
-**Queue Types:**
-- `capture` — Standard event capture
-- `identify` — User identification
-- `reset` — User reset
-
-This ensures zero event loss during app startup.
-
----
-
-## Funnels to Build
-
-### Landing → Signup Funnel
-1. `page_visited` (page_name: 'home')
+1. `page_visited` (`page_name: home`)
 2. `pricing_viewed`
 3. `signup_started`
-4. `signup_completed`
 
-### Signup → Payment Funnel
-1. `signup_completed`
-2. `checkout_started`
-3. `checkout_completed`
+### Web onboarding
 
-### Full Conversion Funnel
-1. `page_visited`
-2. `pricing_viewed`
-3. `signup_started`
-4. `signup_completed`
-5. `checkout_started`
-6. `checkout_completed`
+1. `page_visited` (`page_name: auth`)
+2. `signup_started` (any source)
+3. `signup_completed`
+
+### Blog engagement
+
+1. `page_visited` (`page_name: blog` or `blog_post`)
+2. `signup_started` (break down by `signup_source`)
 
 ---
 
-## Key Metrics
+## Key metrics
 
-| Metric                    | Calculation                                    |
-|---------------------------|------------------------------------------------|
-| CTA Click-Through Rate    | `signup_started` / `page_visited`              |
-| Signup Conversion Rate    | `signup_completed` / `signup_started`           |
-| Checkout Initiation Rate  | `checkout_started` / `signup_completed`         |
-| Checkout Completion Rate  | `checkout_completed` / `checkout_started`       |
-| Pricing Visibility Rate   | `pricing_viewed` / `page_visited`              |
-| Best Performing CTA       | Group `signup_started` by `signup_source`       |
-| Plan Preference           | Group `checkout_started` by `checkout_plan`     |
-| Referral Impact           | Filter `checkout_started` by `has_referral_code` |
+| Metric | Calculation |
+|--------|-------------|
+| CTA click-through (home) | `signup_started` ÷ `page_visited` where `page_name = home` |
+| Pricing visibility | `pricing_viewed` ÷ `page_visited` where `page_name = home` |
+| Best-performing CTA | Break down `signup_started` by `signup_source` |
+| Onboarding completion | `signup_completed` count (optionally vs `page_visited` on `auth`) |
+| Blog → CTA | `signup_started` after `page_visited` with `page_name = blog_post` |
 
 ---
 
-## Privacy & PII
+## Privacy and PII
 
-### Never Captured
-- ❌ Chat messages or AI responses
-- ❌ Scan results or image contents
-- ❌ Passwords or sensitive credentials
+### Do not capture in event properties
 
-### Safe to Capture
-- ✅ User IDs (Supabase UUIDs)
-- ✅ Page paths and referrers
-- ✅ Button click sources
-- ✅ Subscription plan names
-- ✅ Timestamps
+- Chat messages or AI responses
+- Scan results or uploaded media
+- Passwords or secrets
 
-**Note:** `email` and `first_name` are passed to `identifyUser()` as user traits for PostHog user profiles. These are NOT included in event properties.
+### Acceptable in events
+
+- Page paths, URLs, referrers
+- CTA source labels
+- Supabase user UUID on `signup_completed`
+- Timestamps
+
+### Person traits (identify only)
+
+`email` and `first_name` are sent via `identifyUser()` for PostHog person profiles, not as properties on each event.
 
 ---
 
-## Best Practices
+## Adding a new event
 
-### Event Naming
-- **Convention:** `snake_case`
-- **Structure:** `noun_verb` (e.g., `signup_started`, `checkout_completed`)
+1. Add a typed `track*` function in `src/lib/analytics.ts` using `captureEvent()` and `getCommonProperties()`.
+2. Call it from the relevant client component (`'use client'` if it runs in the browser).
+3. Ensure the route is not blocked by `isAnalyticsAllowed()` if applicable.
+4. Document the event in this file.
 
-### When to Add New Events
-✅ **DO track:** User actions with clear intent, funnel milestones, meaningful errors
-❌ **DON'T track:** PII, content of user inputs, silent background operations
-
-### Adding a New Event
-1. Add a typed tracking function in `src/lib/analytics.ts`
-2. Call `captureEvent()` with `...getCommonProperties()` and event-specific properties
-3. Import and call the function at the appropriate location
-4. Document the event in this file
+**Naming:** `snake_case`, typically `noun_verb` (e.g. `signup_started`).
 
 ---
 
 ## Troubleshooting
 
-### Events Not Appearing
-1. Check that `NEXT_PUBLIC_POSTHOG_API_KEY` is set in `.env`
-2. Verify `initAnalytics()` is called in `src/main.tsx`
-3. Check browser console for `[Analytics]` log messages
-4. Ensure no ad-blocker is blocking PostHog requests
+### No events in PostHog
 
-### Duplicate Events
-1. Check for missing `useRef` guards on intersection observers
-2. Review React `useEffect` dependencies
-3. Ensure tracking functions are not called on every re-render
+1. Confirm `NEXT_PUBLIC_POSTHOG_API_KEY` is set in the environment (local `.env` / Vercel).
+2. Accept **analytics** cookies in the CookieYes banner (or use a returning session with consent already stored).
+3. Check the browser console for `[Consent]` and `[Analytics]` logs.
+4. Rule out ad blockers blocking `posthog-js` or the ingest host.
+5. Remember onboarding routes do not fire `page_visited`.
 
-### Queued Events Not Flushing
-1. Check for PostHog initialization errors in console
-2. Verify API key is valid
-3. Check network connectivity to PostHog host
+### `page_visited` missing
+
+1. Verify `PageAnalytics` is mounted under `Providers` in the root layout.
+2. Confirm consent was granted so `initAnalytics()` ran.
+3. Look for `[Analytics] page_visited deferred` then `[Analytics] page_visited event tracked` or `Flushed deferred page_visited`.
+4. Navigation must be client-side (App Router); full hard reloads still fire once on mount.
+
+### Duplicate events
+
+1. `pricing_viewed` — should only fire once per load (ref guard in `PricingSection`).
+2. `page_visited` — deduped per pathname in `PageAnalytics` via `lastTrackedRef`.
+3. React Strict Mode in development can double-invoke effects; production should not duplicate for the same navigation.
+
+### Queued events not flushing
+
+1. Check for `[Analytics] Failed to initialize PostHog` in the console.
+2. Validate API key and host.
+3. Ensure analytics consent is actually `yes` in the CookieYes cookie.

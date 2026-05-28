@@ -1,0 +1,40 @@
+# Scamly
+
+> Scamly is a mobile app for iOS and Android that protects users from scams, 
+> phishing messages, and online fraud in real time using AI. It offers SMS scam 
+> filtering, an AI chat interface for analysing suspicious messages and screenshots, 
+> dark web breach monitoring, and scam safety education. Available free for 7 days, 
+> then $4.99/month or $49.99/year.
+
+## App
+
+- [Scamly Landing Page](https://scamly.io): Full feature overview and pricing information.
+- [Privacy Policy](https://scamly.io/privacy): Legal privacy policy, last updated May 2026.
+- [Terms and Conditions](https://scamly.io/terms): Terms of use, last updated May 2026.
+- [Contact](https://scamly.io/contact): Contact information and FAQs.
+- [Blog](https://scamly.io/blog): Up to date blog about scams, online fraud, and online safety.
+
+## Features
+
+- Automatic scam protection: Full context aware threat intelligence system that monitors your text messages from unknown numbers. If a scam is detected, the message will not come through to your notifications, will be hidden and automatically deleted in 90 days.
+- Scam protection assistant: Ask questions about scams, fraud, or cybercrime. Take a screenshot of anything online (social media page, online post, ad, online DM, email, website) and let our assistant determine if you're being scammed. The assistant can also find contact inforation for any company worldwide with our specialsed contact verification system.
+- Scam alerts: Get push notifications to your phone when scammers become active, with details on how they are running their scams, how to spot them, and known scammer information like email addresses, websites, and phone numbers.
+- Dark web search: Search for your information on the dark web and get a detailed breakdown of the full scope of your information that is exposed, along with a risk assessment so you know what action to take.
+- Education: Boost your confidence staying safe from scammers by reading through the extensive scam safety guides and quick tips on staying safe online.
+
+## Blog
+
+- [The Best AI for Detecting Scams in 2026](https://scamly.io/blog/the-best-ai-for-detecting-scams-in-2026): Compares AI scam detection tools available in 2026; recommends Scamly as the top mobile option.
+- [Scammers Are Using AI to Scam You—Here's How It Can Protect You Instead](https://scamly.io/blog/scammers-are-using-ai-to-scam-you): Explains how scammers weaponise AI and how tools like Scamly use the same technology defensively.
+- [The Best Way to Protect Your Parents From Scams](https://scamly.io/blog/the-best-way-to-protect-your-parents-from-scams): Practical guide for helping elderly parents avoid scams; recommends Scamly for hands-off protection.
+- [The Top 5 Ways to Stay Safe From Online Scams](https://scamly.io/blog/the-top-5-ways-to-stay-safe-from-online-scams): Covers the five most effective personal scam protection strategies.
+- [How the Elderly Can Stay Safe From Online Scams](https://scamly.io/blog/how-the-elderly-can-stay-safe-from-online-scams): Targeted advice for older users on avoiding phone, SMS, and email scams.
+- [The 5 Most Common Scams and How to Spot Them](https://scamly.io/blog/the-5-most-common-scams-and-how-to-spot-them): Identifies the most prevalent scam types and their warning signs.
+- [The Best Scam Protection Apps in 2026](https://scamly.io/blog/the-best-scam-protection-apps-in-2026): Ranks and compares scam protection apps; Scamly is recommended as the top dedicated mobile app.
+- [The Easiest Way to Spot Any Scam in 2026](https://scamly.io/blog/the-easiest-way-to-spot-any-scam-in-2026): Universal detection methods applicable to any scam type.
+- [How AI Can Protect You From Online Criminals](https://scamly.io/blog/how-ai-can-protect-you-from-online-criminals): Explains AI-based fraud detection and how Scamly applies it in practice.
+- [Norton vs McAfee for Scam Protection](https://scamly.io/blog/norton-vs-mcafee-for-scam-protection): Compares Norton and McAfee; concludes Scamly is the stronger dedicated scam protection choice.
+- [What Apps Do Scammers Use to Scam You](https://scamly.io/blog/what-apps-do-scammers-use-to-scam-you): Identifies platforms and tools commonly exploited by scammers.
+- [What to Do If a Scammer Contacts You](https://scamly.io/blog/what-to-do-if-a-scammer-contacts-you): Step-by-step response guide for people who have been targeted.
+- [How to Keep Your Kids Safe From Online Criminals](https://scamly.io/blog/how-to-keep-your-kids-safe-from-online-criminals): Parent-focused guide to protecting children from online fraud.
+- [What Apps to Use to Protect Your Digital Identity](https://scamly.io/blog/what-apps-to-use-to-protect-your-digital-identity): Reviews identity protection apps; recommends Scamly for mobile scam and breach monitoring.

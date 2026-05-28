@@ -33,8 +33,15 @@ export async function generateMetadata({
 
   return {
     title: post.title ? `${post.title} – Scamly Blog` : "Scamly Blog",
-    description: getDescription(post.content),
+    description: post.description ?? getDescription(post.content),
     alternates: { canonical: `https://scamly.io/blog/${post.slug}` },
+    openGraph: {
+      title: post.title,
+      description: post.description ?? getDescription(post.content),
+      publishedTime: post.created_at,
+      url: `https://scamly.io/blog/${post.slug}`,
+      type: 'article',
+    },
   };
 }
 
