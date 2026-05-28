@@ -36,7 +36,7 @@ export function RecentPostsSection() {
                     {format(new Date(post.created_at), "MMMM d, yyyy")}
                   </time>
                 </div>
-                <h3 className="text-lg md:text-xl font-semibold text-foreground group-hover:text-[#5022f6] transition-colors">
+                <h3 className="text-md md:text-lg font-semibold font-sans text-foreground group-hover:text-[#5022f6] transition-colors">
                   {post.title}
                 </h3>
               </article>

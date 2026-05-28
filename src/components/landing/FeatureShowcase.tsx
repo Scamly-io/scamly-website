@@ -7,31 +7,38 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import assistant from "../../../public/features/assistant.png";
 import automaticProtection from "../../../public/features/automatic-protection.png";
 import breachSearch from "../../../public/features/breach-search.png";
+import alerts from "../../../public/features/alerts.png";
 import articles from "../../../public/features/articles.png";
 
 const features = [
   {
+    title: "Automatic Protection",
+    description:
+      "Enable our context aware intelligent SMS monitoring to protect you automatically from scammers who try to contact you. With one button, you forget that scammers even exist as our system hides their messages and deletes them automatically after 90 days.",
+    image: automaticProtection,
+  },
+  {
     title: "Scam Safety Assistant",
     description:
-      "Get tailored scam safety advice, find contact information for legitimate companies, and ask questions about scams and fraud.",
+      "Ask our AI assistant any question about scams, fraud, or cybercrime. Screenshot any message, social media post, online account, website, or marketplace listing (and much more) and our AI will instantly tell you if you're being scammed.",
     image: assistant,
   },
   {
-    title: "Automatic Protection",
+    title: "Scam Alerts",
     description:
-      "Automatically block scammers from contacting you via SMS, and customise your own protection rules to tailor your experience. Enable lockdown mode if you fear you're under a spam attack.",
-    image: automaticProtection,
+      "Stop being surprised by new scams and let us do the investigating. Get push notifications to your phone when scammers become active and launch new scams. We do the research, you get alerted, you stay safe.",
+    image: alerts,
   },
   {
     title: "Breach Search",
     description:
-      "Search the dark web for your information, and get a specific risk assessment based on if you've been compromised.",
+      "Get answers to how scammers keep contacting you by searching the dark web for your information. Get a detailed risk analysis based on what has been exposed, so you know what to do next, and where the scammers keep coming from.",
     image: breachSearch,
   },
   {
-    title: "Learning Library",
+    title: "Scam Safety Guides",
     description:
-      "Access a comprehensive library of articles, guides, and tips about scam types, prevention strategies, and online safety best practices.",
+      "Stop feeling like you can't keep up with scammers and let us take the heavy lifting. Our scam safety guides teach you everything you need to know to stay safe online, and protect yourself from losing your hard earned money to a scammer.",
     image: articles,
   },
 ];
@@ -42,8 +49,8 @@ export function FeatureShowcaseSection() {
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-2">Everything you need to</h2>
-          <div className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-[#5022f6] mb-6">
+          <h2 className="font-sans text-4xl md:text-5xl lg:text-6xl font-bold mb-2">Everything you need to</h2>
+          <div className="font-sans text-4xl md:text-5xl lg:text-6xl font-bold text-[#5022f6] mb-6">
             <TextType
               text={["stay safe online.", "protect your family.", "avoid scammers."]}
               typingSpeed={60}
