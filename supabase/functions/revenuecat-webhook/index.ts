@@ -141,38 +141,6 @@ const sendCustomerEmail = async (
 };
 
 /**
- * Derive billing period label and formatted price from a RevenueCat event.
- * @param productId 
- * @param event 
- * @returns 
- */
-function deriveBillingDetails(productId: string | null, event: Record<string, unknown>) {
-  const isYearly = productId?.includes("yearly");
-  const billingPeriod = isYearly ? "Yearly" : "Monthly";
-
-  const rawPrice = event.price ? parseFloat(String(event.price)) : null;
-  const amount = rawPrice !== null ? rawPrice.toFixed(2) : (isYearly ? "49.99" : "4.99");
-  const formattedPrice = `${amount} USD`;
-
-  return { billingPeriod, formattedPrice };
-}
-
-/**
- * Format an ISO date string to a human-readable date (e.g. "Saturday, 28 March 2026").
- * @param isoDate 
- * @returns 
- */
-function formatReadableDate(isoDate: string): string {
-  const date = new Date(isoDate);
-  return date.toLocaleDateString("en-AU", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-}
-
-/**
  * Determine the store type from the RevenueCat event's `store` field.
  * @param store 
  * @returns 
@@ -387,27 +355,6 @@ serve(async (req) => {
           logError("Failed to update profile for INITIAL_PURCHASE", { profileError, appUserId });
           captureError(profileError, { step: "initial-purchase-update", appUserId });
           throw profileError;
-        }
-
-        const { billingPeriod, formattedPrice } = deriveBillingDetails(productId, event);
-        const nextPayment = formatReadableDate(expirationDate || new Date().toISOString());
-
-        if (isTrial) {
-          await sendCustomerEmail(supabaseAdmin, {
-            type: "free_trial_created",
-            userId: appUserId,
-            price: formattedPrice,
-            billingPeriod,
-            nextPayment,
-          });
-        } else {
-          await sendCustomerEmail(supabaseAdmin, {
-            type: "subscription_created",
-            userId: appUserId,
-            price: formattedPrice,
-            billingPeriod,
-            nextPayment,
-          });
         }
 
         const price = event.price ? parseFloat(String(event.price)) : undefined;

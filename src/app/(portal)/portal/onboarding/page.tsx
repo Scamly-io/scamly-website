@@ -10,6 +10,7 @@ import { useToast } from "../../../../hooks/use-toast";
 import { User, Calendar, MapPin, Loader2 } from "lucide-react";
 import { z } from "zod";
 import { countries } from "../../../../constants/countries";
+import { SIGNUP_REASON_VALUES, signupReasonOptions } from "../../../../constants/signup-reasons";
 import logoLight from "../../../../../public/navbar-logo.png";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { CountryWhyCollected } from "../../../../components/CountryWhyCollected";
@@ -44,6 +45,9 @@ const onboardingSchema = z.object({
   country: z.string().min(1, "Country is required"),
   gender: z.string().optional(),
   referralSource: z.string().min(1, "Please select how you heard about us"),
+  signupReason: z.enum(SIGNUP_REASON_VALUES, {
+    errorMap: () => ({ message: "Please select why you're signing up" }),
+  }),
 });
 
 export default function PortalOnboardingPage() {
@@ -62,6 +66,7 @@ export default function PortalOnboardingPage() {
   const [country, setCountry] = useState("");
   const [gender, setGender] = useState("");
   const [referralSource, setReferralSource] = useState("");
+  const [signupReason, setSignupReason] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -108,8 +113,16 @@ export default function PortalOnboardingPage() {
   }, [router, searchParams]);
 
   const handleSubmit = async () => {
+    let parsed: z.infer<typeof onboardingSchema>;
     try {
-      onboardingSchema.parse({ firstName, dob: dob || undefined, country, gender: gender || undefined, referralSource });
+      parsed = onboardingSchema.parse({
+        firstName,
+        dob: dob || undefined,
+        country,
+        gender: gender || undefined,
+        referralSource,
+        signupReason,
+      });
       setErrors({});
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -129,17 +142,19 @@ export default function PortalOnboardingPage() {
     const apiDob = dob.trim() ? parseDobToApiFormat(dob) : undefined;
     if (dob.trim() && !apiDob) {
       setErrors({ dob: "Please enter a valid date in dd/mm/yyyy format" });
+      setSaving(false);
       return;
     }
 
     const browserMeta = await getBrowserMetadata();
 
     const result = await completeRegistration({
-      first_name: firstName,
-      country,
+      first_name: parsed.firstName,
+      country: parsed.country,
       ...(apiDob ? { dob: apiDob } : {}),
-      ...(gender ? { gender } : {}),
-      referral_source: referralSource,
+      ...(parsed.gender ? { gender: parsed.gender } : {}),
+      referral_source: parsed.referralSource,
+      signup_reason: parsed.signupReason,
       ...(browserMeta.ip_address ? { ip_address: browserMeta.ip_address } : {}),
       ...(browserMeta.user_agent ? { user_agent: browserMeta.user_agent } : {}),
       ...(browserMeta.fbp ? { fbp: browserMeta.fbp } : {}),
@@ -260,6 +275,17 @@ export default function PortalOnboardingPage() {
                 {genders.map((g) => (<option key={g} value={g}>{g}</option>))}
               </select>
               {errors.gender && <p className="text-sm text-destructive">{errors.gender}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="signupReason">Why are you signing up? <span className="text-destructive">*</span></Label>
+              <select id="signupReason" value={signupReason} onChange={(e) => setSignupReason(e.target.value)} className="w-full h-11 px-4 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
+                <option value="">Select an option</option>
+                {signupReasonOptions.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+              {errors.signupReason && <p className="text-sm text-destructive">{errors.signupReason}</p>}
             </div>
 
             <div className="space-y-2">

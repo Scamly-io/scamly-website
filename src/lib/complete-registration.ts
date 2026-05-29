@@ -1,3 +1,4 @@
+import type { SignupReason } from "../constants/signup-reasons";
 import { supabase } from "../integrations/supabase/client";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
@@ -39,6 +40,8 @@ export interface CompleteRegistrationPayload {
   dob?: string;
   gender?: string;
   referral_source?: string;
+  /** Stored on profile only; not sent to Meta. */
+  signup_reason?: SignupReason;
   ip_address?: string;
   user_agent?: string;
   fbp?: string;

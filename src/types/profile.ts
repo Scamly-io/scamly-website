@@ -16,6 +16,7 @@ export interface Profile {
   welcome_email_sent: boolean;
   created_at: string;
   referral_source: string | null;
+  signup_reason: string | null;
   onboarding_completed: boolean | null;
   data_sharing_consent: boolean;
   review_prompted: boolean | null;

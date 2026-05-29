@@ -110,6 +110,8 @@ type CompleteRegistrationBody = {
   dob?: unknown;
   gender?: unknown;
   referral_source?: unknown;
+  /** Stored on profiles only; not sent to Meta. */
+  signup_reason?: unknown;
   ip_address?: unknown;
   user_agent?: unknown;
   fbp?: unknown;
@@ -150,6 +152,7 @@ async function handleCompleteRegistration(
   const dobRaw = nonEmptyString(body.dob);
   const gender = nonEmptyString(body.gender);
   const referralSource = nonEmptyString(body.referral_source);
+  const signupReason = nonEmptyString(body.signup_reason);
   const ipAddress = nonEmptyString(body.ip_address);
   const userAgent = nonEmptyString(body.user_agent);
   const fbp = nonEmptyString(body.fbp);
@@ -182,6 +185,26 @@ async function handleCompleteRegistration(
   if (profileError) {
     captureError(profileError, { step: "complete-registration-profile-update", userId });
     return jsonResponse({ error: "Failed to update profile" }, 500);
+  }
+
+  // Best-effort only: optional field for an unreleased app build. Must not block signup
+  // if the column is missing, the client omits the field, or persistence fails.
+  if (signupReason) {
+    const { error: signupReasonError } = await supabaseAdmin
+      .from("profiles")
+      .update({ signup_reason: signupReason })
+      .eq("id", userId);
+
+    if (signupReasonError) {
+      logWarn("signup_reason not persisted; registration continues", {
+        userId,
+        message: signupReasonError.message,
+      });
+      captureError(signupReasonError, {
+        step: "complete-registration-signup-reason",
+        userId,
+      });
+    }
   }
 
   const email = await getUserEmail(supabaseAdmin, userId);

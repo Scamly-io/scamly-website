@@ -477,6 +477,7 @@ export type Database = {
           onboarding_completed: boolean | null
           referral_source: string | null
           review_prompted: boolean | null
+          signup_reason: string | null
           subscription_current_period_end: string | null
           subscription_id: string | null
           subscription_plan: string | null
@@ -503,6 +504,7 @@ export type Database = {
           onboarding_completed?: boolean | null
           referral_source?: string | null
           review_prompted?: boolean | null
+          signup_reason?: string | null
           subscription_current_period_end?: string | null
           subscription_id?: string | null
           subscription_plan?: string | null
@@ -529,6 +531,7 @@ export type Database = {
           onboarding_completed?: boolean | null
           referral_source?: string | null
           review_prompted?: boolean | null
+          signup_reason?: string | null
           subscription_current_period_end?: string | null
           subscription_id?: string | null
           subscription_plan?: string | null

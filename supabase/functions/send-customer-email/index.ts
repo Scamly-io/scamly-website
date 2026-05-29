@@ -47,21 +47,14 @@ if (sentryDsn) {
 }
 
 // Email types — payment_failed removed (now handled by Stripe directly)
-type EmailType = 
-  | "welcome" 
-  | "subscription_created"
-  | "free_trial_created"
-  | "manual_cancellation" 
+type EmailType =
+  | "welcome"
+  | "manual_cancellation"
   | "forced_cancellation";
 
 interface EmailRequest {
   type: EmailType;
   userId: string;
-  // Fields for subscription_created and free_trial_created
-  price?: string;
-  billingPeriod?: string;
-  nextPayment?: string;
-  // Field for manual_cancellation
   accessExpiresAt?: string;
 }
 
@@ -112,7 +105,7 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const requestData: Partial<EmailRequest> = await req.json();
-    const { type, userId, price, billingPeriod, nextPayment, accessExpiresAt } = requestData;
+    const { type, userId, accessExpiresAt } = requestData;
 
     if (!type || !userId) {
       return new Response(JSON.stringify({ error: "type and userId are required" }), {
@@ -249,56 +242,6 @@ const handler = async (req: Request): Promise<Response> => {
     let variables: Record<string, string> = {};
 
     switch (type) {
-      case "free_trial_created": {
-        if (!price || !billingPeriod || !nextPayment) {
-          captureError(new Error("Missing required fields for free_trial_created"), {
-            step: "free_trail_created",
-            userId,
-            price,
-            billingPeriod,
-            nextPayment,
-          });
-          return new Response(JSON.stringify({ error: "Missing required fields for free_trial_created" }), {
-            status: 400,
-            headers: { "Content-Type": "application/json", ...corsHeaders },
-          });
-        }
-
-        templateId = "free-trial-created";
-        variables = {
-          NAME: firstName,
-          PRICE: price,
-          BILLING_PERIOD: billingPeriod,
-          NEXT_PAYMENT: nextPayment,
-        };
-        break;
-      }
-
-      case "subscription_created": {
-        if (!price || !billingPeriod || !nextPayment) {
-          captureError(new Error("Missing required fields for subscription_created"), {
-            step: "subscription_created",
-            userId,
-            price,
-            billingPeriod,
-            nextPayment,
-          });
-          return new Response(JSON.stringify({ error: "Missing required fields for subscription_created" }), {
-            status: 400,
-            headers: { "Content-Type": "application/json", ...corsHeaders },
-          });
-        }
-
-        templateId = "subscription-created-1";
-        variables = {
-          NAME: firstName,
-          PRICE: price,
-          BILLING_PERIOD: billingPeriod,
-          NEXT_PAYMENT: nextPayment,
-        };
-        break;
-      }
-
       case "manual_cancellation": {
         let accessExpiryFormatted = "the end of your current billing period";
         if (accessExpiresAt) {
