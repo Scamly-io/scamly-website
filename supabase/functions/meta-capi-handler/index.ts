@@ -143,6 +143,19 @@ async function handleCompleteRegistration(
     return jsonResponse({ error: "first_name and country are required" }, 400);
   }
 
+  const actionSource = parseActionSource(body.action_source);
+  let appData: MetaAppDataPayload | undefined;
+
+  if (actionSource === "app") {
+    const parsed = parseAppData(body.app_data);
+    if ("error" in parsed) {
+      return jsonResponse({ error: parsed.error }, 400);
+    }
+    appData = parsed.data;
+  } else if (body.app_data !== null && body.app_data !== undefined) {
+    logWarn("Ignoring app_data for website CompleteRegistration", { userId });
+  }
+
   const profileUpdate: Record<string, unknown> = {
     first_name: firstName,
     country,
@@ -176,6 +189,7 @@ async function handleCompleteRegistration(
   if (userAgent) profileUpdate.user_agent = userAgent;
   if (fbp) profileUpdate.fbp = fbp;
   if (fbc) profileUpdate.fbc = fbc;
+  if (appData) profileUpdate.app_data = appData;
 
   const { error: profileError } = await supabaseAdmin
     .from("profiles")
@@ -222,19 +236,6 @@ async function handleCompleteRegistration(
       errorMessage,
     });
     return jsonResponse({ success: false, event_id: eventId, error: errorMessage });
-  }
-
-  const actionSource = parseActionSource(body.action_source);
-  let appData: MetaAppDataPayload | undefined;
-
-  if (actionSource === "app") {
-    const parsed = parseAppData(body.app_data);
-    if ("error" in parsed) {
-      return jsonResponse({ error: parsed.error }, 400);
-    }
-    appData = parsed.data;
-  } else if (body.app_data !== null && body.app_data !== undefined) {
-    logWarn("Ignoring app_data for website CompleteRegistration", { userId });
   }
 
   const result = await sendCompleteRegistration(supabaseAdmin, {
@@ -341,7 +342,7 @@ serve(async (req) => {
         const result = await handlePurchaseRoute(
           supabaseAdmin,
           "StartTrial",
-          "website",
+          "app",
           body,
         );
         return jsonResponse({

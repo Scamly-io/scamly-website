@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
-import type { MetaAppDataPayload } from "./app-data.ts";
+import { parseAppData, type MetaAppDataPayload } from "./app-data.ts";
 import { COUNTRY_ALIAS_TO_ISO2, normalizeCountryLookupKey } from "./country-aliases.ts";
 
 export const META_PIXEL_ID = Deno.env.get("META_PIXEL_ID") ?? "1582049792855534";
@@ -53,10 +53,10 @@ export async function getUserEmail(
 export async function getProfileDataForCapiEvent(
   supabaseAdmin: SupabaseClient,
   userId: string,
-): Promise<ProfileDataForCapiEvent | null> {
+): Promise<(ProfileDataForCapiEvent & { appDataRaw: unknown }) | null> {
   const { data: profileData, error: profileError } = await supabaseAdmin
     .from("profiles")
-    .select("ip_address, fbp, fbc, user_agent")
+    .select("ip_address, fbp, fbc, user_agent, app_data")
     .eq("id", userId)
     .maybeSingle();
 
@@ -77,7 +77,7 @@ export async function getProfileDataForCapiEvent(
   if (fbp) out.fbp = fbp;
   if (fbc) out.fbc = fbc;
   if (userAgent) out.userAgent = userAgent;
-  return out;
+  return { ...out, appDataRaw: profileData?.app_data };
 }
 
 export interface MetaCapiSendResult {
@@ -118,6 +118,49 @@ export async function persistMetaCapiEvent(
   return { error };
 }
 
+export interface MetaOriginalEventData {
+  event_name: string;
+  event_time: number;
+  event_id: string;
+}
+
+export async function getOriginalTrialEventData(
+  supabaseAdmin: SupabaseClient,
+  userId: string,
+): Promise<MetaOriginalEventData | null> {
+  const { data, error } = await supabaseAdmin
+    .from("meta_capi_events")
+    .select("event_name, event_time, event_id, created_at")
+    .eq("user_id", userId)
+    .eq("event_name", "StartTrial")
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error("[META-CAPI] StartTrial lookup failed", { userId, error });
+    return null;
+  }
+
+  if (!data) return null;
+
+  const eventId = nonEmptyString(data.event_id);
+  const eventName = nonEmptyString(data.event_name);
+  const eventTime = typeof data.event_time === "number" ? data.event_time : undefined;
+
+  if (!eventId || !eventName || eventTime === undefined) {
+    console.error("[META-CAPI] StartTrial row missing required fields", { userId, data });
+    return null;
+  }
+
+  return {
+    event_name: eventName,
+    event_time: eventTime,
+    event_id: eventId,
+  };
+}
+
 export interface PurchaseEventParams {
   eventName: "Purchase" | "StartTrial";
   eventId: string;
@@ -132,6 +175,10 @@ export interface PurchaseEventParams {
   fbp?: string;
   fbc?: string;
   clientUserAgent?: string;
+  /** Required when action_source is "app". */
+  appData?: MetaAppDataPayload;
+  /** Included on Purchase events to link back to the original StartTrial. */
+  originalEventData?: MetaOriginalEventData;
 }
 
 export async function sendPurchaseEvent(
@@ -195,6 +242,17 @@ export async function sendPurchaseEvent(
       user_data: userData,
       custom_data: customData,
     };
+
+    if (params.actionSource === "app") {
+      if (!params.appData) {
+        throw new Error(`app_data is required for app ${params.eventName} events`);
+      }
+      eventData.app_data = params.appData;
+    }
+
+    if (params.originalEventData) {
+      eventData.original_event_data = params.originalEventData;
+    }
 
     const payload = testEvent
       ? { data: [eventData], test_event_code: "TEST8296" }
@@ -372,7 +430,15 @@ export async function handlePurchaseRoute(
     };
   }
 
-  const profileData = await getProfileDataForCapiEvent(supabaseAdmin, userId);
+  const profileDataPromise = getProfileDataForCapiEvent(supabaseAdmin, userId);
+  const originalEventDataPromise = eventName === "Purchase"
+    ? getOriginalTrialEventData(supabaseAdmin, userId)
+    : Promise.resolve(null);
+
+  const [profileData, originalEventData] = await Promise.all([
+    profileDataPromise,
+    originalEventDataPromise,
+  ]);
   const value = body.value !== undefined && body.value !== null
     ? parseFloat(String(body.value))
     : undefined;
@@ -392,23 +458,46 @@ export async function handlePurchaseRoute(
     return { eventTime, metaResponse: null, errorMessage, skipped: true };
   }
 
+  let appData: MetaAppDataPayload | undefined;
+  if (actionSource === "app") {
+    const parsed = parseAppData(profileData.appDataRaw);
+    if ("error" in parsed) {
+      const eventTime = Math.floor(Date.now() / 1000);
+      const errorMessage = `Invalid or missing profile app_data for ${eventName}: ${parsed.error}`;
+      await persistMetaCapiEvent(supabaseAdmin, {
+        userId,
+        eventId,
+        eventName,
+        eventTime,
+        metaResponse: null,
+        errorMessage,
+      });
+      return { eventTime, metaResponse: null, errorMessage, skipped: true };
+    }
+    appData = parsed.data;
+  }
+
+  const { appDataRaw: _appDataRaw, ...profileFields } = profileData;
+
   return sendPurchaseEvent(supabaseAdmin, {
     eventName,
     eventId,
     actionSource,
     userId,
-    em: profileData.em,
+    em: profileFields.em,
     country,
     externalId: userId,
-    clientIpAddress: profileData.ipAddress,
+    clientIpAddress: profileFields.ipAddress,
     contents: [{
       id: plan,
       quantity: 1,
       ...(value !== undefined && !Number.isNaN(value) && { item_price: value }),
     }],
     value: value !== undefined && !Number.isNaN(value) ? value : undefined,
-    fbp: profileData.fbp,
-    fbc: profileData.fbc,
-    clientUserAgent: profileData.userAgent,
+    fbp: profileFields.fbp,
+    fbc: profileFields.fbc,
+    clientUserAgent: profileFields.userAgent,
+    appData,
+    ...(originalEventData && { originalEventData }),
   });
 }

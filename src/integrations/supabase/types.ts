@@ -310,7 +310,7 @@ export type Database = {
           event_id: string
           event_name: string
           event_time: number
-          id: string
+          id: number
           meta_response: Json | null
           user_id: string
         }
@@ -320,7 +320,7 @@ export type Database = {
           event_id: string
           event_name: string
           event_time: number
-          id?: string
+          id?: number
           meta_response?: Json | null
           user_id: string
         }
@@ -330,7 +330,7 @@ export type Database = {
           event_id?: string
           event_name?: string
           event_time?: number
-          id?: string
+          id?: number
           meta_response?: Json | null
           user_id?: string
         }
