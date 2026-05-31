@@ -17,8 +17,8 @@ This complements any client-side Meta Pixel events and improves match quality fo
 - PII sent to Meta (`em`, `country`, `external_id`, `db`) is **SHA-256 hashed** (lowercased first)
 - `event_id` is used for deduplication between Pixel and CAPI
 - App-originated events use `action_source: "app"` and require `app_data`
-- Website-originated events use `action_source: "website"`
-- Subscription renewals use `action_source: "system_generated"`
+- Website-originated events use `action_source: "website"` (CompleteRegistration from the web portal)
+- Subscription purchases and renewals use `action_source: "system_generated"`
 - Every send attempt is logged to `meta_capi_events`, including failures
 
 ---
@@ -289,7 +289,7 @@ Fired for two scenarios with different `action_source` values:
 
 | Route | Trigger | `action_source` |
 |-------|---------|-----------------|
-| `purchase` | RevenueCat `INITIAL_PURCHASE` (non-trial) | `website` |
+| `purchase` | RevenueCat `INITIAL_PURCHASE` (non-trial) | `system_generated` |
 | `renewal` | RevenueCat `RENEWAL` (trial conversion, auto-renew, billing recovery) | `system_generated` |
 
 Both routes send Meta event name **`Purchase`**.
@@ -325,7 +325,7 @@ Same body shape as StartTrial:
     "event_name": "Purchase",
     "event_id": "{revenuecat_event_id}",
     "event_time": 1710000000,
-    "action_source": "website",
+    "action_source": "system_generated",
     "user_data": { "...": "same shape as StartTrial" },
     "custom_data": { "...": "same shape as StartTrial" },
     "original_event_data": {
@@ -446,7 +446,7 @@ RevenueCat INITIAL_PURCHASE (non-trial)
   → revenuecat-webhook
   → meta-capi-handler/purchase
   → Load profile (no app_data needed)
-  → Send Purchase to Meta (action_source: website)
+  → Send Purchase to Meta (action_source: system_generated)
   → original_event_data omitted if no StartTrial exists
 ```
 
@@ -499,7 +499,7 @@ Edge function logs are prefixed with `[META-CAPI-HANDLER]` or `[META-CAPI]`. Che
 | CompleteRegistration | `complete-registration` (website) | `website` | No | No |
 | CompleteRegistration | `complete-registration` (app) | `app` | Yes (request body) | No |
 | StartTrial | `trial-start` | `app` | Yes (from profile) | No |
-| Purchase | `purchase` | `website` | No | Yes (if StartTrial exists) |
+| Purchase | `purchase` | `system_generated` | No | Yes (if StartTrial exists) |
 | Purchase | `renewal` | `system_generated` | No | Yes (if StartTrial exists) |
 | Purchase (test) | `test-purchase` | `website` | No | No |
 

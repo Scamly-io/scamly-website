@@ -355,7 +355,7 @@ serve(async (req) => {
         const result = await handlePurchaseRoute(
           supabaseAdmin,
           "Purchase",
-          "website",
+          "system_generated",
           body,
         );
         return jsonResponse({
