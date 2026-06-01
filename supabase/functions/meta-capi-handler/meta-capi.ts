@@ -255,7 +255,7 @@ export async function sendPurchaseEvent(
     }
 
     const payload = testEvent
-      ? { data: [eventData], test_event_code: "TEST8296" }
+      ? { data: [eventData], test_event_code: "TEST43892" }
       : { data: [eventData] };
 
     const url =
