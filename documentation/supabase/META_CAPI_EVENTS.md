@@ -246,11 +246,13 @@ Content-Type: application/json
 | `event_id` | Yes | RevenueCat event `id` (deduplication key) |
 | `country` | Yes | RevenueCat `country_code` |
 | `plan` | No | Defaults to `"premium-monthly"`; maps to `custom_data.contents[0].id` |
-| `value` | No | Price; sets `custom_data.value` and `currency: "USD"` |
+| `value` | No | RevenueCat price; when present, sets `custom_data.contents[0].item_price` only (does **not** affect `custom_data.value`) |
 
 **Profile data loaded automatically:** email, `ip_address`, `fbp`, `fbc`, `user_agent`, `app_data`.
 
 #### Meta payload structure
+
+`custom_data.value` and `custom_data.predicted_ltv` are **hardcoded to `2.25`** for all StartTrial events (`START_TRIAL_CUSTOM_VALUE` in `meta-capi.ts`). They are not derived from the webhook `value` field.
 
 ```json
 {
@@ -271,13 +273,16 @@ Content-Type: application/json
     "custom_data": {
       "contents": [{ "id": "premium-monthly", "quantity": 1, "item_price": 4.99 }],
       "content_type": "product",
-      "value": 4.99,
+      "value": 2.25,
+      "predicted_ltv": 2.25,
       "currency": "USD"
     },
     "app_data": { "...": "from profiles.app_data" }
   }]
 }
 ```
+
+In the example above, `item_price` reflects the optional webhook `value` (e.g. RevenueCat price). `value` and `predicted_ltv` are always `2.25` regardless.
 
 `app_data` is **required**. It must have been saved during app complete registration. If missing or invalid, the event is skipped and an error is logged to `meta_capi_events`.
 
@@ -311,7 +316,7 @@ Same body shape as StartTrial:
 | `event_id` | Yes | RevenueCat event `id` |
 | `country` | Yes | RevenueCat `country_code` |
 | `plan` | No | Defaults to `"premium-monthly"` |
-| `value` | No | Transaction price |
+| `value` | No | Transaction price; sets `custom_data.value`, `custom_data.contents[0].item_price`, and `currency: "USD"` when present |
 
 **Profile data loaded automatically:** email, `ip_address`, `fbp`, `fbc`, `user_agent`.
 
@@ -327,7 +332,12 @@ Same body shape as StartTrial:
     "event_time": 1710000000,
     "action_source": "system_generated",
     "user_data": { "...": "same shape as StartTrial" },
-    "custom_data": { "...": "same shape as StartTrial" },
+    "custom_data": {
+      "contents": [{ "id": "premium-monthly", "quantity": 1, "item_price": 4.99 }],
+      "content_type": "product",
+      "value": 4.99,
+      "currency": "USD"
+    },
     "original_event_data": {
       "event_name": "StartTrial",
       "event_time": 1709900000,

@@ -4,6 +4,7 @@ import { COUNTRY_ALIAS_TO_ISO2, normalizeCountryLookupKey } from "./country-alia
 
 export const META_PIXEL_ID = Deno.env.get("META_PIXEL_ID") ?? "1582049792855534";
 export const META_API_VERSION = Deno.env.get("META_API_VERSION") ?? "v25.0";
+export const START_TRIAL_CUSTOM_VALUE = 2.25;
 
 export type MetaEventName = "Purchase" | "StartTrial" | "CompleteRegistration";
 export type MetaActionSource = "app" | "system_generated" | "website";
@@ -229,7 +230,11 @@ export async function sendPurchaseEvent(
       contents: params.contents,
       content_type: "product",
     };
-    if (params.value !== undefined) {
+    if (params.eventName === "StartTrial") {
+      customData.value = START_TRIAL_CUSTOM_VALUE;
+      customData.predicted_ltv = START_TRIAL_CUSTOM_VALUE;
+      customData.currency = "USD";
+    } else if (params.value !== undefined) {
       customData.value = params.value;
       customData.currency = "USD";
     }
