@@ -1,73 +1,82 @@
-# Welcome to your Lovable project
+# Scamly Website
 
-## Project info
+Marketing site and web app for [Scamly](https://scamly.io) — scam protection for consumers. Includes the public landing experience, blog, legal pages, authentication, and a lightweight customer portal for onboarding.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Tech stack
 
-## How can I edit this code?
+- **Framework:** [Next.js](https://nextjs.org/) (App Router)
+- **UI:** React, TypeScript, Tailwind CSS, [shadcn/ui](https://ui.shadcn.com/)
+- **Backend / auth:** [Supabase](https://supabase.com/) (client, SSR helpers, Edge Functions)
+- **Observability:** Sentry, PostHog, Vercel Analytics & Speed Insights
 
-There are several ways of editing your application.
+## Prerequisites
 
-**Use Lovable**
+- Node.js 20+ (Node 24 is the Vercel default if you deploy there)
+- npm (or your preferred package manager)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+## Getting started
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+git clone <repository-url>
+cd scamly-website
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The dev server runs at [http://localhost:3000](http://localhost:3000).
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Environment variables
 
-**Use GitHub Codespaces**
+Create a `.env.local` in the project root (values come from your Supabase project and observability dashboards):
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+| Variable | Purpose |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase anon / publishable key |
+| `NEXT_PUBLIC_POSTHOG_API_KEY` | PostHog project API key (optional locally) |
+| `NEXT_PUBLIC_POSTHOG_HOST` | PostHog ingest host (defaults to `https://us.i.posthog.com`) |
+| `NEXT_PUBLIC_SENTRY_DSN` | Sentry browser DSN (optional locally) |
 
-## What technologies are used for this project?
+Server-side secrets for Edge Functions live in the Supabase project, not in this repo.
 
-This project is built with:
+## Scripts
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start the Next.js dev server |
+| `npm run build` | Production build |
+| `npm run start` | Run the production server locally |
+| `npm run lint` | Run ESLint |
 
-## How can I deploy this project?
+## Project layout
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+```
+src/
+  app/              # Routes (marketing, auth, portal)
+  components/       # UI and page sections
+  contexts/         # React context (e.g. auth, theme)
+  hooks/            # Shared hooks
+  integrations/     # Supabase client and generated types
+  lib/              # Utilities (analytics, consent, Sentry, etc.)
+  constants/        # Static content (blog posts, countries, etc.)
+supabase/
+  functions/        # Supabase Edge Functions (AI, webhooks, email, etc.)
+```
 
-## Can I connect a custom domain to my Lovable project?
+Route groups under `src/app/`:
 
-Yes, you can!
+- `(base)` — Marketing pages: home, blog, contact, privacy, terms
+- `(auth)` — Sign-in, email verification, password reset
+- `(portal)` — Logged-in onboarding flows
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Supabase Edge Functions
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Backend logic that does not belong in the browser lives under `supabase/functions/`. Deploy and manage these with the [Supabase CLI](https://supabase.com/docs/guides/cli) against your linked project.
+
+## Deployment
+
+This app is intended to run on [Vercel](https://vercel.com/) (or any host that supports Next.js). Set the environment variables above in the project settings, connect the Git repository, and use the default Next.js build settings (`npm run build`, output handled by Next.js).
+
+## License
+
+Proprietary — Scamly Pty Ltd.
