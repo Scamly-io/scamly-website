@@ -38,6 +38,14 @@ export default function HomePage() {
             <Link href="/contact">Contact Us</Link>
           </Button>
         </div>
+        <div className="mt-5 flex items-center justify-center gap-4 text-sm text-muted-foreground">
+          <Link href="/terms" className="hover:text-foreground hover:underline">
+            Terms &amp; Conditions
+          </Link>
+          <Link href="/privacy" className="hover:text-foreground hover:underline">
+            Privacy Policy
+          </Link>
+        </div>
       </div>
     </div>
   );
