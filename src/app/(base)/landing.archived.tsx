@@ -1,0 +1,26 @@
+/**
+ * ARCHIVED original landing page — preserved for eventual archival.
+ * Restore by swapping this back into `src/app/(base)/page.tsx`.
+ *
+ * import { HomeAnnouncementStack } from "../../components/HomeAnnouncementStack";
+ * import { FeatureShowcaseSection } from "../../components/landing/FeatureShowcase";
+ * import { GlobalCoverageSection } from "../../components/landing/GlobalCoverageSection";
+ * import { AboutSection } from "../../components/landing/AboutSection";
+ * import { RecentPostsSection } from "../../components/landing/RecentPostsSection";
+ * import { CTASection } from "../../components/landing/CTASection";
+ *
+ * export default function HomePage() {
+ *   return (
+ *     <div className="pt-[calc(1rem+3.5rem+0.75rem)]">
+ *       <HomeAnnouncementStack />
+ *       <FeatureShowcaseSection />
+ *       <GlobalCoverageSection />
+ *       <AboutSection />
+ *       <RecentPostsSection />
+ *       <CTASection />
+ *     </div>
+ *   );
+ * }
+ */
+
+export {};

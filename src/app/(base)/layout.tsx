@@ -1,6 +1,9 @@
 import { Navbar } from "../../components/Navbar";
-import { Footer } from "../../components/Footer";
 import { GradientBackground } from "../../components/GradientBackground";
+
+/* ARCHIVED: footer removed during sunset
+import { Footer } from "../../components/Footer";
+*/
 
 export default function BaseLayout({
   children,
@@ -14,7 +17,7 @@ export default function BaseLayout({
         <div className="min-h-screen">
           <Navbar />
           <main>{children}</main>
-          <Footer />
+          {/* ARCHIVED: <Footer /> */}
         </div>
       </div>
     </div>

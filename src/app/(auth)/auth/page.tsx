@@ -20,19 +20,26 @@ const signInSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
+/* ARCHIVED: account creation disabled during sunset
 const signUpSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
+*/
 
 export default function AuthPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { user, signIn, signUp, resetPassword } = useAuth();
+  // ARCHIVED: signUp removed from destructuring during sunset
+  const { user, signIn, resetPassword } = useAuth();
 
   const { toast } = useToast();
 
+  // Account creation disabled — signup mode archived; only signin / forgot
+  const [mode, setMode] = useState<"signin" | "forgot">("signin");
+  /* ARCHIVED: signup mode
   const [mode, setMode] = useState<"signin" | "signup" | "forgot">(searchParams.get("mode") === "signup" ? "signup" : "signin");
+  */
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [forgotEmailSent, setForgotEmailSent] = useState(false);
@@ -53,17 +60,22 @@ export default function AuthPage() {
     }
   }, [user, router, referralCodeFromUrl]);
 
+  /* ARCHIVED: signup mode from URL
   useEffect(() => {
     setMode(searchParams.get("mode") === "signup" ? "signup" : "signin");
   }, [searchParams]);
+  */
 
   const validateCredentials = () => {
     try {
+      signInSchema.parse({ email, password });
+      /* ARCHIVED: signup validation
       if (mode === "signin") {
         signInSchema.parse({ email, password });
       } else {
         signUpSchema.parse({ email, password });
       }
+      */
       setErrors({});
       return true;
     } catch (err) {
@@ -109,6 +121,7 @@ export default function AuthPage() {
     }
   };
 
+  /* ARCHIVED: account creation disabled during sunset
   const handleSignUp = async () => {
     if (!validateCredentials()) return;
 
@@ -139,6 +152,7 @@ export default function AuthPage() {
       router.push("/check-email");
     }
   };
+  */
 
   const handleForgotPassword = async () => {
     try {
@@ -177,9 +191,12 @@ export default function AuthPage() {
   const handleSubmit = () => {
     if (mode === "signin") {
       handleSignIn();
-    } else if (mode === "signup") {
+    }
+    /* ARCHIVED: signup submit
+    else if (mode === "signup") {
       handleSignUp();
     }
+    */
   };
 
   return (
@@ -229,11 +246,22 @@ export default function AuthPage() {
               <h2 className="font-sans text-2xl font-bold mb-2">
                 {mode === "signin"
                   ? "Welcome back"
+                  : forgotEmailSent ? "Check your email" : "Forgot password?"}
+                {/* ARCHIVED: signup heading
+                {mode === "signin"
+                  ? "Welcome back"
                   : mode === "forgot"
                     ? forgotEmailSent ? "Check your email" : "Forgot password?"
                     : "Create your account"}
+                */}
               </h2>
               <p className="text-muted-foreground">
+                {mode === "signin"
+                  ? "Sign in to access your account"
+                  : forgotEmailSent
+                    ? "We've sent a password reset link to your email"
+                    : "Enter your email and we'll send you a reset link"}
+                {/* ARCHIVED: signup subtitle
                 {mode === "signin"
                   ? "Sign in to access your account"
                   : mode === "forgot"
@@ -241,6 +269,7 @@ export default function AuthPage() {
                       ? "We've sent a password reset link to your email"
                       : "Enter your email and we'll send you a reset link"
                     : "Start your journey to scam-free living"}
+                */}
               </p>
             </div>
 
@@ -282,7 +311,7 @@ export default function AuthPage() {
                 </>
               )}
 
-              {(mode === "signin" || mode === "signup") && (
+              {mode === "signin" && (
                 <>
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
@@ -295,15 +324,13 @@ export default function AuthPage() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="password">Password</Label>
-                      {mode === "signin" && (
-                        <button type="button" onClick={() => setMode("forgot")} className="text-sm text-primary hover:underline">
-                          Forgot password?
-                        </button>
-                      )}
+                      <button type="button" onClick={() => setMode("forgot")} className="text-sm text-primary hover:underline">
+                        Forgot password?
+                      </button>
                     </div>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                      <Input id="password" type={showPassword ? "text" : "password"} placeholder={mode === "signin" ? "••••••••" : "Min 8 characters"} value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10 pr-10" />
+                      <Input id="password" type={showPassword ? "text" : "password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10 pr-10" />
                       <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
@@ -312,12 +339,14 @@ export default function AuthPage() {
                   </div>
                 </>
               )}
+              {/* ARCHIVED: signup form fields used (mode === "signin" || mode === "signup") */}
 
               {mode !== "forgot" && (
                 <>
                   <Button variant="default" size="lg" className="w-full mt-6" onClick={handleSubmit} disabled={loading}>
                     {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                    {mode === "signin" ? "Sign In" : "Create Account"}
+                    Sign In
+                    {/* ARCHIVED: {mode === "signin" ? "Sign In" : "Create Account"} */}
                   </Button>
 
                   <div className="relative my-4">
@@ -342,6 +371,7 @@ export default function AuthPage() {
               )}
             </form>
 
+            {/* ARCHIVED: signup terms + mode toggle
             {mode === "signup" && (
               <p className="text-center text-xs text-muted-foreground mt-4">
                 By creating an account, you agree to our{" "}
@@ -366,6 +396,7 @@ export default function AuthPage() {
                 )}
               </p>
             )}
+            */}
           </div>
         </div>
       </div>
